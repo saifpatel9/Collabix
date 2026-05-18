@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Django
+backend/staticfiles/
+backend/media/
+!backend/media/uploads/.gitkeep
+
+# Environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# IDE
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Coverage
+.coverage
+htmlcov/
+
+# Docker
+mysql-data/
+redis-data/
