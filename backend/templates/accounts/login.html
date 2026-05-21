@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Login | {{ APP_NAME }}{% endblock title %}
+
+{% block body %}
+<main class="grid min-h-screen place-items-center bg-grid px-4 py-10">
+    <section class="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-600">Collabix</p>
+        <h1 class="mt-2 text-3xl font-extrabold">Sign in</h1>
+        <form method="post" class="mt-8 space-y-5">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div>
+                <label class="text-sm font-semibold" for="{{ form.username.id_for_label }}">Email</label>
+                <div class="mt-2">{{ form.username }}</div>
+            </div>
+            <div>
+                <label class="text-sm font-semibold" for="{{ form.password.id_for_label }}">Password</label>
+                <div class="mt-2">{{ form.password }}</div>
+            </div>
+            <button class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-bold text-white dark:bg-cyan-500 dark:text-slate-950">Login</button>
+        </form>
+        <a href="{% url 'accounts:password_reset' %}" class="mt-5 block text-center text-sm font-semibold text-cyan-700">Forgot password?</a>
+    </section>
+</main>
+{% endblock body %}

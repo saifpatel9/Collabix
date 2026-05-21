@@ -1,17 +1,44 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+from apps.accounts.models import User
+from apps.employees.models import Department, EmployeeProfile
 
 
-def dashboard_home(request):
+def landing_home(request):
     return render(request, "landing/index.html")
+
+
+@login_required
+def dashboard_home(request):
+    context = get_dashboard_context()
+    template_name = (
+        "dashboard/partials/widgets.html"
+        if request.headers.get("HX-Request") == "true"
+        else "dashboard/home.html"
+    )
+    return render(request, template_name, context)
+
+
+def get_dashboard_context():
+    return {
+        "total_employees": EmployeeProfile.objects.count(),
+        "active_employees": EmployeeProfile.objects.filter(
+            employment_status=EmployeeProfile.EmploymentStatus.ACTIVE
+        ).count(),
+        "total_departments": Department.objects.count(),
+        "managers_count": User.objects.filter(
+            role=User.Role.MANAGER, is_active=True
+        ).count(),
+    }
 
 
 def contact(request):
     if request.method != "POST":
         return HttpResponse(status=405)
 
-    return HttpResponse(
-        """
+    return HttpResponse("""
         <div style="
           display: flex; align-items: center; gap: 10px;
           background: rgba(16,185,129,0.12);
@@ -22,5 +49,4 @@ def contact(request):
         ">
           Message sent successfully!
         </div>
-        """
-    )
+        """)

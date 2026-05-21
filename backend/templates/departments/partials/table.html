@@ -1,0 +1,32 @@
+<div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+        <thead class="bg-slate-50 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-950">
+            <tr>
+                <th class="px-5 py-4">Name</th>
+                <th class="px-5 py-4">Head</th>
+                <th class="px-5 py-4">Status</th>
+                <th class="px-5 py-4">Updated</th>
+                <th class="px-5 py-4 text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            {% for department in departments %}
+                <tr>
+                    <td class="px-5 py-4 font-semibold">{{ department.name }}</td>
+                    <td class="px-5 py-4">{{ department.head.full_name|default:"Unassigned" }}</td>
+                    <td class="px-5 py-4">{{ department.is_active|yesno:"Active,Inactive" }}</td>
+                    <td class="px-5 py-4">{{ department.updated_at|date:"M d, Y" }}</td>
+                    <td class="px-5 py-4 text-right">
+                        <a href="{% url 'employees:department_detail' department.pk %}" class="font-semibold text-cyan-700">View</a>
+                        {% if request.user.role == "admin" or request.user.is_superuser %}
+                            <a href="{% url 'employees:department_update' department.pk %}" class="ml-3 font-semibold text-slate-700 dark:text-slate-200">Edit</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="px-5 py-10 text-center text-slate-500">No departments found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include "components/pagination.html" with target="#table-region" %}

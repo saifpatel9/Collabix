@@ -1,0 +1,6 @@
+<div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+    {% include "components/dashboard_card.html" with label="Total Employees" value=total_employees caption="All employee profiles" %}
+    {% include "components/dashboard_card.html" with label="Active Employees" value=active_employees caption="Currently active team members" %}
+    {% include "components/dashboard_card.html" with label="Total Departments" value=total_departments caption="Organizational units" %}
+    {% include "components/dashboard_card.html" with label="Managers Count" value=managers_count caption="Active manager accounts" %}
+</div>

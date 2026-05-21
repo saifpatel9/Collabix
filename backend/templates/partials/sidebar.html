@@ -13,12 +13,14 @@
     </div>
 
     <nav class="mt-10 space-y-2">
-        <a href="#" class="nav-item nav-item-active">Dashboard</a>
+        <a href="{% url 'dashboard:home' %}" class="nav-item">Dashboard</a>
         <a href="#" class="nav-item">Projects</a>
         <a href="#" class="nav-item">Tasks</a>
-        <a href="#" class="nav-item">Employees</a>
+        <a href="{% url 'employees:employee_list' %}" class="nav-item">Employees</a>
+        <a href="{% url 'employees:department_list' %}" class="nav-item">Departments</a>
         <a href="#" class="nav-item">Attendance</a>
         <a href="#" class="nav-item">Notifications</a>
+        <a href="{% url 'accounts:profile' %}" class="nav-item">My Profile</a>
     </nav>
 
     <div class="mt-10 rounded-3xl bg-slate-900 p-5 text-slate-100 dark:bg-slate-800">

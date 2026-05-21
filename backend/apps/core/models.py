@@ -10,3 +10,16 @@ class TimeStampedUUIDModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class BaseModel(TimeStampedUUIDModel):
+    class Meta:
+        abstract = True
+
+
+class SoftDeleteModel(BaseModel):
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        abstract = True

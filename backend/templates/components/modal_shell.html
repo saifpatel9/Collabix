@@ -1,0 +1,9 @@
+<div class="fixed inset-0 z-50 grid place-items-center bg-slate-950/60 p-4" x-data="{ open: true }" x-show="open">
+    <div class="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900">
+        <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-xl font-bold">{{ modal_title }}</h2>
+            <button type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-sm" x-on:click="open = false">Close</button>
+        </div>
+        {{ modal_body }}
+    </div>
+</div>

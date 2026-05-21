@@ -1,0 +1,37 @@
+<div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+        <thead class="bg-slate-50 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-950">
+            <tr>
+                <th class="px-5 py-4">Employee</th>
+                <th class="px-5 py-4">Employee ID</th>
+                <th class="px-5 py-4">Department</th>
+                <th class="px-5 py-4">Manager</th>
+                <th class="px-5 py-4">Status</th>
+                <th class="px-5 py-4 text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            {% for employee in employees %}
+                <tr>
+                    <td class="px-5 py-4">
+                        <p class="font-semibold">{{ employee.user.full_name }}</p>
+                        <p class="text-xs text-slate-500">{{ employee.user.email }}</p>
+                    </td>
+                    <td class="px-5 py-4">{{ employee.employee_id }}</td>
+                    <td class="px-5 py-4">{{ employee.department.name|default:"Unassigned" }}</td>
+                    <td class="px-5 py-4">{{ employee.manager.user.full_name|default:"Unassigned" }}</td>
+                    <td class="px-5 py-4">{{ employee.get_employment_status_display }}</td>
+                    <td class="px-5 py-4 text-right">
+                        <a href="{% url 'employees:employee_detail' employee.pk %}" class="font-semibold text-cyan-700">View</a>
+                        {% if request.user.role == "admin" or request.user.is_superuser %}
+                            <a href="{% url 'employees:employee_update' employee.pk %}" class="ml-3 font-semibold text-slate-700 dark:text-slate-200">Edit</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="px-5 py-10 text-center text-slate-500">No employees found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include "components/pagination.html" with target="#table-region" %}

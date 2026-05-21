@@ -1,0 +1,20 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title %}Departments | {{ APP_NAME }}{% endblock title %}
+
+{% block content %}
+{% url 'employees:department_create' as create_url %}
+{% if request.user.role == "admin" or request.user.is_superuser %}
+    {% include "components/page_header.html" with eyebrow="Organization" title="Departments" subtitle="Manage organizational units and department heads." action_url=create_url action_label="Add Department" %}
+{% else %}
+    {% include "components/page_header.html" with eyebrow="Organization" title="Departments" subtitle="Browse organizational units and department heads." %}
+{% endif %}
+
+<form class="mb-5" hx-get="{% url 'employees:department_list' %}" hx-target="#table-region" hx-push-url="true">
+    <input name="q" value="{{ search_query }}" placeholder="Search departments" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+</form>
+
+<section id="table-region">
+    {% include "departments/partials/table.html" %}
+</section>
+{% endblock content %}
