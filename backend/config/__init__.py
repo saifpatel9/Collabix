@@ -1,0 +1,1 @@
+"""Collabix Django project package."""

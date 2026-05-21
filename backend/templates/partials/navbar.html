@@ -1,0 +1,27 @@
+<header class="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+    <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-3">
+            <button class="rounded-2xl border border-slate-200 px-3 py-2 lg:hidden dark:border-slate-700" x-on:click="sidebarOpen = true">
+                Menu
+            </button>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Internal workflow management</p>
+                <h2 class="text-xl font-bold">Operations Dashboard</h2>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button class="rounded-2xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700" x-on:click="darkMode = !darkMode">
+                Theme
+            </button>
+            <button
+                class="rounded-2xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700"
+                hx-get="/api/v1/core/health/"
+                hx-trigger="click"
+                hx-swap="none"
+            >
+                Ping API
+            </button>
+        </div>
+    </div>
+</header>

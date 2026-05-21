@@ -1,0 +1,911 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" x-data="{ darkMode: true }" :class="darkMode ? 'dark' : 'light'">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Collabix — Internal Collaboration & Workflow Management Platform" />
+  <title>Collabix | Enterprise Collaboration Platform</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+echo "<!-- test -->"
+<body x-data="collabixApp()" @scroll.window="handleScroll()">
+
+  <!-- ========== LOADING SCREEN ========== -->
+  <div id="loader" class="loader" x-show="loading" x-transition:leave="fade-out">
+    <div class="loader-inner">
+      <div class="loader-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect x="4" y="4" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.9"/>
+          <rect x="26" y="4" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.5"/>
+          <rect x="4" y="26" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.5"/>
+          <rect x="26" y="26" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.9"/>
+        </svg>
+        <span>Collabix</span>
+      </div>
+      <div class="loader-bar"><div class="loader-progress"></div></div>
+    </div>
+  </div>
+
+  <!-- ========== NAVBAR ========== -->
+  <header class="navbar" :class="{ 'scrolled': scrolled }" x-data="{ mobileOpen: false }">
+    <div class="container navbar-inner">
+
+      <!-- Logo -->
+      <a href="#" class="logo" aria-label="Collabix Home">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <rect x="4" y="4" width="18" height="18" rx="4" fill="var(--accent)"/>
+          <rect x="26" y="4" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.55"/>
+          <rect x="4" y="26" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.55"/>
+          <rect x="26" y="26" width="18" height="18" rx="4" fill="var(--accent)"/>
+        </svg>
+        <span class="logo-text">Collabix</span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="nav-links" role="navigation" aria-label="Primary">
+        <a href="#about" class="nav-link">About</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#departments" class="nav-link">Departments</a>
+        <a href="#workflow" class="nav-link">Workflow</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+
+      <!-- Right Controls -->
+      <div class="nav-actions">
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" @click="darkMode = !darkMode" :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+          <span x-show="darkMode" aria-hidden="true">☀</span>
+          <span x-show="!darkMode" aria-hidden="true">☾</span>
+        </button>
+        <a href="#login" class="btn btn-primary btn-sm">Employee Login</a>
+        <!-- Mobile Toggle -->
+        <button class="hamburger" @click="mobileOpen = !mobileOpen" :aria-expanded="mobileOpen" aria-label="Toggle navigation">
+          <span :class="mobileOpen ? 'open' : ''"></span>
+          <span :class="mobileOpen ? 'open' : ''"></span>
+          <span :class="mobileOpen ? 'open' : ''"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" x-show="mobileOpen" x-transition:enter="slide-down" x-transition:leave="slide-up" @click.away="mobileOpen = false">
+      <nav class="mobile-nav" role="navigation" aria-label="Mobile">
+        <a href="#about" class="mobile-link" @click="mobileOpen = false">About</a>
+        <a href="#features" class="mobile-link" @click="mobileOpen = false">Features</a>
+        <a href="#departments" class="mobile-link" @click="mobileOpen = false">Departments</a>
+        <a href="#workflow" class="mobile-link" @click="mobileOpen = false">Workflow</a>
+        <a href="#contact" class="mobile-link" @click="mobileOpen = false">Contact</a>
+        <a href="#login" class="btn btn-primary" @click="mobileOpen = false">Employee Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section class="hero" id="home" aria-labelledby="hero-heading">
+      <!-- Animated Background -->
+      <div class="hero-bg" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="grid-overlay"></div>
+      </div>
+
+      <div class="container hero-content">
+        <div class="hero-text reveal">
+          <div class="hero-badge">
+            <span class="badge-dot"></span>
+            Enterprise Collaboration Platform
+          </div>
+          <h1 id="hero-heading" class="hero-heading">
+            Empowering Teams<br/>
+            <span class="gradient-text">Through Seamless</span><br/>
+            Collaboration
+          </h1>
+          <p class="hero-sub">
+            Collabix unifies your organization's workflows, communication, and project management into a single, intelligent platform — built for the way your teams actually work.
+          </p>
+          <div class="hero-ctas">
+            <a href="#features" class="btn btn-primary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Explore Platform
+            </a>
+            <a href="#workflow" class="btn btn-ghost btn-lg">
+              How It Works
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <strong>500+</strong><span>Employees</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="hero-stat">
+              <strong>120+</strong><span>Active Projects</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="hero-stat">
+              <strong>98%</strong><span>Satisfaction</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Mockup -->
+        <div class="hero-visual reveal reveal-delay-2" aria-label="Collabix Dashboard Preview">
+          <div class="dashboard-mockup">
+            <div class="mockup-bar">
+              <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+              <span class="mockup-title">Collabix Workspace</span>
+            </div>
+            <div class="mockup-body">
+              <!-- Sidebar -->
+              <div class="mockup-sidebar">
+                <div class="sidebar-item active">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                  Dashboard
+                </div>
+                <div class="sidebar-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                  Teams
+                </div>
+                <div class="sidebar-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  Tasks
+                </div>
+                <div class="sidebar-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  Messages
+                </div>
+                <div class="sidebar-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  Files
+                </div>
+              </div>
+              <!-- Main Panel -->
+              <div class="mockup-main">
+                <div class="mockup-cards">
+                  <div class="m-card">
+                    <div class="m-card-label">Active Projects</div>
+                    <div class="m-card-value">24</div>
+                    <div class="m-card-bar"><div style="width:72%"></div></div>
+                  </div>
+                  <div class="m-card accent">
+                    <div class="m-card-label">Tasks Today</div>
+                    <div class="m-card-value">47</div>
+                    <div class="m-card-bar"><div style="width:55%"></div></div>
+                  </div>
+                  <div class="m-card">
+                    <div class="m-card-label">Team Members</div>
+                    <div class="m-card-value">138</div>
+                    <div class="m-card-bar"><div style="width:88%"></div></div>
+                  </div>
+                </div>
+                <div class="mockup-activity">
+                  <div class="activity-header">Recent Activity</div>
+                  <div class="activity-item"><span class="activity-dot blue"></span><span>Q4 Report assigned to Finance</span></div>
+                  <div class="activity-item"><span class="activity-dot green"></span><span>Sprint 12 completed ✓</span></div>
+                  <div class="activity-item"><span class="activity-dot amber"></span><span>HR onboarding update pending</span></div>
+                  <div class="activity-item"><span class="activity-dot blue"></span><span>Dev team standup at 10:00 AM</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ABOUT SECTION ========== -->
+    <section class="about section" id="about" aria-labelledby="about-heading">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-text reveal">
+            <div class="section-badge">About the Platform</div>
+            <h2 id="about-heading" class="section-heading">One Platform.<br/><span class="gradient-text">Every Team.</span></h2>
+            <p class="section-body">
+              Collabix is your organization's central nervous system — a purpose-built internal platform that eliminates communication silos, streamlines project execution, and gives leadership real-time visibility into every team's progress.
+            </p>
+            <p class="section-body">
+              Designed exclusively for our organization, Collabix integrates task management, team communication, document sharing, and departmental coordination into a cohesive, secure workspace that everyone from the C-suite to frontline employees can rely on.
+            </p>
+            <div class="about-pillars">
+              <div class="pillar">
+                <div class="pillar-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                  <strong>Real-time Sync</strong>
+                  <p>Changes propagate instantly across all teams</p>
+                </div>
+              </div>
+              <div class="pillar">
+                <div class="pillar-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div>
+                  <strong>Enterprise Security</strong>
+                  <p>Role-based access with full audit trails</p>
+                </div>
+              </div>
+              <div class="pillar">
+                <div class="pillar-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </div>
+                <div>
+                  <strong>Actionable Analytics</strong>
+                  <p>Productivity metrics and workflow insights</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="about-visual reveal reveal-delay-1">
+            <div class="about-cards-stack">
+              <div class="stack-card stack-card-1">
+                <div class="sc-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                  <div class="sc-title">Cross-team Visibility</div>
+                  <div class="sc-desc">See what every department is working on</div>
+                </div>
+              </div>
+              <div class="stack-card stack-card-2">
+                <div class="sc-icon accent">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <div>
+                  <div class="sc-title">Workflow Automation</div>
+                  <div class="sc-desc">Automate recurring tasks and approvals</div>
+                </div>
+              </div>
+              <div class="stack-card stack-card-3">
+                <div class="sc-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div>
+                  <div class="sc-title">Unified Communication</div>
+                  <div class="sc-desc">Channels, direct messages, and announcements</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FEATURES SECTION ========== -->
+    <section class="features section" id="features" aria-labelledby="features-heading">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-badge">Platform Features</div>
+          <h2 id="features-heading" class="section-heading centered">Everything Your Organization Needs</h2>
+          <p class="section-sub centered">From task assignment to document sharing — every essential tool, integrated in one place.</p>
+        </div>
+        <div class="features-grid">
+
+          <article class="feature-card reveal" tabindex="0" aria-label="Team Collaboration feature">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3 class="feature-title">Team Collaboration</h3>
+            <p class="feature-desc">Shared workspaces, threaded discussions, and real-time co-editing keep teams aligned without the email overload.</p>
+            <div class="feature-arrow">→</div>
+          </article>
+
+          <article class="feature-card reveal reveal-delay-1" tabindex="0">
+            <div class="feature-icon accent">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            </div>
+            <h3 class="feature-title">Project Workflow Management</h3>
+            <p class="feature-desc">Kanban boards, Gantt-style timelines, and sprint planning to keep every project on track from kickoff to delivery.</p>
+            <div class="feature-arrow">→</div>
+          </article>
+
+          <article class="feature-card reveal reveal-delay-2" tabindex="0">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3 class="feature-title">Internal Communication</h3>
+            <p class="feature-desc">Channels for departments, direct messaging, announcements, and broadcast notifications — all in one secure inbox.</p>
+            <div class="feature-arrow">→</div>
+          </article>
+
+          <article class="feature-card reveal" tabindex="0">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <h3 class="feature-title">Task Assignment & Tracking</h3>
+            <p class="feature-desc">Create, assign, prioritize, and track tasks with deadlines, labels, and status updates visible to the whole team.</p>
+            <div class="feature-arrow">→</div>
+          </article>
+
+          <article class="feature-card reveal reveal-delay-1" tabindex="0">
+            <div class="feature-icon accent">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+            </div>
+            <h3 class="feature-title">Department Coordination</h3>
+            <p class="feature-desc">Cross-departmental project views, shared calendars, and resource allocation tools for seamless coordination.</p>
+            <div class="feature-arrow">→</div>
+          </article>
+
+          <article class="feature-card reveal reveal-delay-2" tabindex="0">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3 class="feature-title">File & Document Sharing</h3>
+            <p class="feature-desc">Centralized document library with version control, folder permissions, and instant search across all organizational files.</p>
+            <div class="feature-arrow">→</div>
+          </article>
+
+          <article class="feature-card reveal" tabindex="0">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
+            <h3 class="feature-title">Notifications & Updates</h3>
+            <p class="feature-desc">Smart notifications that surface only what matters — mentions, deadlines, approvals, and status changes, delivered in real time.</p>
+            <div class="feature-arrow">→</div>
+          </article>
+
+          <article class="feature-card reveal reveal-delay-1" tabindex="0">
+            <div class="feature-icon accent">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3 class="feature-title">Secure Employee Access</h3>
+            <p class="feature-desc">Role-based permissions, single sign-on (SSO), and full audit logs ensure your organizational data stays protected and compliant.</p>
+            <div class="feature-arrow">→</div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== DEPARTMENTS SECTION ========== -->
+    <section class="departments section" id="departments" aria-labelledby="dept-heading">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-badge">Departments</div>
+          <h2 id="dept-heading" class="section-heading centered">Built for Every<br/><span class="gradient-text">Team in Your Org</span></h2>
+          <p class="section-sub centered">Collabix adapts to each department's unique workflows while keeping the whole organization connected.</p>
+        </div>
+        <div class="dept-grid">
+
+          <div class="dept-card reveal" tabindex="0">
+            <div class="dept-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <h3>Human Resources</h3>
+            <p>Manage onboarding, employee records, performance reviews, and policy announcements.</p>
+            <div class="dept-tags"><span>Onboarding</span><span>Policies</span><span>Reviews</span></div>
+          </div>
+
+          <div class="dept-card reveal reveal-delay-1" tabindex="0">
+            <div class="dept-icon accent">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <h3>Operations</h3>
+            <p>Coordinate logistics, vendor relations, facility management, and operational workflows efficiently.</p>
+            <div class="dept-tags"><span>Logistics</span><span>Vendors</span><span>Facilities</span></div>
+          </div>
+
+          <div class="dept-card reveal reveal-delay-2" tabindex="0">
+            <div class="dept-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <h3>Development</h3>
+            <p>Sprint boards, code review workflows, deployment tracking, and engineering documentation hubs.</p>
+            <div class="dept-tags"><span>Sprints</span><span>Code Review</span><span>Docs</span></div>
+          </div>
+
+          <div class="dept-card reveal" tabindex="0">
+            <div class="dept-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <h3>Management</h3>
+            <p>Executive dashboards, strategic planning tools, cross-departmental reports, and leadership announcements.</p>
+            <div class="dept-tags"><span>Strategy</span><span>Reports</span><span>Leadership</span></div>
+          </div>
+
+          <div class="dept-card reveal reveal-delay-1" tabindex="0">
+            <div class="dept-icon accent">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h3>Finance</h3>
+            <p>Budget tracking, expense approvals, financial reporting workflows, and invoice management dashboards.</p>
+            <div class="dept-tags"><span>Budgets</span><span>Approvals</span><span>Reports</span></div>
+          </div>
+
+          <div class="dept-card reveal reveal-delay-2" tabindex="0">
+            <div class="dept-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3>Support</h3>
+            <p>Internal ticket system, knowledge base management, escalation workflows, and SLA monitoring tools.</p>
+            <div class="dept-tags"><span>Tickets</span><span>Knowledge Base</span><span>SLAs</span></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== WORKFLOW SECTION ========== -->
+    <section class="workflow section" id="workflow" aria-labelledby="workflow-heading">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-badge">How It Works</div>
+          <h2 id="workflow-heading" class="section-heading centered">From Idea to<br/><span class="gradient-text">Completion</span></h2>
+          <p class="section-sub centered">A streamlined four-step process that keeps your projects moving and your teams accountable.</p>
+        </div>
+        <div class="workflow-timeline">
+
+          <div class="timeline-connector" aria-hidden="true"></div>
+
+          <div class="workflow-step reveal" tabindex="0">
+            <div class="step-number" aria-label="Step 1">01</div>
+            <div class="step-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div class="step-content">
+              <h3>Create Tasks</h3>
+              <p>Define project goals, break them into actionable tasks, set priorities, deadlines, and dependencies all within seconds.</p>
+            </div>
+            <div class="step-badge">Start</div>
+          </div>
+
+          <div class="workflow-step reveal reveal-delay-1" tabindex="0">
+            <div class="step-number" aria-label="Step 2">02</div>
+            <div class="step-icon accent">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            </div>
+            <div class="step-content">
+              <h3>Assign Teams</h3>
+              <p>Route tasks to the right people and departments. Set role-based access, notify assignees instantly, and balance workloads.</p>
+            </div>
+            <div class="step-badge">Delegate</div>
+          </div>
+
+          <div class="workflow-step reveal reveal-delay-2" tabindex="0">
+            <div class="step-number" aria-label="Step 3">03</div>
+            <div class="step-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="step-content">
+              <h3>Collaborate & Track Progress</h3>
+              <p>Real-time updates, comment threads, file attachments, and live progress bars keep everyone aligned throughout execution.</p>
+            </div>
+            <div class="step-badge">Execute</div>
+          </div>
+
+          <div class="workflow-step reveal reveal-delay-3" tabindex="0">
+            <div class="step-number" aria-label="Step 4">04</div>
+            <div class="step-icon accent">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div class="step-content">
+              <h3>Complete & Review</h3>
+              <p>Mark tasks complete, generate completion reports, capture retrospective feedback, and archive for future reference.</p>
+            </div>
+            <div class="step-badge">Deliver</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== STATISTICS SECTION ========== -->
+    <section class="stats section" id="stats" aria-labelledby="stats-heading"
+             x-data="statsCounter()"
+             x-intersect.once="startCounting()">
+      <div class="stats-bg" aria-hidden="true">
+        <div class="stats-glow"></div>
+      </div>
+      <div class="container">
+        <h2 id="stats-heading" class="sr-only">Platform Statistics</h2>
+        <div class="stats-grid">
+          <div class="stat-item reveal">
+            <div class="stat-value" x-text="counts.employees + '+'">0</div>
+            <div class="stat-label">Employees Connected</div>
+            <div class="stat-line"></div>
+          </div>
+          <div class="stat-item reveal reveal-delay-1">
+            <div class="stat-value" x-text="counts.projects + '+'">0</div>
+            <div class="stat-label">Projects Managed</div>
+            <div class="stat-line"></div>
+          </div>
+          <div class="stat-item reveal reveal-delay-2">
+            <div class="stat-value" x-text="counts.tasks.toLocaleString() + '+'">0</div>
+            <div class="stat-label">Tasks Completed</div>
+            <div class="stat-line"></div>
+          </div>
+          <div class="stat-item reveal reveal-delay-3">
+            <div class="stat-value" x-text="counts.productivity + '%'">0%</div>
+            <div class="stat-label">Productivity Improvement</div>
+            <div class="stat-line"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== PLATFORM PREVIEW SECTION ========== -->
+    <section class="preview section" id="preview" aria-labelledby="preview-heading">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-badge">Platform Preview</div>
+          <h2 id="preview-heading" class="section-heading centered">Your Workspace,<br/><span class="gradient-text">Reimagined</span></h2>
+        </div>
+        <div class="preview-layout reveal">
+          <div class="preview-main-panel">
+            <div class="panel-header">
+              <div class="panel-dots"><span></span><span></span><span></span></div>
+              <span class="panel-title">Analytics Overview — Q4 2024</span>
+              <div class="panel-actions">
+                <span class="panel-btn">Export</span>
+                <span class="panel-btn accent">Live</span>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="analytics-row">
+                <div class="analytics-card">
+                  <div class="ac-label">Open Tasks</div>
+                  <div class="ac-value">247</div>
+                  <div class="ac-change up">↑ 12% this week</div>
+                </div>
+                <div class="analytics-card">
+                  <div class="ac-label">Completed</div>
+                  <div class="ac-value">1,840</div>
+                  <div class="ac-change up">↑ 8% this month</div>
+                </div>
+                <div class="analytics-card">
+                  <div class="ac-label">Overdue</div>
+                  <div class="ac-value">14</div>
+                  <div class="ac-change down">↓ 3 from last week</div>
+                </div>
+                <div class="analytics-card accent-card">
+                  <div class="ac-label">Team Velocity</div>
+                  <div class="ac-value">94%</div>
+                  <div class="ac-change up">↑ Peak performance</div>
+                </div>
+              </div>
+              <!-- Fake bar chart -->
+              <div class="fake-chart" aria-label="Task completion chart">
+                <div class="chart-bars">
+                  <div class="chart-bar" style="--h:55%"><span>Mon</span></div>
+                  <div class="chart-bar" style="--h:72%"><span>Tue</span></div>
+                  <div class="chart-bar" style="--h:60%"><span>Wed</span></div>
+                  <div class="chart-bar" style="--h:88%"><span>Thu</span></div>
+                  <div class="chart-bar active" style="--h:95%"><span>Fri</span></div>
+                  <div class="chart-bar" style="--h:40%"><span>Sat</span></div>
+                  <div class="chart-bar" style="--h:30%"><span>Sun</span></div>
+                </div>
+                <div class="chart-label">Task Completion Rate</div>
+              </div>
+            </div>
+          </div>
+          <div class="preview-side-panels">
+            <div class="side-panel">
+              <div class="sp-header">Active Teams</div>
+              <div class="sp-team"><div class="team-avatar blue">DE</div><div><div class="team-name">Development</div><div class="team-status">8 active tasks</div></div><div class="team-badge">↑</div></div>
+              <div class="sp-team"><div class="team-avatar green">HR</div><div><div class="team-name">Human Resources</div><div class="team-status">3 reviews pending</div></div><div class="team-badge">→</div></div>
+              <div class="sp-team"><div class="team-avatar amber">FN</div><div><div class="team-name">Finance</div><div class="team-status">2 approvals needed</div></div><div class="team-badge urgent">!</div></div>
+              <div class="sp-team"><div class="team-avatar blue">OP</div><div><div class="team-name">Operations</div><div class="team-status">On schedule</div></div><div class="team-badge">✓</div></div>
+            </div>
+            <div class="side-panel task-panel">
+              <div class="sp-header">Task Board</div>
+              <div class="task-columns">
+                <div class="task-col">
+                  <div class="task-col-header">To Do</div>
+                  <div class="task-chip">API Integration</div>
+                  <div class="task-chip">Q4 Report</div>
+                </div>
+                <div class="task-col">
+                  <div class="task-col-header in-progress">In Progress</div>
+                  <div class="task-chip active">UI Redesign</div>
+                  <div class="task-chip active">Onboarding</div>
+                </div>
+                <div class="task-col">
+                  <div class="task-col-header done">Done</div>
+                  <div class="task-chip done">Sprint 12</div>
+                  <div class="task-chip done">Audit</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== TESTIMONIALS SECTION ========== -->
+    <section class="testimonials section" id="testimonials" aria-labelledby="test-heading">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-badge">Employee Feedback</div>
+          <h2 id="test-heading" class="section-heading centered">Trusted by Teams<br/><span class="gradient-text">Across the Org</span></h2>
+        </div>
+        <div class="testimonials-grid">
+
+          <blockquote class="testimonial-card reveal" tabindex="0">
+            <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <p>"Collabix has completely transformed how our engineering teams collaborate. Sprint planning is faster, standup notes are shared automatically, and nothing falls through the cracks anymore."</p>
+            <footer class="test-author">
+              <div class="author-avatar" style="background: #3b82f6">AK</div>
+              <div>
+                <cite class="author-name">Arjun Kulkarni</cite>
+                <div class="author-role">Senior Developer — Engineering</div>
+              </div>
+            </footer>
+          </blockquote>
+
+          <blockquote class="testimonial-card reveal reveal-delay-1" tabindex="0">
+            <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <p>"Managing onboarding used to involve endless email chains. Now every new hire's checklist is tracked in Collabix and our HR team saves hours every week."</p>
+            <footer class="test-author">
+              <div class="author-avatar" style="background: var(--accent)">PM</div>
+              <div>
+                <cite class="author-name">Priya Mehta</cite>
+                <div class="author-role">HR Manager — Human Resources</div>
+              </div>
+            </footer>
+          </blockquote>
+
+          <blockquote class="testimonial-card reveal reveal-delay-2" tabindex="0">
+            <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <p>"The finance approval workflows are a game-changer. Budget requests get reviewed and approved in hours instead of days. The audit trail alone is worth it."</p>
+            <footer class="test-author">
+              <div class="author-avatar" style="background: #10b981">RS</div>
+              <div>
+                <cite class="author-name">Ravi Sharma</cite>
+                <div class="author-role">Finance Controller — Finance</div>
+              </div>
+            </footer>
+          </blockquote>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FAQ SECTION ========== -->
+    <section class="faq section" id="faq" aria-labelledby="faq-heading">
+      <div class="container">
+        <div class="faq-layout">
+          <div class="faq-header reveal">
+            <div class="section-badge">FAQ</div>
+            <h2 id="faq-heading" class="section-heading">Common<br/><span class="gradient-text">Questions</span></h2>
+            <p class="section-body">Have more questions? Reach out to your IT administrator or the internal support team.</p>
+          </div>
+          <div class="faq-list reveal reveal-delay-1" x-data="{ open: null }">
+
+            <div class="faq-item" :class="{ 'open': open === 1 }">
+              <button class="faq-q" @click="open = open === 1 ? null : 1" :aria-expanded="open === 1" aria-controls="faq-1">
+                Who can access Collabix?
+                <span class="faq-icon" aria-hidden="true" :class="{ 'rotated': open === 1 }">+</span>
+              </button>
+              <div id="faq-1" class="faq-a" x-show="open === 1" x-collapse>
+                <p>Collabix is exclusively available to employees of our organization. Access is provisioned by your IT department using your official corporate credentials. Role-based permissions determine what each employee can view and manage.</p>
+              </div>
+            </div>
+
+            <div class="faq-item" :class="{ 'open': open === 2 }">
+              <button class="faq-q" @click="open = open === 2 ? null : 2" :aria-expanded="open === 2" aria-controls="faq-2">
+                Is Collabix available on mobile devices?
+                <span class="faq-icon" aria-hidden="true" :class="{ 'rotated': open === 2 }">+</span>
+              </button>
+              <div id="faq-2" class="faq-a" x-show="open === 2" x-collapse>
+                <p>Yes. Collabix is fully responsive and works on all modern mobile browsers. A dedicated mobile app for iOS and Android is currently under development and will be released in the next phase.</p>
+              </div>
+            </div>
+
+            <div class="faq-item" :class="{ 'open': open === 3 }">
+              <button class="faq-q" @click="open = open === 3 ? null : 3" :aria-expanded="open === 3" aria-controls="faq-3">
+                How is my data kept secure?
+                <span class="faq-icon" aria-hidden="true" :class="{ 'rotated': open === 3 }">+</span>
+              </button>
+              <div id="faq-3" class="faq-a" x-show="open === 3" x-collapse>
+                <p>All data is encrypted in transit and at rest. The platform uses enterprise-grade authentication, role-based access control, and maintains full audit logs. Your IT security team has complete visibility and control over the system.</p>
+              </div>
+            </div>
+
+            <div class="faq-item" :class="{ 'open': open === 4 }">
+              <button class="faq-q" @click="open = open === 4 ? null : 4" :aria-expanded="open === 4" aria-controls="faq-4">
+                Can I integrate Collabix with other internal tools?
+                <span class="faq-icon" aria-hidden="true" :class="{ 'rotated': open === 4 }">+</span>
+              </button>
+              <div id="faq-4" class="faq-a" x-show="open === 4" x-collapse>
+                <p>Yes. Collabix supports integrations with common enterprise tools like Microsoft 365, Google Workspace, Slack, and custom internal systems via our REST API. Contact your IT team to configure integrations.</p>
+              </div>
+            </div>
+
+            <div class="faq-item" :class="{ 'open': open === 5 }">
+              <button class="faq-q" @click="open = open === 5 ? null : 5" :aria-expanded="open === 5" aria-controls="faq-5">
+                Who do I contact for technical support?
+                <span class="faq-icon" aria-hidden="true" :class="{ 'rotated': open === 5 }">+</span>
+              </button>
+              <div id="faq-5" class="faq-a" x-show="open === 5" x-collapse>
+                <p>For technical issues, raise a support ticket directly within Collabix using the Help & Support section. For urgent issues, contact the IT helpdesk at <strong>it-support@yourcompany.com</strong> or extension <strong>1234</strong>.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CONTACT SECTION ========== -->
+    <section class="contact section" id="contact" aria-labelledby="contact-heading">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-badge">Get in Touch</div>
+          <h2 id="contact-heading" class="section-heading centered">Contact &amp;<br/><span class="gradient-text">Support</span></h2>
+        </div>
+        <div class="contact-layout">
+
+          <!-- Info -->
+          <div class="contact-info reveal">
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div>
+                <div class="ci-label">Email</div>
+                <a href="mailto:collabix@yourcompany.com" class="ci-value">collabix@yourcompany.com</a>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.38 2 2 0 0 1 3.6 1.2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.77-1.77a2 2 0 0 1 2.11-.45c.9.35 1.84.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </div>
+              <div>
+                <div class="ci-label">Internal Extension</div>
+                <a href="tel:+911234567890" class="ci-value">+91 1234 567 890</a>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div>
+                <div class="ci-label">Head Office</div>
+                <address class="ci-value" style="font-style:normal">42 Corporate Park, Baner Road,<br/>Pune, Maharashtra 411045</address>
+              </div>
+            </div>
+
+            <!-- Map Placeholder -->
+            <div class="map-placeholder" role="img" aria-label="Office location map placeholder">
+              <div class="map-pin" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <span>Pune, Maharashtra</span>
+            </div>
+
+            <!-- Social Links -->
+            <div class="social-links">
+              <a href="#" class="social-link" aria-label="LinkedIn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              </a>
+              <a href="#" class="social-link" aria-label="Twitter / X">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 22.43 1a9 9 0 0 1-2.88 1.1A4.52 4.52 0 0 0 11.5 6.4a12.82 12.82 0 0 1-9.3-4.72A4.52 4.52 0 0 0 3.6 8a4.49 4.49 0 0 1-2-.56v.05a4.52 4.52 0 0 0 3.62 4.43 4.54 4.54 0 0 1-2 .08 4.53 4.53 0 0 0 4.22 3.14A9.06 9.06 0 0 1 1 19.07a12.78 12.78 0 0 0 6.92 2 12.77 12.77 0 0 0 12.86-12.86c0-.2 0-.39-.01-.58A9.18 9.18 0 0 0 23 3z"/></svg>
+              </a>
+              <a href="#" class="social-link" aria-label="GitHub">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Contact Form with HTMX -->
+          <div class="contact-form-wrap reveal reveal-delay-1">
+            <form
+              class="contact-form"
+              hx-post="/api/contact"
+              hx-target="#form-response"
+              hx-swap="innerHTML"
+              hx-indicator="#form-spinner"
+              aria-label="Contact form"
+              @submit.prevent="submitForm($event)"
+            >
+              {% csrf_token %}
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cf-name">Full Name</label>
+                  <input type="text" id="cf-name" name="name" placeholder="Your name" required autocomplete="name" />
+                </div>
+                <div class="form-group">
+                  <label for="cf-dept">Department</label>
+                  <input type="text" id="cf-dept" name="department" placeholder="Your department" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="cf-email">Work Email</label>
+                <input type="email" id="cf-email" name="email" placeholder="you@company.com" required autocomplete="email" />
+              </div>
+              <div class="form-group">
+                <label for="cf-subject">Subject</label>
+                <input type="text" id="cf-subject" name="subject" placeholder="How can we help?" required />
+              </div>
+              <div class="form-group">
+                <label for="cf-message">Message</label>
+                <textarea id="cf-message" name="message" rows="5" placeholder="Describe your query or feedback..." required></textarea>
+              </div>
+              <div class="form-submit-row">
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <span id="form-spinner" class="htmx-indicator spinner" aria-hidden="true"></span>
+                  Send Message
+                </button>
+              </div>
+            </form>
+            <div id="form-response" role="status" aria-live="polite"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#" class="logo" aria-label="Collabix Home">
+            <svg width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <rect x="4" y="4" width="18" height="18" rx="4" fill="var(--accent)"/>
+              <rect x="26" y="4" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.55"/>
+              <rect x="4" y="26" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.55"/>
+              <rect x="26" y="26" width="18" height="18" rx="4" fill="var(--accent)"/>
+            </svg>
+            <span class="logo-text">Collabix</span>
+          </a>
+          <p>Your organization's unified collaboration and workflow management platform.</p>
+        </div>
+        <div class="footer-links-group">
+          <div class="footer-col">
+            <h4>Platform</h4>
+            <a href="#features">Features</a>
+            <a href="#workflow">Workflow</a>
+            <a href="#departments">Departments</a>
+            <a href="#preview">Preview</a>
+          </div>
+          <div class="footer-col">
+            <h4>Organization</h4>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+            <a href="#faq">FAQ</a>
+            <a href="#login">Employee Login</a>
+          </div>
+          <div class="footer-col">
+            <h4>Legal</h4>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms &amp; Conditions</a>
+            <a href="#">Internal Support</a>
+            <a href="#">Accessibility</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <span id="year"></span> Collabix — Internal Platform. All rights reserved.</p>
+        <p>Designed &amp; maintained by the IT &amp; Digital Transformation Team.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll to Top -->
+  <button class="scroll-top" id="scrollTopBtn" @click="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top" x-show="scrolled" x-transition>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+  </button>
+
+  <!-- App Script -->
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
