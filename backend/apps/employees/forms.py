@@ -2,7 +2,13 @@ from django import forms
 
 from apps.accounts.models import User
 
-from .models import Department, EmployeeProfile
+from .models import (
+    Department,
+    Designation,
+    EmployeeHierarchy,
+    EmployeeProfile,
+    OrganizationPosition,
+)
 
 INPUT_CLASS = (
     "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm "
@@ -88,3 +94,58 @@ class EmployeeStatusForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["employment_status"].widget.attrs["class"] = INPUT_CLASS
+
+
+class EmployeeHierarchyForm(TailwindFormMixin, forms.ModelForm):
+    class Meta:
+        model = EmployeeHierarchy
+        fields = ("employee", "reporting_manager", "effective_from")
+        widgets = {"effective_from": forms.DateInput(attrs={"type": "date"})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        queryset = EmployeeProfile.objects.select_related("user").order_by(
+            "user__full_name"
+        )
+        self.fields["employee"].queryset = queryset
+        self.fields["reporting_manager"].queryset = queryset
+        self._apply_base_classes()
+
+
+class DesignationForm(TailwindFormMixin, forms.ModelForm):
+    class Meta:
+        model = Designation
+        fields = ("title", "level", "description")
+        widgets = {"description": forms.Textarea(attrs={"rows": 4})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_base_classes()
+
+
+class OrganizationPositionForm(TailwindFormMixin, forms.ModelForm):
+    class Meta:
+        model = OrganizationPosition
+        fields = ("employee", "designation", "department", "reporting_position")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["employee"].queryset = EmployeeProfile.objects.select_related(
+            "user"
+        ).order_by("user__full_name")
+        self.fields["designation"].queryset = Designation.objects.order_by(
+            "level", "title"
+        )
+        self.fields["department"].queryset = Department.objects.filter(
+            is_active=True
+        ).order_by("name")
+        self.fields["reporting_position"].queryset = (
+            OrganizationPosition.objects.select_related(
+                "employee__user", "designation"
+            ).order_by("employee__user__full_name")
+        )
+        if self.instance and self.instance.pk:
+            self.fields["reporting_position"].queryset = self.fields[
+                "reporting_position"
+            ].queryset.exclude(pk=self.instance.pk)
+        self._apply_base_classes()

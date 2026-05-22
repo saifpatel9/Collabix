@@ -1,0 +1,10 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block content %}
+{% url 'employees:assign_manager' as assign_url %}
+{% include "components/page_header.html" with eyebrow="Organization" title="Reporting Tree" subtitle="Active reporting manager assignments." action_url=assign_url action_label="Assign Manager" %}
+
+<section id="hierarchy-tree" hx-get="{% url 'employees:reporting_tree' %}" hx-trigger="every 60s" hx-swap="innerHTML">
+    {% include "hierarchy/partials/tree.html" %}
+</section>
+{% endblock content %}

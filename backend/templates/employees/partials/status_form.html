@@ -5,7 +5,7 @@
             <option value="{{ value }}" {% if employee.employment_status == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
     </select>
-    {% if request.user.role == "admin" or request.user.is_superuser or request.user.role == "manager" %}
+    {% if request.user.role == "admin" or request.user.role == "hr_manager" or request.user.is_superuser or request.user.role == "manager" %}
         <button class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white dark:bg-cyan-500 dark:text-slate-950">Update status</button>
     {% endif %}
 </form>

@@ -4,7 +4,7 @@
 
 {% block content %}
 {% url 'employees:department_create' as create_url %}
-{% if request.user.role == "admin" or request.user.is_superuser %}
+{% if request.user.role == "admin" or request.user.role == "department_admin" or request.user.role == "hr_manager" or request.user.is_superuser %}
     {% include "components/page_header.html" with eyebrow="Organization" title="Departments" subtitle="Manage organizational units and department heads." action_url=create_url action_label="Add Department" %}
 {% else %}
     {% include "components/page_header.html" with eyebrow="Organization" title="Departments" subtitle="Browse organizational units and department heads." %}

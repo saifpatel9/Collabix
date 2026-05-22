@@ -2,8 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from apps.accounts.models import User
-from apps.employees.models import Department, EmployeeProfile
+from apps.core.selectors.dashboard_selectors import DashboardSelector
 
 
 def landing_home(request):
@@ -12,7 +11,7 @@ def landing_home(request):
 
 @login_required
 def dashboard_home(request):
-    context = get_dashboard_context()
+    context = get_dashboard_context(request.user)
     template_name = (
         "dashboard/partials/widgets.html"
         if request.headers.get("HX-Request") == "true"
@@ -21,17 +20,8 @@ def dashboard_home(request):
     return render(request, template_name, context)
 
 
-def get_dashboard_context():
-    return {
-        "total_employees": EmployeeProfile.objects.count(),
-        "active_employees": EmployeeProfile.objects.filter(
-            employment_status=EmployeeProfile.EmploymentStatus.ACTIVE
-        ).count(),
-        "total_departments": Department.objects.count(),
-        "managers_count": User.objects.filter(
-            role=User.Role.MANAGER, is_active=True
-        ).count(),
-    }
+def get_dashboard_context(user=None):
+    return DashboardSelector.metrics_for(user)
 
 
 def contact(request):

@@ -13,9 +13,13 @@ class EmployeeService:
         queryset = EmployeeProfile.objects.select_related(
             "user", "department", "manager__user"
         )
-        if user.is_superuser or user.role == User.Role.ADMIN:
+        if user.is_superuser or user.role in (
+            User.Role.ADMIN,
+            User.Role.HR_MANAGER,
+            User.Role.DEPARTMENT_ADMIN,
+        ):
             return queryset
-        if user.role == User.Role.MANAGER:
+        if user.role in (User.Role.MANAGER, User.Role.PROJECT_MANAGER):
             return queryset.filter(Q(manager__user=user) | Q(user=user))
         return queryset.filter(user=user)
 

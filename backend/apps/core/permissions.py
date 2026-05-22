@@ -28,7 +28,36 @@ class AdminRequiredMixin(RoleRequiredMixin):
 
 
 class ManagerRequiredMixin(RoleRequiredMixin):
-    allowed_roles = (User.Role.ADMIN, User.Role.MANAGER)
+    allowed_roles = (
+        User.Role.ADMIN,
+        User.Role.DEPARTMENT_ADMIN,
+        User.Role.HR_MANAGER,
+        User.Role.PROJECT_MANAGER,
+        User.Role.MANAGER,
+    )
+
+
+class HRManagerRequiredMixin(RoleRequiredMixin):
+    allowed_roles = (User.Role.ADMIN, User.Role.HR_MANAGER)
+
+
+class DepartmentAdminRequiredMixin(RoleRequiredMixin):
+    allowed_roles = (User.Role.ADMIN, User.Role.DEPARTMENT_ADMIN, User.Role.HR_MANAGER)
+
+
+class ProjectManagerRequiredMixin(RoleRequiredMixin):
+    allowed_roles = (User.Role.ADMIN, User.Role.PROJECT_MANAGER, User.Role.MANAGER)
+
+
+class EmployeeRequiredMixin(RoleRequiredMixin):
+    allowed_roles = (
+        User.Role.ADMIN,
+        User.Role.DEPARTMENT_ADMIN,
+        User.Role.HR_MANAGER,
+        User.Role.PROJECT_MANAGER,
+        User.Role.MANAGER,
+        User.Role.EMPLOYEE,
+    )
 
 
 class EmployeeAccessMixin(LoginRequiredMixin):

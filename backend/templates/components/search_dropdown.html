@@ -1,0 +1,15 @@
+<div class="absolute right-0 top-2 z-50 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+    {% if query %}
+        {% for result in results %}
+            <a href="{{ result.url }}" class="block border-b border-slate-100 px-4 py-3 text-sm hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800">
+                <span class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-600">{{ result.type }}</span>
+                <span class="mt-1 block font-semibold">{{ result.title }}</span>
+                <span class="text-xs text-slate-500">{{ result.subtitle }}</span>
+            </a>
+        {% empty %}
+            <div class="px-4 py-4 text-sm text-slate-500">No results found.</div>
+        {% endfor %}
+    {% else %}
+        <div class="px-4 py-4 text-sm text-slate-500">Start typing to search.</div>
+    {% endif %}
+</div>

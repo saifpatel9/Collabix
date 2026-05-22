@@ -1,0 +1,13 @@
+<div class="mt-5 space-y-4" hx-get="{% url 'core:recent_activity' %}" hx-trigger="every 45s" hx-swap="outerHTML">
+    {% for activity in activities %}
+        <div class="flex gap-3">
+            <div class="mt-1 h-2 w-2 rounded-full bg-cyan-500"></div>
+            <div>
+                <p class="text-sm font-semibold">{{ activity.actor.full_name|default:"System" }} {{ activity.verb }}</p>
+                <p class="text-xs text-slate-500">{{ activity.timestamp|timesince }} ago</p>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-sm text-slate-500">No recent activity yet.</p>
+    {% endfor %}
+</div>

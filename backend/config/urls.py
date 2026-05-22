@@ -7,6 +7,13 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(("config.api_v1_urls", "api"), namespace="v1")),
     path("auth/", include(("apps.accounts.urls", "accounts"), namespace="accounts")),
+    path("", include(("apps.core.urls", "core"), namespace="core")),
+    path(
+        "notifications/",
+        include(
+            ("apps.notifications.urls", "notifications"), namespace="notifications"
+        ),
+    ),
     path("", include(("apps.employees.urls", "employees"), namespace="employees")),
     path("", include(("apps.dashboard.urls", "dashboard"), namespace="dashboard")),
 ]

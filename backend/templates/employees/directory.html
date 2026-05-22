@@ -1,0 +1,8 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Directory" title="Employee Directory" subtitle="Department-aware employee directory view." %}
+<section id="directory-grid">
+    {% include "employees/partials/directory_grid.html" %}
+</section>
+{% endblock content %}
