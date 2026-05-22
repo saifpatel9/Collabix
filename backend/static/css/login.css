@@ -1,0 +1,585 @@
+/* =============================================
+   COLLABIX — login.css
+   Login Page Specific Styles
+   Extends styles.css — do not import alone.
+   ============================================= */
+
+/* ── Layout: full-viewport split ───────────── */
+.login-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Left Aside ─────────────────────────────── */
+.login-aside {
+  position: relative;
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+/* subtle radial glow behind aside content */
+.login-aside::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  left: -80px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(232, 184, 75, 0.09) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.aside-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 36px;
+  padding: 64px 56px;
+  width: 100%;
+}
+
+/* Logo inside aside */
+.aside-logo {
+  align-self: flex-start;
+}
+
+/* Aside headline group */
+.aside-badge {
+  margin-bottom: 16px;
+}
+
+.aside-heading {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.2vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.aside-sub {
+  font-size: 0.975rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  max-width: 380px;
+}
+
+/* Feature list */
+.aside-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.aside-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.af-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: var(--accent-dim);
+  border: 1px solid rgba(232, 184, 75, 0.2);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+/* Mini stats row */
+.aside-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.aside-stat {
+  padding: 0 24px;
+  text-align: center;
+}
+
+.aside-stat:first-child {
+  padding-left: 0;
+}
+
+.aside-stat strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.aside-stat span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+/* ── Right Main ─────────────────────────────── */
+.login-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 28px;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Top bar (back link + theme toggle) */
+.login-topbar {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+
+/* Mobile logo (hidden on desktop) */
+.login-mobile-logo {
+  display: none;
+  margin-bottom: 28px;
+}
+
+/* ── Login Card ─────────────────────────────── */
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 44px 40px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle top glow on card */
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.6;
+}
+
+.login-card-header {
+  margin-bottom: 28px;
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.login-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ── Form Banners ───────────────────────────── */
+.form-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.form-banner.success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+}
+
+.form-banner.error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
+/* ── Login Form ─────────────────────────────── */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Input wrap (icon + field + status) */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  transition: color 0.25s;
+  z-index: 1;
+}
+
+.input-status {
+  position: absolute;
+  right: 14px;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* Override shared input to add left padding for icon */
+.input-wrap input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 42px 12px 42px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+}
+
+.input-wrap input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-wrap input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface-3);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+/* Valid state */
+.has-success .input-wrap input {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* Error state */
+.has-error .input-wrap input {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+.has-error .input-icon {
+  color: rgba(239, 68, 68, 0.7);
+}
+
+/* Input icon highlight on focus */
+.input-wrap input:focus ~ .input-icon,
+.input-wrap:focus-within .input-icon {
+  color: var(--accent);
+}
+
+/* Field-level error message */
+.field-error {
+  font-size: 0.78rem;
+  color: #f87171;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Password toggle button */
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.password-toggle:hover {
+  color: var(--text-secondary);
+  background: var(--surface-3);
+}
+
+/* Remove right-side padding clash for password field */
+.form-group:has(.password-toggle) .input-wrap input {
+  padding-right: 44px;
+}
+
+/* ── Remember me + Forgot row ───────────────── */
+.form-row-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Custom checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease);
+  position: relative;
+}
+
+.checkbox-input:checked + .checkbox-custom {
+  background: var(--grad-accent);
+  border-color: transparent;
+}
+
+/* checkmark via pseudo */
+.checkbox-input:checked + .checkbox-custom::after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #0a0f1e;
+  border-bottom: 2px solid #0a0f1e;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+.checkbox-input:focus-visible + .checkbox-custom {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.checkbox-label:hover .checkbox-custom {
+  border-color: var(--accent);
+}
+
+.forgot-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  transition: opacity 0.2s;
+}
+
+.forgot-link:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+/* ── Submit button ──────────────────────────── */
+.login-btn {
+  width: 100%;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+}
+
+.login-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(10, 15, 30, 0.3);
+  border-top-color: #0a0f1e;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+/* ── Footer note inside card ────────────────── */
+.login-footer-note {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.signup-link {
+  color: var(--accent);
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.signup-link:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+/* ── Page-level footer ──────────────────────── */
+.login-page-footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.login-page-footer a {
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.login-page-footer a:hover {
+  color: var(--accent);
+}
+
+/* ── Fade-in animation for banners ──────────── */
+.fade-in {
+  animation: fadeInDown 0.3s var(--ease) both;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ─────────────────────────────── */
+
+/* Tablet: stack layout */
+@media (max-width: 900px) {
+  .login-page {
+    grid-template-columns: 1fr;
+    min-height: 100vh;
+  }
+
+  .login-aside {
+    display: none;
+  }
+
+  .login-mobile-logo {
+    display: flex;
+  }
+
+  .login-main {
+    justify-content: flex-start;
+    padding: 96px 24px 60px;
+  }
+
+  .login-card {
+    max-width: 480px;
+    padding: 36px 32px;
+  }
+}
+
+/* Mobile: tighten card */
+@media (max-width: 480px) {
+  .login-topbar {
+    left: 20px;
+    right: 20px;
+  }
+
+  .login-card {
+    padding: 28px 24px;
+    border-radius: var(--radius-lg);
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+
+  .form-row-flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .login-page-footer {
+    position: static;
+    margin-top: 32px;
+    padding-bottom: 8px;
+  }
+}
+
+/* Light mode specifics */
+.light .login-aside {
+  background: var(--bg-2);
+}
+
+.light .login-card {
+  box-shadow: var(--shadow-md);
+}
+
+.light .input-wrap input {
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+
+.light .mobile-menu {
+  background: rgba(244, 246, 251, 0.97);
+}

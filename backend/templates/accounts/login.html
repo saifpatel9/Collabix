@@ -1,28 +1,330 @@
-{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" x-data="loginPageRoot()" :class="darkMode ? 'dark' : 'light'">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Collabix — Employee Login Portal" />
+  <title>Collabix | Employee Login</title>
 
-{% block title %}Login | {{ APP_NAME }}{% endblock title %}
+  <!-- Fonts (same as landing page) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
 
-{% block body %}
-<main class="grid min-h-screen place-items-center bg-grid px-4 py-10">
-    <section class="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-600">Collabix</p>
-        <h1 class="mt-2 text-3xl font-extrabold">Sign in</h1>
-        <form method="post" class="mt-8 space-y-5">
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{{ form.non_field_errors }}</div>
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Shared stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <!-- Login-specific styles -->
+  <link rel="stylesheet" href="{% static 'css/login.css' %}" />
+</head>
+
+<body>
+
+  <!-- ========== LOADING SCREEN ========== -->
+  <div id="loader" class="loader" x-show="loading">
+    <div class="loader-inner">
+      <div class="loader-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect x="4"  y="4"  width="18" height="18" rx="4" fill="var(--accent)" opacity="0.9"/>
+          <rect x="26" y="4"  width="18" height="18" rx="4" fill="var(--accent)" opacity="0.5"/>
+          <rect x="4"  y="26" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.5"/>
+          <rect x="26" y="26" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.9"/>
+        </svg>
+        <span>Collabix</span>
+      </div>
+      <div class="loader-bar"><div class="loader-progress"></div></div>
+    </div>
+  </div>
+
+  <!-- ========== AMBIENT BACKGROUND ========== -->
+  <div class="login-bg" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- ========== PAGE LAYOUT ========== -->
+  <div class="login-page">
+
+    <!-- ── Left Panel (branding) ── -->
+    <aside class="login-aside" aria-hidden="true">
+      <div class="aside-inner">
+
+        <!-- Logo -->
+        <a href="{% url 'dashboard:landing' %}" class="logo aside-logo">
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+            <rect x="4"  y="4"  width="18" height="18" rx="4" fill="var(--accent)"/>
+            <rect x="26" y="4"  width="18" height="18" rx="4" fill="var(--accent)" opacity="0.55"/>
+            <rect x="4"  y="26" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.55"/>
+            <rect x="26" y="26" width="18" height="18" rx="4" fill="var(--accent)"/>
+          </svg>
+          <span class="logo-text">Collabix</span>
+        </a>
+
+        <!-- Headline -->
+        <div class="aside-headline">
+          <div class="section-badge aside-badge">
+            <span class="badge-dot"></span>
+            Employee Portal
+          </div>
+          <h1 class="aside-heading">
+            Your Workspace<br/>
+            <span class="gradient-text">Awaits You</span>
+          </h1>
+          <p class="aside-sub">
+            Sign in to access your tasks, team channels, projects, and everything Collabix has to offer — all in one secure place.
+          </p>
+        </div>
+
+        <!-- Feature bullets -->
+        <ul class="aside-features" role="list">
+          <li class="aside-feature">
+            <div class="af-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <span>Manage tasks &amp; project boards</span>
+          </li>
+          <li class="aside-feature">
+            <div class="af-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            </div>
+            <span>Collaborate with your team</span>
+          </li>
+          <li class="aside-feature">
+            <div class="af-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <span>Role-based secure access</span>
+          </li>
+          <li class="aside-feature">
+            <div class="af-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <span>Real-time analytics &amp; insights</span>
+          </li>
+        </ul>
+
+        <!-- Mini stats -->
+        <div class="aside-stats">
+          <div class="aside-stat">
+            <strong>520+</strong>
+            <span>Employees</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="aside-stat">
+            <strong>130+</strong>
+            <span>Projects</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="aside-stat">
+            <strong>47%</strong>
+            <span>Productivity ↑</span>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ── Right Panel (login form) ── -->
+    <main class="login-main" id="main-content">
+
+      <!-- Top bar: theme toggle + back link -->
+      <div class="login-topbar">
+        <a href="{% url 'dashboard:landing' %}" class="back-link" aria-label="Back to homepage">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back to site
+        </a>
+        <button
+          class="theme-toggle"
+          @click="darkMode = !darkMode"
+          :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+        >
+          <span x-show="darkMode" aria-hidden="true">☀</span>
+          <span x-show="!darkMode" aria-hidden="true">☾</span>
+        </button>
+      </div>
+
+      <!-- Mobile-only logo -->
+      <a href="{% url 'dashboard:landing' %}" class="logo login-mobile-logo" aria-label="Collabix Home">
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+          <rect x="4"  y="4"  width="18" height="18" rx="4" fill="var(--accent)"/>
+          <rect x="26" y="4"  width="18" height="18" rx="4" fill="var(--accent)" opacity="0.55"/>
+          <rect x="4"  y="26" width="18" height="18" rx="4" fill="var(--accent)" opacity="0.55"/>
+          <rect x="26" y="26" width="18" height="18" rx="4" fill="var(--accent)"/>
+        </svg>
+        <span class="logo-text">Collabix</span>
+      </a>
+
+      <!-- ── Form Card ── -->
+      <div class="login-card reveal" x-data="loginForm()">
+
+        <div class="login-card-header">
+          <h2 class="login-title">Welcome back</h2>
+          <p class="login-subtitle">Sign in to your employee account</p>
+        </div>
+
+        <!-- Success banner (shown after login) -->
+        <div
+          class="form-banner success"
+          x-show="successMsg"
+          x-transition:enter="fade-in"
+          role="status"
+          aria-live="polite"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span x-text="successMsg"></span>
+        </div>
+
+        <!-- Error banner -->
+        {% if form.non_field_errors %}
+        <div class="form-banner error" role="alert" aria-live="assertive">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>{{ form.non_field_errors|striptags }}</span>
+        </div>
+        {% endif %}
+        <div
+          class="form-banner error"
+          x-show="errorMsg"
+          x-transition:enter="fade-in"
+          role="alert"
+          aria-live="assertive"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span x-text="errorMsg"></span>
+        </div>
+
+        <form
+          class="login-form"
+          method="post"
+          aria-label="Employee login form"
+          novalidate
+        >
+          {% csrf_token %}
+
+          <!-- Email -->
+          <div class="form-group{% if form.username.errors %} has-error{% endif %}" :class="{ 'has-error': errors.email, 'has-success': touched.email && !errors.email }">
+            <label for="login-email">Work Email</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
+              <input
+                type="email"
+                id="login-email"
+                name="username"
+                placeholder="you@company.com"
+                autocomplete="email"
+                value="{{ form.username.value|default:'' }}"
+                x-model="fields.email"
+                @blur="validateEmail"
+                :aria-describedby="errors.email ? 'email-error' : {% if form.username.errors %}'email-error'{% else %}null{% endif %}"
+                :aria-invalid="errors.email ? 'true' : {% if form.username.errors %}'true'{% else %}'false'{% endif %}"
+              />
+              <span class="input-status" x-show="touched.email && !errors.email" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+            </div>
+            {% if form.username.errors %}
+            <span class="field-error" id="email-error" role="alert">{{ form.username.errors|striptags }}</span>
+            {% else %}
+            <span class="field-error" id="email-error" x-show="errors.email" x-text="errors.email" role="alert"></span>
             {% endif %}
-            <div>
-                <label class="text-sm font-semibold" for="{{ form.username.id_for_label }}">Email</label>
-                <div class="mt-2">{{ form.username }}</div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group{% if form.password.errors %} has-error{% endif %}" :class="{ 'has-error': errors.password, 'has-success': touched.password && !errors.password }">
+            <label for="login-password">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input
+                :type="showPassword ? 'text' : 'password'"
+                id="login-password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                x-model="fields.password"
+                @blur="validatePassword"
+                :aria-describedby="errors.password ? 'password-error' : {% if form.password.errors %}'password-error'{% else %}null{% endif %}"
+                :aria-invalid="errors.password ? 'true' : {% if form.password.errors %}'true'{% else %}'false'{% endif %}"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                @click="showPassword = !showPassword"
+                :aria-label="showPassword ? 'Hide password' : 'Show password'"
+              >
+                <!-- Eye open -->
+                <svg x-show="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <!-- Eye closed -->
+                <svg x-show="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
             </div>
-            <div>
-                <label class="text-sm font-semibold" for="{{ form.password.id_for_label }}">Password</label>
-                <div class="mt-2">{{ form.password }}</div>
-            </div>
-            <button class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-bold text-white dark:bg-cyan-500 dark:text-slate-950">Login</button>
+            {% if form.password.errors %}
+            <span class="field-error" id="password-error" role="alert">{{ form.password.errors|striptags }}</span>
+            {% else %}
+            <span class="field-error" id="password-error" x-show="errors.password" x-text="errors.password" role="alert"></span>
+            {% endif %}
+          </div>
+
+          <!-- Remember me + Forgot password -->
+          <div class="form-row-flex">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                class="checkbox-input"
+                name="remember"
+                x-model="fields.remember"
+              />
+              <span class="checkbox-custom" aria-hidden="true"></span>
+              Remember me
+            </label>
+            <a href="{% url 'accounts:password_reset' %}" class="forgot-link">
+              Forgot password?
+            </a>
+          </div>
+
+          <!-- Submit -->
+          <div class="form-submit-row">
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg login-btn"
+              :disabled="submitting"
+              :class="{ 'is-loading': submitting }"
+            >
+              <span>Sign In</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+
         </form>
-        <a href="{% url 'accounts:password_reset' %}" class="mt-5 block text-center text-sm font-semibold text-cyan-700">Forgot password?</a>
-    </section>
-</main>
-{% endblock body %}
+
+        <!-- Sign up link -->
+        <p class="login-footer-note">
+          New employee?
+          <a href="mailto:it-support@yourcompany.com" class="signup-link">Contact IT to get access</a>
+        </p>
+
+      </div>
+      <!-- /login-card -->
+
+      <!-- Page footer note -->
+      <p class="login-page-footer">
+        &copy; <span id="year"></span> Collabix &mdash; Internal use only.
+        <a href="#">Privacy Policy</a> &middot; <a href="#">IT Support</a>
+      </p>
+
+    </main>
+    <!-- /login-main -->
+
+  </div>
+  <!-- /login-page -->
+
+  <script src="{% static 'js/login.js' %}"></script>
+</body>
+</html>

@@ -73,7 +73,7 @@
           <span x-show="darkMode" aria-hidden="true">☀</span>
           <span x-show="!darkMode" aria-hidden="true">☾</span>
         </button>
-        <a href="#login" class="btn btn-primary btn-sm">Employee Login</a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm">Employee Login</a>
         <!-- Mobile Toggle -->
         <button class="hamburger" @click="mobileOpen = !mobileOpen" :aria-expanded="mobileOpen" aria-label="Toggle navigation">
           <span :class="mobileOpen ? 'open' : ''"></span>
@@ -91,7 +91,7 @@
         <a href="#departments" class="mobile-link" @click="mobileOpen = false">Departments</a>
         <a href="#workflow" class="mobile-link" @click="mobileOpen = false">Workflow</a>
         <a href="#contact" class="mobile-link" @click="mobileOpen = false">Contact</a>
-        <a href="#login" class="btn btn-primary" @click="mobileOpen = false">Employee Login</a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-primary" @click="mobileOpen = false">Employee Login</a>
       </nav>
     </div>
   </header>
@@ -884,7 +884,7 @@
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
             <a href="#faq">FAQ</a>
-            <a href="#login">Employee Login</a>
+            <a href="{% url 'accounts:login' %}">Employee Login</a>
           </div>
           <div class="footer-col">
             <h4>Legal</h4>
