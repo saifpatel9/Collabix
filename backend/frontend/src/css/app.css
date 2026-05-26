@@ -1,37 +1,161 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-    html {
-        font-family: "Manrope", sans-serif;
-    }
-
-    body {
-        @apply antialiased;
-    }
+/* TaskFlow SaaS UI */
+:root {
+  --brand-start: #1d4ed8;
+  --brand-end: #06b6d4;
+  --accent: #22c55e;
+  --bg-light: #f4f7fb;
+  --text-main: #0f172a;
+  --text-soft: #64748b;
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(255, 255, 255, 0.55);
+  --shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
 }
 
-@layer components {
-    .nav-item {
-        @apply block rounded-2xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white;
-    }
-
-    .nav-item-active {
-        @apply bg-slate-900 text-white shadow-lg shadow-slate-900/20 hover:bg-slate-900 dark:bg-cyan-500 dark:text-slate-950;
-    }
-
-    .surface-card {
-        @apply rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900;
-    }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text-main);
+  background: radial-gradient(circle at 10% 10%, #dbeafe 0%, transparent 30%), radial-gradient(circle at 90% 0%, #cffafe 0%, transparent 25%), var(--bg-light);
+  min-height: 100vh;
 }
 
-@layer utilities {
-    .bg-grid {
-        background-image:
-            radial-gradient(circle at top, rgba(6, 182, 212, 0.16), transparent 30%),
-            linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
-        background-size: auto, 24px 24px, 24px 24px;
-    }
+body.dark-mode {
+  --bg-light: #0b1220;
+  --text-main: #e2e8f0;
+  --text-soft: #94a3b8;
+  --card-bg: rgba(15, 23, 42, 0.62);
+  --card-border: rgba(148, 163, 184, 0.25);
+  background: radial-gradient(circle at 20% 10%, #1e293b 0%, transparent 32%), radial-gradient(circle at 85% 15%, #0f766e 0%, transparent 24%), #020617;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--brand-start), var(--brand-end));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, var(--brand-start), var(--brand-end));
+  color: #fff;
+  border: none;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.btn-gradient:hover {
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(6, 182, 212, 0.25);
+}
+
+.glass-card {
+  backdrop-filter: blur(18px);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.navbar-premium {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.65);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+body.dark-mode .navbar-premium {
+  background: rgba(15, 23, 42, 0.65);
+}
+
+.hero {
+  padding: 8rem 0 6rem;
+}
+
+.metric-pill {
+  border-radius: 999px;
+  padding: .35rem .8rem;
+  background: rgba(29, 78, 216, .1);
+  color: #1d4ed8;
+  font-size: .78rem;
+}
+
+body.dark-mode .metric-pill {
+  background: rgba(34, 197, 94, .15);
+  color: #86efac;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 270px;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.side-link {
+  color: var(--text-soft);
+  border-radius: .8rem;
+  padding: .65rem .85rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  text-decoration: none;
+  transition: all .2s ease;
+}
+
+.side-link:hover,
+.side-link.active {
+  background: linear-gradient(90deg, rgba(29, 78, 216, .13), rgba(6, 182, 212, .14));
+  color: var(--text-main);
+}
+
+.top-search input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  outline: none;
+  color: var(--text-main);
+}
+
+.kanban-column {
+  min-height: 380px;
+}
+
+.kanban-card {
+  cursor: grab;
+}
+
+.fade-up {
+  animation: fadeUp .55s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notification-item {
+  border-left: 3px solid transparent;
+}
+
+.notification-item.unread {
+  border-left-color: #06b6d4;
+  background: rgba(6, 182, 212, .08);
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    min-height: auto;
+    width: 100%;
+    position: relative;
+  }
+  .hero {
+    padding-top: 6.5rem;
+  }
 }

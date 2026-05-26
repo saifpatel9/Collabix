@@ -1,0 +1,26 @@
+<header class="saas-topbar sticky-top">
+  <div class="d-flex align-items-center gap-3 w-100">
+    <button class="btn btn-light d-lg-none" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
+    <div class="search-wrap flex-grow-1">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="globalSearch" type="search" class="form-control" placeholder="Search employees, tasks, projects...">
+    </div>
+    <button class="btn btn-light position-relative" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fa-regular fa-bell"></i>
+      <span class="badge text-bg-danger rounded-pill">4</span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end p-2 notify-menu">
+      <a class="dropdown-item" href="#">3 leave requests pending approval</a>
+      <a class="dropdown-item" href="#">Payroll report is ready</a>
+      <a class="dropdown-item" href="#">Sprint planning at 4:00 PM</a>
+    </div>
+    <button class="btn btn-light" id="themeToggle"><i class="fa-regular fa-moon"></i></button>
+    <div class="d-flex align-items-center gap-2">
+      <div class="avatar">{{ request.user.first_name|default:'A'|first|upper }}</div>
+      <div class="d-none d-md-block">
+        <strong class="small d-block">{{ request.user.get_full_name|default:'Admin User' }}</strong>
+        <span class="text-muted small">{{ dashboard_role|default:'Employer' }}</span>
+      </div>
+    </div>
+  </div>
+</header>

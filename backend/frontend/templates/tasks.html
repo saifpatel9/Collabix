@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+    <head><meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Tasks - TaskFlow</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="../src/css/app.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container py-4"><div class="glass-card p-4"><div class="d-flex flex-wrap gap-3 align-items-center mb-3"><h4 class="mb-0">Task Management</h4>
+            <input id="taskSearch" class="form-control" style="max-width:280px" placeholder="Search tasks..."><a href="kanban.html" class="btn btn-gradient">Kanban View</a>
+        </div>
+        <div class="table-responsive"><table class="table"><thead><tr><th>Task</th><th>Project</th><th>Priority</th><th>Status</th><th>Due</th></tr></thead><tbody><tr data-task-row><td>Design landing update</td><td>Marketing Site</td><td><span class="badge bg-danger-subtle text-danger">High</span></td><td><span class="badge bg-primary-subtle text-primary">In Progress</span></td><td>May 29</td></tr><tr data-task-row><td>API integration docs</td><td>Dev Portal</td><td><span class="badge bg-warning-subtle text-warning">Medium</span></td><td><span class="badge bg-secondary-subtle text-secondary">Todo</span></td><td>Jun 01</td></tr><tr data-task-row><td>QA sprint regression</td><td>Platform</td><td><span class="badge bg-success-subtle text-success">Low</span></td><td><span class="badge bg-success-subtle text-success">Done</span></td><td>May 24</td></tr></tbody></table>
+        </div>
+    </div>
+</div>
+<script src="../src/js/app.js"></script>
+</body>
+</html>

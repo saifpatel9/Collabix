@@ -1,0 +1,35 @@
+<aside class="saas-sidebar" id="appSidebar">
+  <div class="brand-wrap d-flex align-items-center justify-content-between mb-4">
+    <a href="#" class="brand-logo"><i class="fa-solid fa-layer-group"></i> Collabix</a>
+    <button class="btn btn-sm d-lg-none" id="closeSidebar"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <nav class="d-grid gap-1">
+    {% if dashboard_role == 'employee' %}
+      <a href="#" class="side-link active"><i class="fa-solid fa-gauge"></i> My Dashboard</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-list-check"></i> My Tasks</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-calendar-check"></i> Attendance</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-plane-departure"></i> Leave Apply</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-wallet"></i> Salary</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-bell"></i> Notifications</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-comments"></i> Team Chat</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-calendar"></i> Calendar</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-user"></i> Profile</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-gear"></i> Settings</a>
+    {% else %}
+      <a href="#" class="side-link active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-users"></i> Employees</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-people-group"></i> Teams</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-diagram-project"></i> Projects</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-calendar-check"></i> Attendance</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-file-signature"></i> Leave Requests</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-wallet"></i> Payroll</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-chart-line"></i> Reports</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-calendar"></i> Calendar</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-comments"></i> Chat</a>
+      <a href="#" class="side-link"><i class="fa-regular fa-bell"></i> Notifications</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-gear"></i> Settings</a>
+      <a href="#" class="side-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    {% endif %}
+  </nav>
+</aside>

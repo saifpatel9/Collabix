@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}OTP Verification | Collabix{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+{% block content %}
+<section class="auth-wrap"><div class="auth-bg"></div><div class="auth-card"><h3>OTP Verification</h3><p class="text-muted">Enter the 6-digit code sent to your email.</p><form class="needs-validation" novalidate><div class="otp-row mb-3"><input maxlength="1" class="form-control text-center" required><input maxlength="1" class="form-control text-center" required><input maxlength="1" class="form-control text-center" required><input maxlength="1" class="form-control text-center" required><input maxlength="1" class="form-control text-center" required><input maxlength="1" class="form-control text-center" required></div><button class="btn btn-primary w-100">Verify OTP</button></form></div></section>
+{% endblock %}
