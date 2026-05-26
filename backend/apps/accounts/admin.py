@@ -13,8 +13,23 @@ class UserAdmin(DjangoUserAdmin):
 
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Personal info", {"fields": ("full_name", "phone", "department", "profile_image")}),
-        ("Permissions", {"fields": ("role", "is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
+        (
+            "Personal info",
+            {"fields": ("full_name", "phone", "department", "profile_image")},
+        ),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "role",
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                )
+            },
+        ),
         ("Important dates", {"fields": ("last_login", "created_at", "updated_at")}),
     )
     add_fieldsets = (
@@ -22,7 +37,15 @@ class UserAdmin(DjangoUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "full_name", "password1", "password2", "role", "is_active", "is_staff"),
+                "fields": (
+                    "email",
+                    "full_name",
+                    "password1",
+                    "password2",
+                    "role",
+                    "is_active",
+                    "is_staff",
+                ),
             },
         ),
     )

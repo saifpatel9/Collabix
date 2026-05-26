@@ -16,8 +16,21 @@ class Migration(migrations.Migration):
             name="User",
             fields=[
                 ("password", models.CharField(max_length=128, verbose_name="password")),
-                ("last_login", models.DateTimeField(blank=True, null=True, verbose_name="last login")),
-                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("email", models.EmailField(max_length=254, unique=True)),
@@ -25,14 +38,23 @@ class Migration(migrations.Migration):
                 (
                     "role",
                     models.CharField(
-                        choices=[("admin", "Admin"), ("manager", "Manager"), ("employee", "Employee")],
+                        choices=[
+                            ("admin", "Admin"),
+                            ("manager", "Manager"),
+                            ("employee", "Employee"),
+                        ],
                         default="employee",
                         max_length=20,
                     ),
                 ),
                 ("department", models.CharField(blank=True, max_length=120)),
                 ("phone", models.CharField(blank=True, max_length=20)),
-                ("profile_image", models.ImageField(blank=True, null=True, upload_to="uploads/profiles/")),
+                (
+                    "profile_image",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="uploads/profiles/"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True)),
                 ("is_staff", models.BooleanField(default=False)),
                 (

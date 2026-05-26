@@ -28,7 +28,8 @@ def contact(request):
     if request.method != "POST":
         return HttpResponse(status=405)
 
-    return HttpResponse("""
+    return HttpResponse(
+        """
         <div style="
           display: flex; align-items: center; gap: 10px;
           background: rgba(16,185,129,0.12);
@@ -39,4 +40,5 @@ def contact(request):
         ">
           Message sent successfully!
         </div>
-        """)
+        """
+    )
