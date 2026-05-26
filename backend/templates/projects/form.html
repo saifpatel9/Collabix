@@ -1,0 +1,22 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Work Management" title="Project Form" subtitle="Create or update a project foundation." %}
+
+<form method="post" class="max-w-4xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    {% csrf_token %}
+    <div class="grid gap-5 md:grid-cols-2">
+        {% for field in form %}
+            <div {% if field.name == "description" %}class="md:col-span-2"{% endif %}>
+                <label class="text-sm font-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="mt-2">{{ field }}</div>
+                {% if field.errors %}<p class="mt-2 text-sm text-red-600">{{ field.errors|striptags }}</p>{% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="mt-6 flex gap-3">
+        <button class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white dark:bg-cyan-500 dark:text-slate-950">Save project</button>
+        <a href="{% url 'projects:project_directory' %}" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold dark:border-slate-700">Cancel</a>
+    </div>
+</form>
+{% endblock content %}

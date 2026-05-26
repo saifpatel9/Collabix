@@ -1,0 +1,75 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title %}{{ team.name }} | {{ APP_NAME }}{% endblock title %}
+
+{% block content %}
+{% url 'projects:team_update' team.pk as edit_url %}
+{% include "components/page_header.html" with eyebrow=team.department.name title=team.name subtitle=team.description action_url=edit_url action_label="Edit Team" %}
+
+<div class="grid gap-6 xl:grid-cols-[1fr_340px]">
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="grid gap-5 md:grid-cols-3">
+            <div>
+                <p class="text-sm text-slate-500">Team Lead</p>
+                <p class="mt-2 font-semibold">{{ team.team_lead.user.full_name|default:"Unassigned" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-slate-500">Department</p>
+                <p class="mt-2 font-semibold">{{ team.department.name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-slate-500">Status</p>
+                <p class="mt-2 font-semibold">{% if team.is_active %}Active{% else %}Archived{% endif %}</p>
+            </div>
+        </div>
+
+        <h2 class="mt-8 text-lg font-bold">Members</h2>
+        <div class="mt-3 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
+            <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+                <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-950">
+                    <tr>
+                        <th class="px-4 py-3">Member</th>
+                        <th class="px-4 py-3">Role</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for membership in memberships %}
+                        <tr>
+                            <td class="px-4 py-3 font-semibold">{{ membership.employee.user.full_name }}</td>
+                            <td class="px-4 py-3">{{ membership.get_role_display }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <form method="post" action="{% url 'projects:team_member_remove' membership.pk %}">
+                                    {% csrf_token %}
+                                    <button class="text-sm font-semibold text-red-600">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="px-4 py-6 text-center text-slate-500">No team members yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <aside class="space-y-6">
+        <form method="post" action="{% url 'projects:team_member_add' team.pk %}" class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            {% csrf_token %}
+            <h2 class="text-lg font-bold">Add Member</h2>
+            <div class="mt-4 space-y-4">
+                {{ membership_form.employee }}
+                {{ membership_form.role }}
+            </div>
+            <button class="mt-4 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white dark:bg-cyan-500 dark:text-slate-950">Add member</button>
+        </form>
+
+        <form method="post" action="{% url 'projects:team_archive' team.pk %}" class="rounded-3xl border border-red-200 bg-white p-5 shadow-sm dark:border-red-900 dark:bg-slate-900">
+            {% csrf_token %}
+            <h2 class="text-lg font-bold">Archive Team</h2>
+            <p class="mt-2 text-sm text-slate-500">Archived teams remain available for history but are hidden from active selection.</p>
+            <button class="mt-4 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white">Archive</button>
+        </form>
+    </aside>
+</div>
+{% endblock content %}

@@ -1,0 +1,16 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title %}Teams | {{ APP_NAME }}{% endblock title %}
+
+{% block content %}
+{% url 'projects:team_create' as create_url %}
+{% include "components/page_header.html" with eyebrow="Work Management" title="Teams" subtitle="Organize employees into durable delivery teams." action_url=create_url action_label="Add Team" %}
+
+<form class="mb-5" hx-get="{% url 'projects:team_directory' %}" hx-target="#team-grid" hx-push-url="true">
+    <input name="q" value="{{ search_query }}" placeholder="Search teams" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+</form>
+
+<section id="team-grid">
+    {% include "teams/partials/directory_grid.html" %}
+</section>
+{% endblock content %}
