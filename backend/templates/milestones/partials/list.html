@@ -1,0 +1,8 @@
+<div class="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+    {% for milestone in milestones %}
+        {% include "components/milestone_card.html" with milestone=milestone %}
+    {% empty %}
+        <div class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-500 dark:border-slate-700">No milestones found.</div>
+    {% endfor %}
+</div>
+{% include "components/pagination.html" with target="#milestone-list" %}

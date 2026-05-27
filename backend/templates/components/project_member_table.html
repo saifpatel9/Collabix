@@ -1,0 +1,39 @@
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-950">
+            <tr>
+                <th class="px-4 py-3">Member</th>
+                <th class="px-4 py-3">Department</th>
+                <th class="px-4 py-3">Role</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            {% for membership in memberships %}
+                <tr>
+                    <td class="px-4 py-3 font-semibold">{{ membership.employee.user.full_name }}</td>
+                    <td class="px-4 py-3">{{ membership.employee.department.name|default:"-" }}</td>
+                    <td class="px-4 py-3">
+                        <form method="post" action="{% url 'projects:project_member_role' project.pk membership.pk %}" class="flex items-center gap-2">
+                            {% csrf_token %}
+                            <select name="role" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950">
+                                {% for value, label in role_form.fields.role.choices %}
+                                    <option value="{{ value }}" {% if value == membership.role %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white dark:bg-cyan-500 dark:text-slate-950">Save</button>
+                        </form>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <form method="post" action="{% url 'projects:project_member_remove' project.pk membership.pk %}">
+                            {% csrf_token %}
+                            <button class="text-sm font-semibold text-red-600">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="px-4 py-6 text-center text-slate-500">No project members yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

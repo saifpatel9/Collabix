@@ -1,0 +1,11 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title %}Milestones | {{ APP_NAME }}{% endblock title %}
+
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Work Management" title="Milestones" subtitle="Track upcoming project commitments and progress." %}
+
+<section id="milestone-list" hx-get="{% url 'projects:milestone_list' %}" hx-trigger="load, every 60s" hx-swap="innerHTML">
+    {% include "milestones/partials/list.html" %}
+</section>
+{% endblock content %}

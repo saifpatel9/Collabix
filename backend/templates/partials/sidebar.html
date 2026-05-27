@@ -14,7 +14,9 @@
 
     <nav class="mt-10 space-y-2">
         <a href="{% url 'dashboard:home' %}" class="nav-item">Dashboard</a>
-        <a href="#" class="nav-item">Projects</a>
+        <a href="{% url 'projects:project_directory' %}" class="nav-item">Projects</a>
+        <a href="{% url 'projects:team_directory' %}" class="nav-item">Teams</a>
+        <a href="{% url 'projects:milestone_list' %}" class="nav-item">Milestones</a>
         <a href="#" class="nav-item">Tasks</a>
         <a href="{% url 'employees:employee_list' %}" class="nav-item">Employees</a>
         <a href="{% url 'employees:employee_directory' %}" class="nav-item">Directory</a>

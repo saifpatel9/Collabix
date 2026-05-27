@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from apps.employees.models import Department, Designation, EmployeeProfile
+from apps.projects.models import Milestone, Project, Team
 
 
 class GlobalSearchService:
@@ -14,7 +15,10 @@ class GlobalSearchService:
             + GlobalSearchService._employees(query, limit)
             + GlobalSearchService._departments(query, limit)
             + GlobalSearchService._designations(query, limit)
-        )[: limit * 4]
+            + GlobalSearchService._teams(query, limit)
+            + GlobalSearchService._projects(query, limit)
+            + GlobalSearchService._milestones(query, limit)
+        )[: limit * 7]
 
     @staticmethod
     def _users(query, limit):
@@ -76,4 +80,49 @@ class GlobalSearchService:
             for designation in Designation.objects.filter(
                 title__icontains=query
             ).order_by("level", "title")[:limit]
+        ]
+
+    @staticmethod
+    def _teams(query, limit):
+        return [
+            {
+                "type": "Team",
+                "title": team.name,
+                "subtitle": team.department.name,
+                "url": reverse("projects:team_detail", kwargs={"pk": team.pk}),
+            }
+            for team in Team.objects.select_related("department")
+            .filter(name__icontains=query)
+            .order_by("name")[:limit]
+        ]
+
+    @staticmethod
+    def _projects(query, limit):
+        queryset = Project.objects.filter(
+            name__icontains=query
+        ) | Project.objects.filter(code__icontains=query)
+        return [
+            {
+                "type": "Project",
+                "title": project.name,
+                "subtitle": project.code,
+                "url": reverse("projects:project_detail", kwargs={"pk": project.pk}),
+            }
+            for project in queryset.filter(is_archived=False).order_by("name")[:limit]
+        ]
+
+    @staticmethod
+    def _milestones(query, limit):
+        return [
+            {
+                "type": "Milestone",
+                "title": milestone.name,
+                "subtitle": milestone.project.code,
+                "url": reverse(
+                    "projects:project_detail", kwargs={"pk": milestone.project.pk}
+                ),
+            }
+            for milestone in Milestone.objects.select_related("project")
+            .filter(name__icontains=query)
+            .order_by("due_date")[:limit]
         ]
