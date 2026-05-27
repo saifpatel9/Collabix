@@ -1,26 +1,36 @@
-<header class="saas-topbar sticky-top">
+<header class="saas-topbar sticky-top glass-panel-soft">
   <div class="d-flex align-items-center gap-3 w-100">
-    <button class="btn btn-light d-lg-none" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
-    <div class="search-wrap flex-grow-1">
+    <button class="btn btn-icon d-lg-none" id="openSidebar" type="button"><i class="fa-solid fa-bars"></i></button>
+
+    <div class="search-wrap flex-grow-1 position-relative">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input id="globalSearch" type="search" class="form-control" placeholder="Search employees, tasks, projects...">
+      <input id="globalSearch" type="search" class="form-control" placeholder="Search projects, tasks, people...">
+      <div class="search-suggestions" id="searchSuggestions"></div>
     </div>
-    <button class="btn btn-light position-relative" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="fa-regular fa-bell"></i>
-      <span class="badge text-bg-danger rounded-pill">4</span>
-    </button>
-    <div class="dropdown-menu dropdown-menu-end p-2 notify-menu">
-      <a class="dropdown-item" href="#">3 leave requests pending approval</a>
-      <a class="dropdown-item" href="#">Payroll report is ready</a>
-      <a class="dropdown-item" href="#">Sprint planning at 4:00 PM</a>
-    </div>
-    <button class="btn btn-light" id="themeToggle"><i class="fa-regular fa-moon"></i></button>
-    <div class="d-flex align-items-center gap-2">
-      <div class="avatar">{{ request.user.first_name|default:'A'|first|upper }}</div>
-      <div class="d-none d-md-block">
-        <strong class="small d-block">{{ request.user.get_full_name|default:'Admin User' }}</strong>
-        <span class="text-muted small">{{ dashboard_role|default:'Employer' }}</span>
+
+    <div class="dropdown">
+      <button class="btn btn-icon position-relative" data-bs-toggle="dropdown" type="button" aria-expanded="false">
+        <i class="fa-regular fa-bell"></i>
+        <span class="badge rounded-pill text-bg-danger notification-count" id="notifCount">4</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end notify-menu p-2">
+        <div id="notificationList"></div>
       </div>
+    </div>
+
+    <button class="btn btn-icon" id="themeToggle" type="button" title="Toggle theme"><i class="fa-regular fa-moon"></i></button>
+
+    <div class="dropdown">
+      <button class="btn user-chip" data-bs-toggle="dropdown" type="button" aria-expanded="false">
+        <span class="avatar">{{ request.user.first_name|default:'A'|first|upper }}</span>
+        <span class="d-none d-md-inline">{{ request.user.get_full_name|default:'Workspace User' }}</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="#">My Profile</a></li>
+        <li><a class="dropdown-item" href="#">Preferences</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="#">Sign out</a></li>
+      </ul>
     </div>
   </div>
 </header>

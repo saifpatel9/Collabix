@@ -1,35 +1,33 @@
-<aside class="saas-sidebar" id="appSidebar">
-  <div class="brand-wrap d-flex align-items-center justify-content-between mb-4">
-    <a href="#" class="brand-logo"><i class="fa-solid fa-layer-group"></i> Collabix</a>
-    <button class="btn btn-sm d-lg-none" id="closeSidebar"><i class="fa-solid fa-xmark"></i></button>
+<aside class="saas-sidebar glass-panel" id="appSidebar">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <a href="#" class="brand-logo"><i class="fa-solid fa-cubes-stacked"></i> TaskOPad</a>
+    <button class="btn btn-sm btn-icon d-lg-none" id="closeSidebar" type="button"><i class="fa-solid fa-xmark"></i></button>
   </div>
-  <nav class="d-grid gap-1">
+
+  <p class="sidebar-label">Workspace</p>
+  <nav class="d-grid gap-1 mb-3">
     {% if dashboard_role == 'employee' %}
-      <a href="#" class="side-link active"><i class="fa-solid fa-gauge"></i> My Dashboard</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-list-check"></i> My Tasks</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-calendar-check"></i> Attendance</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-plane-departure"></i> Leave Apply</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-wallet"></i> Salary</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-bell"></i> Notifications</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-comments"></i> Team Chat</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-calendar"></i> Calendar</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-user"></i> Profile</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-gear"></i> Settings</a>
+      <a href="#" class="side-link active"><i class="fa-solid fa-gauge-high"></i><span>My Dashboard</span></a>
+      <a href="#" class="side-link"><i class="fa-solid fa-list-check"></i><span>Assigned Tasks</span></a>
+      <a href="#" class="side-link"><i class="fa-solid fa-calendar-day"></i><span>Attendance</span></a>
+      <a href="#" class="side-link"><i class="fa-solid fa-chart-line"></i><span>Performance</span></a>
+      <a href="#" class="side-link"><i class="fa-regular fa-calendar"></i><span>Calendar</span></a>
+      <a href="#" class="side-link"><i class="fa-regular fa-user"></i><span>Profile</span></a>
     {% else %}
-      <a href="#" class="side-link active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-users"></i> Employees</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-people-group"></i> Teams</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-diagram-project"></i> Projects</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-calendar-check"></i> Attendance</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-file-signature"></i> Leave Requests</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-wallet"></i> Payroll</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-chart-line"></i> Reports</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-calendar"></i> Calendar</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-comments"></i> Chat</a>
-      <a href="#" class="side-link"><i class="fa-regular fa-bell"></i> Notifications</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-gear"></i> Settings</a>
-      <a href="#" class="side-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      <a href="#" class="side-link active"><i class="fa-solid fa-gauge-high"></i><span>Overview</span></a>
+      <a href="#" class="side-link"><i class="fa-solid fa-users"></i><span>Employees</span></a>
+      <a href="#" class="side-link"><i class="fa-solid fa-diagram-project"></i><span>Projects</span></a>
+      <a href="#" class="side-link"><i class="fa-solid fa-list-check"></i><span>Tasks</span></a>
+      <a href="#" class="side-link"><i class="fa-solid fa-table-columns"></i><span>Kanban</span></a>
+      <a href="#" class="side-link"><i class="fa-solid fa-chart-pie"></i><span>Reports</span></a>
+      <a href="#" class="side-link"><i class="fa-regular fa-calendar"></i><span>Calendar</span></a>
     {% endif %}
+  </nav>
+
+  <p class="sidebar-label">Support</p>
+  <nav class="d-grid gap-1">
+    <a href="#" class="side-link"><i class="fa-regular fa-bell"></i><span>Notifications</span><span class="badge rounded-pill text-bg-danger ms-auto">5</span></a>
+    <a href="#" class="side-link"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+    <a href="#" class="side-link"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
   </nav>
 </aside>

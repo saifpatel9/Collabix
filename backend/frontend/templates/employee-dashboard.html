@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}Employee Dashboard | Collabix{% endblock %}
+{% block title %}Employee Dashboard | TaskOPad{% endblock %}
 {% block content %}
 <div class="dashboard-layout">
   {% include 'components/sidebar.html' with dashboard_role='employee' %}
@@ -8,24 +7,18 @@
     {% include 'components/navbar.html' with dashboard_role='Employee' %}
     <section class="container-fluid py-4">
       <div class="saas-card p-4 mb-4 hero-widget">
-        <h4>Welcome back, {{ request.user.first_name|default:'Alex' }}!</h4>
-        <p class="mb-0 text-muted">You have 4 tasks due today and your productivity score is trending up.</p>
+        <h4 class="mb-2">Welcome back, {{ request.user.first_name|default:'Alex' }}</h4>
+        <p class="mb-0 text-secondary">You have 3 priorities today and your weekly velocity improved by 12%.</p>
       </div>
-      <div class="row g-3 mb-4">
-        <div class="col-6 col-xl-3"><div class="stat-card"><span>Today Tasks</span><h3 data-counter="9">0</h3></div></div>
-        <div class="col-6 col-xl-3"><div class="stat-card"><span>Completed</span><h3 data-counter="5">0</h3></div></div>
-        <div class="col-6 col-xl-3"><div class="stat-card"><span>Attendance</span><h3 data-counter="96">0</h3><small>% this month</small></div></div>
-        <div class="col-6 col-xl-3"><div class="stat-card"><span>Productivity</span><h3 data-counter="89">0</h3><small>Excellent</small></div></div>
+      <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-6"><div class="stat-card"><p>My Tasks</p><h3 data-counter="18">0</h3><small>7 due today</small></div></div>
+        <div class="col-lg-3 col-6"><div class="stat-card"><p>Completed</p><h3 data-counter="11">0</h3><small>This week</small></div></div>
+        <div class="col-lg-3 col-6"><div class="stat-card"><p>Attendance</p><h3 data-counter="97">0%</h3><small>Monthly</small></div></div>
+        <div class="col-lg-3 col-6"><div class="stat-card"><p>Productivity</p><h3 data-counter="89">0%</h3><small>Excellent</small></div></div>
       </div>
-      <div class="row g-3 mb-4">
-        <div class="col-xl-8"><div class="saas-card p-3"><h6>Performance Trend</h6><canvas id="performanceChart" height="90"></canvas>
-        </div>
-      </div>
-        <div class="col-xl-4"><div class="saas-card p-3"><h6>Attendance Widget</h6><div class="attendance-widget"><p>Check-in: 09:11 AM</p><p>Break: 00:43</p><p>Work Hours: 07:12</p><button class="btn btn-primary btn-sm">Mark Out</button></div></div></div>
-      </div>
-      <div class="row g-3">
-        <div class="col-xl-6"><div class="saas-card p-3"><h6>Activity Timeline</h6><ul class="timeline mb-0"><li>Completed API integration task</li><li>Commented on Design sprint board</li><li>Joined standup call with Team Alpha</li></ul></div></div>
-        <div class="col-xl-6"><div class="saas-card p-3"><h6>Upcoming Deadlines</h6><ul class="timeline mb-0"><li>Wireframe review - Today 4:00 PM</li><li>Client demo prep - Tomorrow 11:30 AM</li><li>Release checklist - Friday</li></ul></div></div>
+      <div class="row g-4">
+        <div class="col-xl-8"><div class="saas-card p-4"><h5>Performance Trend</h5><canvas id="performanceChart" height="120"></canvas></div></div>
+        <div class="col-xl-4"><div class="saas-card p-4"><h5>Today Focus</h5><div class="small-list"><div><strong>Finalize sprint notes</strong><span>11:30 AM</span><span class="badge text-bg-warning">Medium</span></div><div><strong>Review PR #142</strong><span>2:00 PM</span><span class="badge text-bg-danger">High</span></div><div><strong>Daily standup</strong><span>4:30 PM</span><span class="badge text-bg-success">Low</span></div></div></div></div>
       </div>
     </section>
   </main>
