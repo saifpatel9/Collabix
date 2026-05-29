@@ -1,83 +1,77 @@
-{% extends 'base.html' %}
-{% block title %}TaskOPad Dashboard{% endblock %}
+﻿{% extends "layouts/dashboard.html" %}
+
+{% block title %}Dashboard | {{ APP_NAME }}{% endblock title %}
+
 {% block content %}
-<div class="dashboard-layout">
-  {% include 'components/sidebar.html' with dashboard_role='employer' %}
-  <main class="dashboard-main">
-    {% include 'components/navbar.html' with dashboard_role='Employer' %}
+    {% include "components/page_header.html" with eyebrow="Workspace Overview" title="Dashboard" subtitle="Track your people, projects, and approvals from a single enterprise workspace." %}
 
-    <section class="container-fluid py-4">
-      <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6"><div class="stat-card"><p>Total Projects</p><h3 data-counter="42">0</h3><small>+6 this month</small></div></div>
-        <div class="col-xl-3 col-md-6"><div class="stat-card"><p>Active Tasks</p><h3 data-counter="318">0</h3><small>36 due today</small></div></div>
-        <div class="col-xl-3 col-md-6"><div class="stat-card"><p>Team Utilization</p><h3 data-counter="87">0%</h3><small>Optimized</small></div></div>
-        <div class="col-xl-3 col-md-6"><div class="stat-card"><p>On-time Delivery</p><h3 data-counter="94">0%</h3><small>Above benchmark</small></div></div>
-      </div>
+    <div class="space-y-6">
+        <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {% include "components/dashboard_card.html" with label="Total Employees" value=total_employees caption="Employee profiles in the system" %}
+            {% include "components/dashboard_card.html" with label="Active Employees" value=active_employees caption="Currently employed staff" %}
+            {% include "components/dashboard_card.html" with label="Active Departments" value=active_departments caption="Live organizational units" %}
+            {% include "components/dashboard_card.html" with label="Pending Approvals" value=pending_approvals caption="Items waiting for review" %}
+        </div>
 
-      <div class="row g-4 mb-4">
-        <div class="col-xxl-8"><div class="saas-card p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="mb-0">Productivity Analytics</h5><span class="chip">Live</span></div><canvas id="taskAnalyticsChart" height="110"></canvas></div></div>
-        <div class="col-xxl-4"><div class="saas-card p-4"><h5>Team Performance</h5><canvas id="attendanceChart" height="185"></canvas></div></div>
-      </div>
+        <div class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+            <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Project Snapshot</p>
+                        <h2 class="mt-2 text-2xl font-bold text-slate-950 dark:text-white">Active portfolio</h2>
+                    </div>
+                    <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">Live</span>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Total projects</span>
+                        <p class="mt-3 text-4xl font-extrabold text-slate-950 dark:text-white">{{ total_projects }}</p>
+                    </div>
+                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
+                        <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">Active projects</span>
+                        <p class="mt-3 text-4xl font-extrabold text-slate-950 dark:text-white">{{ active_projects }}</p>
+                    </div>
+                </div>
+                <div class="mt-6 space-y-4">
+                    {% for item in projects_by_status %}
+                        <div class="flex items-center justify-between rounded-3xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
+                            <span class="font-semibold text-slate-700 dark:text-slate-200">{{ item.status|default:'Unknown'|title }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ item.total }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="text-sm text-slate-500 dark:text-slate-400">No project status data available.</p>
+                    {% endfor %}
+                </div>
+            </section>
 
-      <div class="row g-4 mb-4">
-        <div class="col-xl-7">
-          <div class="saas-card p-4">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-              <h5 class="mb-0">Task Matrix</h5>
-              <div class="d-flex gap-2">
-                <select class="form-select form-select-sm" id="roleFilter"><option value="">All Roles</option><option>Developer</option><option>Designer</option><option>Manager</option></select>
-                <input class="form-control form-control-sm" id="tableSearch" placeholder="Search table">
-              </div>
-            </div>
-            <div class="table-responsive">
-              <table class="table align-middle table-hover" id="employeeTable">
-                <thead><tr><th data-sort="name">Name</th><th data-sort="role">Role</th><th>Status</th><th>Priority</th><th>Progress</th></tr></thead>
-                <tbody>
-                  <tr><td>Arjun Mehta</td><td>Developer</td><td><span class="status-dot status-ok"></span>In Progress</td><td><span class="badge text-bg-danger">High</span></td><td><div class="progress"><div class="progress-bar" style="width:74%"></div></div></td></tr>
-                  <tr><td>Neha Singh</td><td>Designer</td><td><span class="status-dot status-warn"></span>Review</td><td><span class="badge text-bg-warning">Medium</span></td><td><div class="progress"><div class="progress-bar bg-warning" style="width:62%"></div></div></td></tr>
-                  <tr><td>Ira Das</td><td>Manager</td><td><span class="status-dot status-ok"></span>Done</td><td><span class="badge text-bg-success">Low</span></td><td><div class="progress"><div class="progress-bar bg-success" style="width:96%"></div></div></td></tr>
-                  <tr><td>Rohan Sen</td><td>Developer</td><td><span class="status-dot status-danger"></span>Blocked</td><td><span class="badge text-bg-danger">High</span></td><td><div class="progress"><div class="progress-bar bg-danger" style="width:41%"></div></div></td></tr>
-                  <tr><td>Aanya Jain</td><td>Designer</td><td><span class="status-dot status-ok"></span>In Progress</td><td><span class="badge text-bg-warning">Medium</span></td><td><div class="progress"><div class="progress-bar" style="width:69%"></div></div></td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="d-flex justify-content-between align-items-center">
-              <small id="paginationInfo" class="text-secondary"></small>
-              <div id="tablePagination"></div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-5">
-          <div class="saas-card p-4 h-100">
-            <h5>Recent Activity</h5>
-            <ul class="timeline mb-3">
-              <li>Q3 roadmap approved by leadership.</li>
-              <li>Design team delivered dashboard system.</li>
-              <li>Security patch deployed to production.</li>
-              <li>New sprint started for mobile app.</li>
-            </ul>
-            <h6 class="mb-3">Calendar Overview</h6>
-            <div class="mini-calendar">
-              <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div>
-              <div class="active">27</div><div>28</div><div>29</div><div>30</div><div>31</div>
-            </div>
-          </div>
-        </div>
-      </div>
+            <section class="space-y-6">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Notifications</p>
+                            <h2 class="mt-2 text-xl font-bold text-slate-950 dark:text-white">Unread alerts</h2>
+                        </div>
+                        <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ unread_notifications }}</span>
+                    </div>
+                    <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">Keep your focus on the workflow by clearing unread alerts regularly.</p>
+                </div>
 
-      <div class="saas-card p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Kanban Workflow</h5>
-          <button class="btn btn-primary btn-sm" data-toast="Board synced successfully">Sync Board</button>
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Upcoming milestones</p>
+                    <div class="mt-4 space-y-3">
+                        {% for milestone in upcoming_milestones %}
+                            <a href="{% url 'projects:project_detail' milestone.project.pk %}" class="block rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:border-cyan-500 dark:hover:bg-slate-900">
+                                <span class="font-semibold">{{ milestone.name }}</span>
+                                <span class="block text-slate-500 dark:text-slate-400">{{ milestone.project.code }} • due {{ milestone.due_date }}</span>
+                            </a>
+                        {% empty %}
+                            <p class="text-sm text-slate-500 dark:text-slate-400">No upcoming milestones in the next 30 days.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
         </div>
-        <div class="kanban-grid">
-          <div class="kanban-col" data-dropzone><h6>Backlog</h6><div class="task-card" draggable="true">Define API milestones</div><div class="task-card" draggable="true">Write onboarding docs</div></div>
-          <div class="kanban-col" data-dropzone><h6>In Progress</h6><div class="task-card" draggable="true">Build analytics widgets</div></div>
-          <div class="kanban-col" data-dropzone><h6>Review</h6><div class="task-card" draggable="true">QA authentication flow</div></div>
-          <div class="kanban-col" data-dropzone><h6>Done</h6><div class="task-card" draggable="true">Deploy responsive sidebar</div></div>
-        </div>
-      </div>
-    </section>
-  </main>
-</div>
-{% endblock %}
+
+        {% include "dashboard/partials/widgets.html" %}
+    </div>
+{% endblock content %}
