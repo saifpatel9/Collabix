@@ -208,3 +208,91 @@ function setupAuthUX() {
     });
   });
 }
+
+function collabixApp() {
+  return {
+    darkMode: true,
+    loading: true,
+    scrolled: false,
+    init() {
+      this.setInitialTheme();
+      this.updateYear();
+      setTimeout(() => {
+        this.loading = false;
+      }, 1200);
+      this.setupReveal();
+    },
+    setInitialTheme() {
+      const stored = localStorage.getItem('collabix-theme');
+      if (stored) {
+        this.darkMode = stored === 'dark';
+      }
+    },
+    handleScroll() {
+      this.scrolled = window.scrollY > 120;
+    },
+    updateYear() {
+      document.getElementById('year')?.textContent = new Date().getFullYear();
+    },
+    setupReveal() {
+      const revealEls = document.querySelectorAll('.reveal');
+      if (!revealEls.length) return;
+      const observer = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -20px 0px' }
+      );
+      revealEls.forEach((el) => observer.observe(el));
+    },
+    submitForm(event) {
+      // Allow HTMX to handle the form when using x-data scope,
+      // but preserve a clean form experience if the handler is required.
+      event.target.classList.add('submitting');
+      return true;
+    },
+  };
+}
+
+function statsCounter() {
+  return {
+    counts: {
+      employees: 0,
+      projects: 0,
+      tasks: 0,
+      productivity: 0,
+    },
+    startCounting() {
+      const target = {
+        employees: 520,
+        projects: 120,
+        tasks: 3400,
+        productivity: 98,
+      };
+      const steps = 28;
+      const current = { ...this.counts };
+      const increment = {
+        employees: Math.ceil(target.employees / steps),
+        projects: Math.ceil(target.projects / steps),
+        tasks: Math.ceil(target.tasks / steps),
+        productivity: Math.ceil(target.productivity / steps),
+      };
+      const interval = setInterval(() => {
+        let finished = true;
+        Object.keys(target).forEach((key) => {
+          if (current[key] < target[key]) {
+            current[key] = Math.min(current[key] + increment[key], target[key]);
+            this.counts[key] = current[key];
+            finished = false;
+          }
+        });
+        if (finished) clearInterval(interval);
+      }, 35);
+    },
+  };
+}
