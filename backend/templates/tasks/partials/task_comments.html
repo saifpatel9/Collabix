@@ -1,0 +1,7 @@
+<div id="task-comments" class="mt-4 space-y-3">
+    {% for comment in comments %}
+        {% include "tasks/partials/task_comment.html" %}
+    {% empty %}
+        <p class="text-sm text-slate-500">No comments yet.</p>
+    {% endfor %}
+</div>

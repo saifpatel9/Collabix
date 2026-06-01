@@ -1,0 +1,27 @@
+<div id="task-checklists" class="mt-4 space-y-4">
+    {% for checklist in checklists %}
+        <div class="rounded-2xl bg-slate-50 p-4 dark:bg-slate-950">
+            <div class="flex items-center justify-between gap-3">
+                <h3 class="font-bold">{{ checklist.title }}</h3>
+                <span class="text-xs font-bold text-slate-500">{{ checklist.progress.completed }}/{{ checklist.progress.total }}</span>
+            </div>
+            <div class="mt-3 space-y-2">
+                {% for item in checklist.items.all %}
+                    <form method="post" action="{% url 'tasks:task_checklist_toggle' task.pk item.pk %}" hx-post="{% url 'tasks:task_checklist_toggle' task.pk item.pk %}" hx-target="#task-checklists" class="flex items-center gap-2 text-sm">
+                        {% csrf_token %}
+                        <input type="checkbox" name="is_completed" {% if item.is_completed %}checked{% endif %} onchange="this.form.requestSubmit()" class="h-4 w-4 rounded border-slate-300 text-cyan-600">
+                        <span class="{% if item.is_completed %}line-through text-slate-400{% endif %}">{{ item.title }}</span>
+                    </form>
+                {% empty %}<p class="text-sm text-slate-500">No checklist items.</p>{% endfor %}
+            </div>
+            <form method="post" action="{% url 'tasks:task_checklist_item' task.pk checklist.pk %}" class="mt-3 flex gap-2">
+                {% csrf_token %}
+                <input name="title" placeholder="Add item" class="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900">
+                <input type="hidden" name="position" value="{{ checklist.items.count }}">
+                <button class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white dark:bg-white dark:text-slate-900">Add</button>
+            </form>
+        </div>
+    {% empty %}
+        <p class="text-sm text-slate-500">No checklists yet.</p>
+    {% endfor %}
+</div>

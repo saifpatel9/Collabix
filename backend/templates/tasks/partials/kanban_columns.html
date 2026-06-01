@@ -1,0 +1,17 @@
+<div class="grid gap-4 xl:grid-cols-6">
+    {% for status, label, column_tasks in columns %}
+        <section class="min-h-96 rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-sm font-extrabold">{{ label }}</h2>
+                <span class="rounded-full bg-white px-2 py-1 text-xs font-bold dark:bg-slate-900">{{ column_tasks|length }}</span>
+            </div>
+            <div class="space-y-3">
+                {% for task in column_tasks %}
+                    {% include "tasks/partials/task_card.html" %}
+                {% empty %}
+                    <p class="rounded-2xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500 dark:border-slate-700">No tasks</p>
+                {% endfor %}
+            </div>
+        </section>
+    {% endfor %}
+</div>

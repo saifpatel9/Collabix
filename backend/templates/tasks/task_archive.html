@@ -1,0 +1,8 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title %}Archived Tasks | {{ APP_NAME }}{% endblock title %}
+
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Work Execution" title="Archived Tasks" subtitle="Tasks removed from active execution views." %}
+{% include "tasks/partials/task_table.html" %}
+{% endblock content %}

@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.urls import reverse
 
 from apps.employees.models import Department, Designation, EmployeeProfile
 from apps.projects.models import Milestone, Project, Team
+from apps.tasks.models import Task
 
 
 class GlobalSearchService:
@@ -18,6 +20,7 @@ class GlobalSearchService:
             + GlobalSearchService._teams(query, limit)
             + GlobalSearchService._projects(query, limit)
             + GlobalSearchService._milestones(query, limit)
+            + GlobalSearchService._tasks(query, limit)
         )[: limit * 7]
 
     @staticmethod
@@ -125,4 +128,31 @@ class GlobalSearchService:
             for milestone in Milestone.objects.select_related("project")
             .filter(name__icontains=query)
             .order_by("due_date")[:limit]
+        ]
+
+    @staticmethod
+    def _tasks(query, limit):
+        queryset = (
+            Task.objects.select_related("project", "milestone")
+            .prefetch_related("assignments__employee__user")
+            .filter(
+                Q(title__icontains=query)
+                | Q(task_code__icontains=query)
+                | Q(project__name__icontains=query)
+                | Q(project__code__icontains=query)
+                | Q(milestone__name__icontains=query)
+                | Q(assignments__employee__user__full_name__icontains=query)
+            )
+            .filter(is_archived=False)
+            .distinct()
+            .order_by("-created_at")
+        )
+        return [
+            {
+                "type": "Task",
+                "title": task.title,
+                "subtitle": f"{task.task_code} · {task.project.code}",
+                "url": reverse("tasks:task_detail", kwargs={"pk": task.pk}),
+            }
+            for task in queryset[:limit]
         ]

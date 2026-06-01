@@ -1,0 +1,25 @@
+<form class="mb-5 grid gap-3 lg:grid-cols-4" hx-get="{% url 'tasks:task_list' %}" hx-target="#task-list" hx-push-url="true">
+    <input name="q" value="{{ filters.q }}" placeholder="Search tasks" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <select name="status" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">All statuses</option>
+        {% for value, label in statuses %}<option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <select name="priority" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">All priorities</option>
+        {% for value, label in priorities %}<option value="{{ value }}" {% if filters.priority == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <select name="assignee" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">All assignees</option>
+        {% for employee in employees %}<option value="{{ employee.pk }}" {% if filters.assignee == employee.pk|stringformat:"s" %}selected{% endif %}>{{ employee.user.full_name }}</option>{% endfor %}
+    </select>
+    <select name="project" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">All projects</option>
+        {% for project in projects %}<option value="{{ project.pk }}" {% if filters.project == project.pk|stringformat:"s" %}selected{% endif %}>{{ project }}</option>{% endfor %}
+    </select>
+    <select name="milestone" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">All milestones</option>
+        {% for milestone in milestones %}<option value="{{ milestone.pk }}" {% if filters.milestone == milestone.pk|stringformat:"s" %}selected{% endif %}>{{ milestone.project.code }} - {{ milestone.name }}</option>{% endfor %}
+    </select>
+    <input type="date" name="start_date" value="{{ filters.start_date }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <input type="date" name="due_date" value="{{ filters.due_date }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+</form>

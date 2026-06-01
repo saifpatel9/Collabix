@@ -1,0 +1,13 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title %}Tasks | {{ APP_NAME }}{% endblock title %}
+
+{% block content %}
+{% url 'tasks:task_create' as create_url %}
+{% include "components/page_header.html" with eyebrow="Work Execution" title="Tasks" subtitle="Track execution across projects, milestones, assignees, and due dates." action_url=create_url action_label="Add Task" %}
+
+{% include "tasks/partials/task_filters.html" %}
+<section id="task-list">
+    {% include "tasks/partials/task_table.html" %}
+</section>
+{% endblock content %}
