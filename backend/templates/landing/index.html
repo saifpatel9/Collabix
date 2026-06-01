@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" x-data="{ darkMode: true }" :class="darkMode ? 'dark' : 'light'">
+<html lang="en" x-data="collabixApp()" :class="darkMode ? 'dark' : 'light'">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,6 +14,8 @@
 
   <!-- Alpine Collapse Plugin -->
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine Intersect Plugin -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   
@@ -24,7 +26,7 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
 
-<body x-data="collabixApp()" @scroll.window="handleScroll()">
+<body @scroll.window="handleScroll()">
 
   <!-- ========== LOADING SCREEN ========== -->
   <div id="loader" class="loader" x-show="loading" x-transition:leave="fade-out">
@@ -150,7 +152,7 @@
         <!-- Dashboard Mockup -->
         <div class="hero-visual reveal reveal-delay-2" aria-label="Collabix Dashboard Preview">
           <div class="dashboard-mockup">
-            <div class="mockup-bar">
+            <div class="mockup-bar">  
               <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
               <span class="mockup-title">Collabix Workspace</span>
             </div>

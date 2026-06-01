@@ -1,6 +1,23 @@
 {% extends 'base.html' %}
-{% block title %}Register | Collabix{% endblock %}
+{% block title %}Signup | TaskOPad{% endblock %}
 {% block body_class %}auth-body{% endblock %}
 {% block content %}
-<section class="auth-wrap"><div class="auth-bg"></div><div class="auth-card"><h3>Create Account</h3><form class="needs-validation" novalidate><div class="mb-3"><label class="form-label">Full Name</label><input class="form-control" required></div><div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" required></div><div class="mb-3"><label class="form-label">Password</label><div class="input-group"><input type="password" class="form-control password-field" required><button class="btn btn-outline-secondary toggle-password" type="button"><i class="fa-regular fa-eye"></i></button></div></div><button class="btn btn-primary w-100">Create Account</button></form><p class="small text-center mt-3 mb-0">Already have account? <a href="login.html">Login</a></p></div></section>
+<section class="auth-shell">
+  <div class="auth-panel-left">
+    <h2>Build your team workspace.</h2>
+    <p>Start with a modern productivity stack for planning, execution, and insights.</p>
+  </div>
+  <div class="auth-panel-right">
+    <div class="auth-card">
+      <h3>Create account</h3>
+      <form class="needs-validation" novalidate>
+        <div class="mb-3"><label class="form-label">Full Name</label><input class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Password</label><div class="input-group"><input type="password" class="form-control password-field" required><button class="btn btn-outline-secondary toggle-password" type="button"><i class="fa-regular fa-eye"></i></button></div></div>
+        <button class="btn btn-primary w-100">Create Workspace</button>
+      </form>
+      <p class="text-center small mt-3 mb-0">Already have an account? <a href="{% url 'accounts:login' %}">Login</a></p>
+    </div>
+  </div>
+</section>
 {% endblock %}

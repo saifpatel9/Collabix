@@ -75,14 +75,21 @@ class EmployeeProfileForm(TailwindFormMixin, forms.ModelForm):
         self.fields["manager"].queryset = EmployeeProfile.objects.select_related(
             "user"
         ).order_by("user__full_name")
+<<<<<<< HEAD
         if self.instance and not self.instance._state.adding:
+=======
+
+        if self.instance and self.instance.pk:
+>>>>>>> 64607093bd97c61b819b901675fdb6c9ad2390dd
             self.fields["manager"].queryset = self.fields["manager"].queryset.exclude(
             pk=self.instance.pk
             )
-            self.fields["user_full_name"].initial = self.instance.user.full_name
-            self.fields["user_email"].initial = self.instance.user.email
-            self.fields["user_role"].initial = self.instance.user.role
-            self.fields["user_phone"].initial = self.instance.user.phone
+            if hasattr(self.instance, "user"):
+                self.fields["user_full_name"].initial = self.instance.user.full_name
+                self.fields["user_email"].initial = self.instance.user.email
+                self.fields["user_role"].initial = self.instance.user.role
+                self.fields["user_phone"].initial = self.instance.user.phone
+
         self._apply_base_classes()
 
 

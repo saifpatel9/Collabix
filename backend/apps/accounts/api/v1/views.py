@@ -50,4 +50,6 @@ class MeView(APIView):
 
     def get(self, request):
         serializer = CurrentUserSerializer(request.user)
-        return api_response(message="Authenticated user fetched successfully.", data=serializer.data)
+        return api_response(
+            message="Authenticated user fetched successfully.", data=serializer.data
+        )

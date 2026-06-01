@@ -83,6 +83,7 @@ function statsCounter() {
       tasks: 0,
       productivity: 0,
     },
+<<<<<<< HEAD
     targets: {
       employees: 520,
       projects: 130,
@@ -248,3 +249,34 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+=======
+    startCounting() {
+      const target = {
+        employees: 520,
+        projects: 120,
+        tasks: 3400,
+        productivity: 98,
+      };
+      const steps = 28;
+      const current = { ...this.counts };
+      const increment = {
+        employees: Math.ceil(target.employees / steps),
+        projects: Math.ceil(target.projects / steps),
+        tasks: Math.ceil(target.tasks / steps),
+        productivity: Math.ceil(target.productivity / steps),
+      };
+      const interval = setInterval(() => {
+        let finished = true;
+        Object.keys(target).forEach((key) => {
+          if (current[key] < target[key]) {
+            current[key] = Math.min(current[key] + increment[key], target[key]);
+            this.counts[key] = current[key];
+            finished = false;
+          }
+        });
+        if (finished) clearInterval(interval);
+      }, 35);
+    },
+  };
+}
+>>>>>>> 64607093bd97c61b819b901675fdb6c9ad2390dd
