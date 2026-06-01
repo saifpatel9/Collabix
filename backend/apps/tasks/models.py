@@ -320,9 +320,9 @@ class TaskDependency(TaskBaseModel):
                 name="uniq_task_dependency",
             ),
             models.CheckConstraint(
-                check=~models.Q(predecessor_task=models.F("successor_task")),
-                name="prevent_task_self_dependency",
-            ),
+    condition=~models.Q(predecessor_task=models.F("successor_task")),
+    name="prevent_task_self_dependency",
+)
         ]
         indexes = [
             models.Index(fields=["predecessor_task"], name="task_dep_predecessor_idx"),
