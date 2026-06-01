@@ -97,10 +97,59 @@ function initTaskFilters() {
   });
 }
 
+function initNotificationSocket() {
+  const widget = document.getElementById('notification-widget');
+  if (!widget) return;
+
+  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const socket = new WebSocket(`${protocol}://${window.location.host}/ws/notifications/`);
+
+  socket.addEventListener('message', (event) => {
+    const payload = JSON.parse(event.data);
+    updateNotificationCount(payload.unread_count);
+    if (payload.event === 'notification_summary') return;
+    prependNotification(payload);
+  });
+}
+
+function updateNotificationCount(count) {
+  const badge = document.getElementById('notification-count');
+  if (!badge) return;
+  const value = Number(count || 0);
+  badge.textContent = value;
+  badge.classList.toggle('hidden', value === 0);
+}
+
+function prependNotification(payload) {
+  const list = document.getElementById('notification-dropdown-list');
+  if (!list) return;
+  const empty = list.querySelector('p');
+  if (empty) empty.remove();
+  const href = payload.action_url || '#';
+  const item = document.createElement('a');
+  item.href = href;
+  item.className = 'block w-full border-b border-slate-100 px-4 py-3 text-left hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800';
+  item.innerHTML = `
+    <span class="text-sm font-semibold text-cyan-700">${escapeHtml(payload.title)}</span>
+    <span class="mt-1 block text-xs text-slate-500">${escapeHtml(payload.message)}</span>
+  `;
+  list.prepend(item);
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initCharts();
   initKanban();
   initTaskFilters();
+  initNotificationSocket();
   if (window.AOS) AOS.init({ duration: 700, once: true });
 });

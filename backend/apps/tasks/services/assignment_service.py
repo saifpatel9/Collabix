@@ -1,4 +1,7 @@
 from django.db import transaction
+from django.urls import reverse
+
+from apps.notifications.models import Notification
 
 from ..models import TaskActivity, TaskAssignment
 from ._helpers import audit_update, employee_for_user, notify_employee
@@ -10,6 +13,7 @@ class TaskAssignmentService:
     @transaction.atomic
     def assign(*, task, employee, user=None, request=None):
         actor = employee_for_user(user)
+        was_assigned = task.assignments.exists()
         assignment = TaskAssignment.objects.create(
             task=task, employee=employee, assigned_by=actor
         )
@@ -29,7 +33,11 @@ class TaskAssignmentService:
         )
         notify_employee(
             employee=employee,
-            title="Task assigned",
+            title="Task reassigned" if was_assigned else "Task assigned",
             message=f"You were assigned to {task.task_code}: {task.title}.",
+            notification_type=Notification.Type.INFO,
+            category=Notification.Category.TASK,
+            action_url=reverse("tasks:task_detail", kwargs={"pk": task.pk}),
+            target=task,
         )
         return assignment

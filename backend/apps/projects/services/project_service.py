@@ -1,9 +1,16 @@
 from django.db import transaction
+from django.urls import reverse
 
 from apps.core.services.audit_service import AuditService
 
 from ..models import Project, ProjectMember
-from ._events import log_created, log_updated, notify_employee, request_ip
+from ._events import (
+    log_created,
+    log_updated,
+    notify_employee,
+    notify_project_members,
+    request_ip,
+)
 
 
 class ProjectService:
@@ -27,6 +34,8 @@ class ProjectService:
             employee=project.owner,
             title="Project created",
             message=f"{project.name} was created with you as owner.",
+            action_url=reverse("projects:project_detail", kwargs={"pk": project.pk}),
+            target=project,
         )
         return project
 
@@ -73,6 +82,14 @@ class ProjectService:
             },
             request=request,
             verb=verb,
+        )
+        notify_project_members(
+            project=project,
+            title="Project updated",
+            message=f"{project.name} was updated.",
+            action_url=reverse("projects:project_detail", kwargs={"pk": project.pk}),
+            exclude_user=user,
+            target=project,
         )
         return project
 

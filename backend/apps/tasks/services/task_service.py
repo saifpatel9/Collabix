@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.db import transaction
+from django.urls import reverse
 from django.utils import timezone
 
 from ..models import Task, TaskActivity
@@ -93,6 +94,7 @@ class TaskService:
                     title="Task completed",
                     message=f"{task.task_code} was marked completed.",
                     exclude_employee=actor,
+                    action_url=reverse("tasks:task_detail", kwargs={"pk": task.pk}),
                 )
         if old_priority != task.priority:
             TaskActivityService.record(
@@ -159,6 +161,7 @@ class TaskService:
                 task=task,
                 title="Task due soon",
                 message=f"{task.task_code} is due on {task.due_date}.",
+                action_url=reverse("tasks:task_detail", kwargs={"pk": task.pk}),
             )
         return queryset.count()
 
@@ -180,5 +183,6 @@ class TaskService:
                 task=task,
                 title="Task overdue",
                 message=f"{task.task_code} is overdue.",
+                action_url=reverse("tasks:task_detail", kwargs={"pk": task.pk}),
             )
         return queryset.count()

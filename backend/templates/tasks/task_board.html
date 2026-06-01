@@ -3,7 +3,24 @@
 {% block title %}Task Board | {{ APP_NAME }}{% endblock title %}
 
 {% block content %}
-{% include "components/page_header.html" with eyebrow="Work Execution" title="Kanban Board" subtitle="Move project tasks through execution states." %}
+{% url "tasks:task_create" as create_url %}
+{% include "components/page_header.html" with eyebrow="Work Execution" title="Kanban Board" subtitle="Move project tasks through execution states." action_url=create_url action_label="Add Task" %}
+
+<div class="mb-4 flex flex-wrap items-center justify-end gap-2">
+    <a
+        href="{% url 'tasks:task_list' %}"
+        class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+        List View
+    </a>
+    <span
+        class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white dark:bg-cyan-500 dark:text-slate-950"
+        aria-current="page"
+    >
+        Board View
+    </span>
+</div>
+
 <form class="mb-5 grid gap-3 md:grid-cols-2" hx-get="{% url 'tasks:task_board' %}" hx-target="#kanban-board" hx-push-url="true">
     <select name="project" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
         <option value="">All projects</option>

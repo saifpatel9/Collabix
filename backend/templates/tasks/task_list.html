@@ -3,11 +3,25 @@
 {% block title %}Tasks | {{ APP_NAME }}{% endblock title %}
 
 {% block content %}
-{% url 'tasks:task_create' as create_url %}
+{% url "tasks:task_create" as create_url %}
 {% include "components/page_header.html" with eyebrow="Work Execution" title="Tasks" subtitle="Track execution across projects, milestones, assignees, and due dates." action_url=create_url action_label="Add Task" %}
 
+<div class="mb-4 flex flex-wrap items-center justify-end gap-2">
+    <span
+        class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white dark:bg-cyan-500 dark:text-slate-950"
+        aria-current="page"
+    >
+        List View
+    </span>
+    <a
+        href="{% url 'tasks:task_board' %}"
+        class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+        Board View
+    </a>
+</div>
+
 {% include "tasks/partials/task_filters.html" %}
-<section id="task-list">
-    {% include "tasks/partials/task_table.html" %}
-</section>
+
+<section id="task-list">{% include "tasks/partials/task_table.html" %}</section>
 {% endblock content %}

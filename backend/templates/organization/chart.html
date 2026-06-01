@@ -2,7 +2,12 @@
 
 {% block content %}
 {% include "components/page_header.html" with eyebrow="Organization" title="Organization Chart" subtitle="Foundation structure for future hierarchy and workforce planning." %}
-<form class="mb-5 max-w-sm" hx-get="{% url 'employees:organization_chart' %}" hx-target="#org-chart" hx-push-url="true">
+<form
+    class="mb-5 max-w-sm"
+    hx-get="{% url 'employees:organization_chart' %}"
+    hx-target="#org-chart"
+    hx-push-url="true"
+    hx-trigger="change from:select">
     <select name="department" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
         <option value="">All departments</option>
         {% for department in departments %}

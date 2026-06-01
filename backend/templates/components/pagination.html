@@ -6,17 +6,19 @@
     <div class="flex gap-2">
         {% if page_obj.has_previous %}
             <a class="rounded-xl border border-slate-200 px-3 py-2 font-semibold dark:border-slate-700"
-               hx-get="?page={{ page_obj.previous_page_number }}"
+               hx-get="?{{ pagination_base_query }}page={{ page_obj.previous_page_number }}"
                hx-target="{{ target|default:'#table-region' }}"
+               hx-swap="innerHTML"
                hx-push-url="true"
-               href="?page={{ page_obj.previous_page_number }}">Previous</a>
+               href="?{{ pagination_base_query }}page={{ page_obj.previous_page_number }}">Previous</a>
         {% endif %}
         {% if page_obj.has_next %}
             <a class="rounded-xl border border-slate-200 px-3 py-2 font-semibold dark:border-slate-700"
-               hx-get="?page={{ page_obj.next_page_number }}"
+               hx-get="?{{ pagination_base_query }}page={{ page_obj.next_page_number }}"
                hx-target="{{ target|default:'#table-region' }}"
+               hx-swap="innerHTML"
                hx-push-url="true"
-               href="?page={{ page_obj.next_page_number }}">Next</a>
+               href="?{{ pagination_base_query }}page={{ page_obj.next_page_number }}">Next</a>
         {% endif %}
     </div>
 </nav>

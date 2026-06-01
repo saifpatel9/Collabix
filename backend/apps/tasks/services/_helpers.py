@@ -41,7 +41,14 @@ def audit_delete(*, user, instance, old_data=None, request=None):
 
 
 def notify_employee(
-    *, employee, title, message, notification_type=Notification.Type.INFO
+    *,
+    employee,
+    title,
+    message,
+    notification_type=Notification.Type.INFO,
+    category=Notification.Category.TASK,
+    action_url="",
+    target=None,
 ):
     if employee and employee.user_id:
         return NotificationService.create_notification(
@@ -49,6 +56,9 @@ def notify_employee(
             title=title,
             message=message,
             notification_type=notification_type,
+            category=category,
+            action_url=action_url,
+            target=target,
         )
     return None
 
@@ -60,6 +70,8 @@ def notify_task_assignees(
     message,
     exclude_employee=None,
     notification_type=Notification.Type.INFO,
+    category=Notification.Category.TASK,
+    action_url="",
 ):
     recipients = task.assignments.select_related("employee__user")
     if exclude_employee:
@@ -70,4 +82,7 @@ def notify_task_assignees(
             title=title,
             message=message,
             notification_type=notification_type,
+            category=category,
+            action_url=action_url,
+            target=task,
         )
