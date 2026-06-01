@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="h-full" x-data="{ sidebarOpen: false, darkMode: false }" x-bind:class="{ 'dark': darkMode }">
+<html lang="en" class="h-full scroll-smooth" x-data="dashboardApp()" x-bind:class="{ 'dark': darkMode }">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -10,13 +10,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'dist/css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     {% block extra_css %}{% endblock extra_css %}
 </head>
-<body class="min-h-full bg-slate-100 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+<body class="min-h-full bg-slate-100 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
     {% if messages %}
         <div class="fixed right-4 top-4 z-50 space-y-3">
             {% for message in messages %}
-                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 shadow-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                <div class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 animate-fadeInDown">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -26,6 +27,99 @@
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="{% static 'dist/js/app.js' %}"></script>
+    <script>
+        function dashboardApp() {
+            return {
+                sidebarOpen: false,
+                darkMode: localStorage.getItem('theme') === 'dark' || false,
+                init() {
+                    this.initTheme();
+                    this.setupThemeObserver();
+                    this.setupHTMXCallbacks();
+                    // Close sidebar when clicking outside on mobile
+                    document.addEventListener('click', (e) => {
+                        const sidebar = document.querySelector('aside');
+                        const menuBtn = document.querySelector('button[x-on\\\\:click*="sidebarOpen = true"]');
+                        if (sidebar && !sidebar.contains(e.target) && !menuBtn?.contains(e.target)) {
+                            this.sidebarOpen = false;
+                        }
+                    });
+                    // Close dropdown menus when pressing Escape
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            const accountMenus = document.querySelectorAll('[x-data*="accountOpen"]');
+                            accountMenus.forEach(menu => {
+                                if (menu.__x) {
+                                    menu.__x.getUnobservedData().accountOpen = false;
+                                }
+                            });
+                        }
+                    });
+                },
+                initTheme() {
+                    const savedTheme = localStorage.getItem('theme');
+                    if (savedTheme) {
+                        this.darkMode = savedTheme === 'dark';
+                    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        this.darkMode = true;
+                    }
+                },
+                setupThemeObserver() {
+                    this.$watch('darkMode', (value) => {
+                        localStorage.setItem('theme', value ? 'dark' : 'light');
+                        document.documentElement.classList.toggle('dark', value);
+                    });
+                },
+                setupHTMXCallbacks() {
+                    document.addEventListener('htmx:afterSwap', (e) => {
+                        // Update notification count if notifications were loaded
+                        if (e.detail.target.id === 'global-search-results') {
+                            // Search results loaded
+                        }
+                        if (e.detail.target.id === 'notifications-dropdown') {
+                            // Notifications loaded - check for count update
+                            const countBadge = document.querySelector('#notification-count');
+                            if (countBadge) {
+                                const count = e.detail.target.querySelector('[data-count]')?.getAttribute('data-count') || '0';
+                                countBadge.textContent = count;
+                                if (count > 0) {
+                                    countBadge.classList.add('opacity-100');
+                                    countBadge.classList.remove('opacity-0');
+                                }
+                            }
+                        }
+                    });
+                    document.addEventListener('htmx:responseError', (e) => {
+                        console.error('HTMX Error:', e);
+                    });
+                }
+            }
+        }
+
+        // Initialize active menu items
+        function dashboardNav() {
+            return {
+                currentPath: window.location.pathname,
+                isActive(urlName) {
+                    const urlMap = {
+                        'dashboard:home': '/dashboard/',
+                        'projects:project_directory': '/projects/',
+                        'projects:team_directory': '/teams/',
+                        'projects:milestone_list': '/milestones/',
+                        'employees:employee_list': '/employees/',
+                        'employees:employee_directory': '/employees/directory/',
+                        'employees:department_list': '/employees/departments/',
+                        'employees:reporting_tree': '/employees/tree/',
+                        'employees:organization_chart': '/employees/org-chart/',
+                        'accounts:profile': '/auth/profile/',
+                    };
+                    const pattern = urlMap[urlName];
+                    if (!pattern) return false;
+                    return this.currentPath.includes(pattern);
+                }
+            }
+        }
+    </script>
     {% block extra_js %}{% endblock extra_js %}
 </body>
 </html>
