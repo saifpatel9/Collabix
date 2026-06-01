@@ -1,0 +1,20 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title %}Task Board | {{ APP_NAME }}{% endblock title %}
+
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Work Execution" title="Kanban Board" subtitle="Move project tasks through execution states." %}
+<form class="mb-5 grid gap-3 md:grid-cols-2" hx-get="{% url 'tasks:task_board' %}" hx-target="#kanban-board" hx-push-url="true">
+    <select name="project" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">All projects</option>
+        {% for project in projects %}<option value="{{ project.pk }}" {% if filters.project == project.pk|stringformat:"s" %}selected{% endif %}>{{ project }}</option>{% endfor %}
+    </select>
+    <select name="milestone" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">All milestones</option>
+        {% for milestone in milestones %}<option value="{{ milestone.pk }}" {% if filters.milestone == milestone.pk|stringformat:"s" %}selected{% endif %}>{{ milestone.project.code }} - {{ milestone.name }}</option>{% endfor %}
+    </select>
+</form>
+<section id="kanban-board">
+    {% include "tasks/partials/kanban_columns.html" %}
+</section>
+{% endblock content %}

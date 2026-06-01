@@ -1,0 +1,13 @@
+<div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <h2 class="text-lg font-extrabold">Activity</h2>
+    <div class="mt-4 space-y-3">
+        {% for activity in activities %}
+            <div class="rounded-2xl bg-slate-50 p-3 text-sm dark:bg-slate-950">
+                <p class="font-semibold">{{ activity.message|title }}</p>
+                <p class="text-xs text-slate-500">{{ activity.actor.user.full_name|default:"System" }} · {{ activity.created_at }}</p>
+            </div>
+        {% empty %}
+            <p class="text-sm text-slate-500">No task activity yet.</p>
+        {% endfor %}
+    </div>
+</div>

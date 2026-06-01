@@ -1,0 +1,7 @@
+<div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 dark:bg-slate-950">
+    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-cyan-100 text-sm font-extrabold text-cyan-700">{{ employee.user.full_name|slice:":1" }}</span>
+    <div>
+        <p class="text-sm font-bold">{{ employee.user.full_name }}</p>
+        <p class="text-xs text-slate-500">{{ employee.employee_id }}</p>
+    </div>
+</div>

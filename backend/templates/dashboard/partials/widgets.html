@@ -6,6 +6,11 @@
     {% include "components/dashboard_card.html" with label="Pending Approvals" value=pending_approvals caption="Workflow instances awaiting action" %}
     {% include "components/dashboard_card.html" with label="Total Projects" value=total_projects caption="Visible project foundations" %}
     {% include "components/dashboard_card.html" with label="Active Projects" value=active_projects caption="Projects currently active" %}
+    {% include "components/dashboard_card.html" with label="My Tasks" value=my_tasks_count caption="Assigned active tasks" %}
+    {% include "components/dashboard_card.html" with label="Overdue Tasks" value=overdue_tasks_count caption="Tasks past due date" %}
+    {% include "components/dashboard_card.html" with label="Due Today" value=tasks_due_today_count caption="Tasks due today" %}
+    {% include "components/dashboard_card.html" with label="Completed Tasks" value=completed_tasks_count caption="Completed visible tasks" %}
+    {% include "components/dashboard_card.html" with label="Blocked Tasks" value=blocked_tasks_count caption="Execution blockers" %}
 </div>
 <div class="mt-6 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
     {% include "dashboard/partials/recent_activity.html" with activities=recent_activities %}
@@ -38,6 +43,33 @@
                 {% empty %}
                     <p class="text-sm text-slate-500">No upcoming milestones.</p>
                 {% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <p class="text-sm font-semibold text-slate-500">Tasks by Status</p>
+            <div class="mt-4 space-y-3">
+                {% for item in tasks_by_status %}
+                    <div class="flex items-center justify-between text-sm"><span class="font-semibold">{{ item.status|title }}</span><span>{{ item.total }}</span></div>
+                {% empty %}<p class="text-sm text-slate-500">No tasks yet.</p>{% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <p class="text-sm font-semibold text-slate-500">Tasks by Priority</p>
+            <div class="mt-4 space-y-3">
+                {% for item in tasks_by_priority %}
+                    <div class="flex items-center justify-between text-sm"><span class="font-semibold">{{ item.priority|title }}</span><span>{{ item.total }}</span></div>
+                {% empty %}<p class="text-sm text-slate-500">No tasks yet.</p>{% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <p class="text-sm font-semibold text-slate-500">Recent Task Activity</p>
+            <div class="mt-4 space-y-3">
+                {% for activity in recent_task_activity %}
+                    <a href="{% url 'tasks:task_detail' activity.task.pk %}" class="block rounded-2xl bg-slate-50 p-3 text-sm dark:bg-slate-950">
+                        <span class="font-semibold">{{ activity.message|title }}</span>
+                        <span class="block text-slate-500">{{ activity.task.task_code }} · {{ activity.created_at }}</span>
+                    </a>
+                {% empty %}<p class="text-sm text-slate-500">No task activity yet.</p>{% endfor %}
             </div>
         </div>
     </div>

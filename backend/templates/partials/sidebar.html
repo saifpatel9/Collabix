@@ -4,8 +4,15 @@
 >
     <div class="flex items-center justify-between flex-shrink-0">
         <div>
+<<<<<<< HEAD
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-600 dark:text-cyan-400">Workspace OS</p>
             <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ APP_NAME }}</h1>
+=======
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-600">
+                Workspace OS
+            </p>
+            <h1 class="text-2xl font-extrabold">{{ APP_NAME }}</h1>
+>>>>>>> bd90d51968840ea423663c9178356f182622bbde
         </div>
         <button class="lg:hidden rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 p-1" x-on:click="sidebarOpen = false" aria-label="Close sidebar">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,6 +21,7 @@
         </button>
     </div>
 
+<<<<<<< HEAD
     <nav class="mt-10 space-y-2 flex-1 flex flex-col overflow-hidden" x-data="dashboardNav()">
         <a 
             href="{% url 'dashboard:home' %}" 
@@ -90,10 +98,32 @@
             :class="{ 'active': isActive('accounts:profile') }"
             @click="sidebarOpen = false"
         >My Profile</a>
+=======
+    <nav class="mt-10 space-y-2">
+        <a href="{% url 'dashboard:home' %}" class="nav-item">Dashboard</a>
+        <a href="{% url 'projects:project_directory' %}" class="nav-item">Projects</a>
+        <a href="{% url 'projects:team_directory' %}" class="nav-item">Teams</a>
+        <a href="{% url 'projects:milestone_list' %}" class="nav-item">Milestones</a>
+        <a href="{% url 'tasks:task_list' %}" class="nav-item">Tasks</a>
+        <a href="{% url 'employees:employee_list' %}" class="nav-item">Employees</a>
+        <a href="{% url 'employees:employee_directory' %}" class="nav-item">Directory</a>
+        <a href="{% url 'employees:department_list' %}" class="nav-item">Departments</a>
+        <a href="{% url 'employees:reporting_tree' %}" class="nav-item">Hierarchy</a>
+        <a href="{% url 'employees:organization_chart' %}" class="nav-item">Org Chart</a>
+        <a href="#" class="nav-item">Attendance</a>
+        <a href="#" class="nav-item">Notifications</a>
+        <a href="{% url 'accounts:profile' %}" class="nav-item">My Profile</a>
+>>>>>>> bd90d51968840ea423663c9178356f182622bbde
     </nav>
 
     <div class="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-5 text-slate-100 dark:from-slate-700 dark:to-slate-800 flex-shrink-0 border border-slate-700">
         <p class="text-sm font-semibold">Foundation Ready</p>
+<<<<<<< HEAD
         <p class="mt-2 text-xs text-slate-300">Backend, API, realtime, UI shell, and deployment layers are structured for growth.</p>
+=======
+        <p class="mt-2 text-sm text-slate-300">
+            Backend, API, realtime, UI shell, and deployment layers are structured for growth.
+        </p>
+>>>>>>> bd90d51968840ea423663c9178356f182622bbde
     </div>
 </aside>

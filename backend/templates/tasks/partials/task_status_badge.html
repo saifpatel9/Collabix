@@ -1,0 +1,8 @@
+<span class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-bold
+{% if task.status == 'completed' %}bg-emerald-100 text-emerald-700
+{% elif task.status == 'blocked' %}bg-rose-100 text-rose-700
+{% elif task.status == 'in_progress' %}bg-blue-100 text-blue-700
+{% elif task.status == 'review' %}bg-violet-100 text-violet-700
+{% else %}bg-slate-100 text-slate-700{% endif %}">
+    {{ task.get_status_display }}
+</span>

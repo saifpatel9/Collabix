@@ -3,12 +3,14 @@ from apps.core.models import Activity, ApprovalInstance
 from apps.employees.models import Department, EmployeeProfile
 from apps.notifications.services.notification_service import NotificationService
 from apps.projects.selectors.project_selectors import ProjectSelector
+from apps.tasks.selectors.dashboard_selectors import TaskDashboardSelector
 
 
 class DashboardSelector:
     @staticmethod
     def metrics_for(user):
         project_metrics = ProjectSelector.dashboard_metrics(user)
+        task_metrics = TaskDashboardSelector.metrics_for(user)
         return {
             "total_employees": EmployeeProfile.objects.count(),
             "active_employees": EmployeeProfile.objects.filter(
@@ -32,4 +34,5 @@ class DashboardSelector:
             )[:8],
             "unread_notifications": NotificationService.unread_count(user),
             **project_metrics,
+            **task_metrics,
         }
