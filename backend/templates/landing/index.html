@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" x-data="collabixApp()" :class="darkMode ? 'dark' : 'light'">
+<html lang="en" x-data="collabixApp()" x-init="init()" :class="darkMode ? 'dark' : 'light'">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,11 +13,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
 
   <!-- Alpine Collapse Plugin -->
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine Collapse Plugin -->
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
   <!-- Alpine Intersect Plugin -->
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
-  <!-- Alpine.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   
   <!-- HTMX -->
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
@@ -71,7 +72,7 @@
       <!-- Right Controls -->
       <div class="nav-actions">
         <!-- Theme Toggle -->
-        <button class="theme-toggle" @click="darkMode = !darkMode" :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+        <button id="themeToggle" class="theme-toggle" @click="darkMode = !darkMode" :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
           <span x-show="darkMode" aria-hidden="true">☀</span>
           <span x-show="!darkMode" aria-hidden="true">☾</span>
         </button>
