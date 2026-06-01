@@ -4,7 +4,9 @@
 >
     <div class="flex items-center justify-between">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-600">Workspace OS</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-600">
+                Workspace OS
+            </p>
             <h1 class="text-2xl font-extrabold">{{ APP_NAME }}</h1>
         </div>
         <button class="lg:hidden" x-on:click="sidebarOpen = false" aria-label="Close sidebar">
@@ -17,7 +19,7 @@
         <a href="{% url 'projects:project_directory' %}" class="nav-item">Projects</a>
         <a href="{% url 'projects:team_directory' %}" class="nav-item">Teams</a>
         <a href="{% url 'projects:milestone_list' %}" class="nav-item">Milestones</a>
-        <a href="#" class="nav-item">Tasks</a>
+        <a href="{% url 'tasks:task_list' %}" class="nav-item">Tasks</a>
         <a href="{% url 'employees:employee_list' %}" class="nav-item">Employees</a>
         <a href="{% url 'employees:employee_directory' %}" class="nav-item">Directory</a>
         <a href="{% url 'employees:department_list' %}" class="nav-item">Departments</a>
@@ -30,6 +32,8 @@
 
     <div class="mt-10 rounded-3xl bg-slate-900 p-5 text-slate-100 dark:bg-slate-800">
         <p class="text-sm font-semibold">Foundation Ready</p>
-        <p class="mt-2 text-sm text-slate-300">Backend, API, realtime, UI shell, and deployment layers are structured for growth.</p>
+        <p class="mt-2 text-sm text-slate-300">
+            Backend, API, realtime, UI shell, and deployment layers are structured for growth.
+        </p>
     </div>
 </aside>

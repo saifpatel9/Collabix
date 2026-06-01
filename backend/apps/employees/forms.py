@@ -75,9 +75,9 @@ class EmployeeProfileForm(TailwindFormMixin, forms.ModelForm):
         self.fields["manager"].queryset = EmployeeProfile.objects.select_related(
             "user"
         ).order_by("user__full_name")
-        if self.instance and self.instance.pk:
+        if self.instance and not self.instance._state.adding:
             self.fields["manager"].queryset = self.fields["manager"].queryset.exclude(
-                pk=self.instance.pk
+            pk=self.instance.pk
             )
             self.fields["user_full_name"].initial = self.instance.user.full_name
             self.fields["user_email"].initial = self.instance.user.email
