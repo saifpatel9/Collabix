@@ -1,3 +1,5 @@
+from multiprocessing import context
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
@@ -316,18 +318,44 @@ class MilestoneUpdateView(ProjectManageMixin, UpdateView):
     pk_url_kwarg = "milestone_pk"
 
     def get_queryset(self):
-        return Milestone.objects.filter(project=self.project_object)
+        return Milestone.objects.all()
 
     def get_success_url(self):
-        return reverse("projects:project_detail", kwargs={"pk": self.project_object.pk})
+        project = getattr(self.object, "project", None)
+
+        if project and project.pk:
+            return reverse("projects:project_detail", kwargs={"pk": project.pk})
+
+        if self.object.project_id:
+            return reverse("projects:project_detail", kwargs={"pk": self.object.project_id})
+
+        raise ValueError("Cannot resolve project for redirect")
 
     def form_valid(self, form):
+        self.object = form.save()
+
         MilestoneService.update(
             milestone=self.object,
             cleaned_data=form.cleaned_data,
             user=self.request.user,
             request=self.request,
         )
+
+        messages.success(self.request, "Milestone updated.")
+        return redirect(self.get_success_url())
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        form.save_m2m()
+
+        MilestoneService.update(
+            milestone=self.object,
+            cleaned_data=form.cleaned_data,
+            user=self.request.user,
+            request=self.request,
+        )
+
         messages.success(self.request, "Milestone updated.")
         return redirect(self.get_success_url())
 

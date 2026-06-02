@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from apps.accounts.models import User
@@ -68,8 +69,13 @@ class ProjectAccessMixin(LoginRequiredMixin):
 class ProjectManageMixin(ProjectAccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return super(ProjectAccessMixin, self).dispatch(request, *args, **kwargs)
+            return super().dispatch(request, *args, **kwargs)
+
         self.project_object = self.get_project_object()
+        if not self.project_object:
+            raise Http404("Project not found")
+
         if not can_manage_project(request.user, self.project_object):
             raise PermissionDenied
-        return super(ProjectAccessMixin, self).dispatch(request, *args, **kwargs)
+
+        return super().dispatch(request, *args, **kwargs)
