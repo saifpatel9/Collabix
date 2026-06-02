@@ -24,8 +24,19 @@ document.addEventListener("DOMContentLoaded", () => {
 // ── Main Alpine App ─────────────────────────────
 function collabixApp() {
     return {
+        darkMode: true,
         loading: true,
         scrolled: false,
+
+        init() {
+            const stored = localStorage.getItem("collabix-theme");
+            if (stored === "light" || stored === "dark") {
+                this.darkMode = stored === "dark";
+            }
+            this.$watch("darkMode", (value) => {
+                localStorage.setItem("collabix-theme", value ? "dark" : "light");
+            });
+        },
 
         // Handle scroll state for navbar and scroll-top button
         handleScroll() {
@@ -276,14 +287,22 @@ function setupSidebar() {
 
 function setupTheme() {
     const toggle = document.getElementById("themeToggle");
-    const saved = localStorage.getItem("theme") || "light";
+    const saved = localStorage.getItem("collabix-theme") || "light";
+
     document.documentElement.setAttribute("data-bs-theme", saved);
+    document.documentElement.classList.toggle("dark", saved === "dark");
+
     updateThemeIcon(saved, toggle);
+
     toggle?.addEventListener("click", () => {
         const current = document.documentElement.getAttribute("data-bs-theme");
         const next = current === "dark" ? "light" : "dark";
+
         document.documentElement.setAttribute("data-bs-theme", next);
-        localStorage.setItem("theme", next);
+        document.documentElement.classList.toggle("dark", next === "dark");
+
+        localStorage.setItem("collabix-theme", next);
+
         updateThemeIcon(next, toggle);
     });
 }
