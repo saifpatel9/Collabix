@@ -6,12 +6,21 @@ from .views import (
     DepartmentDetailView,
     DepartmentListView,
     DepartmentUpdateView,
+    DesignationCreateView,
+    DesignationDeleteView,
+    DesignationDetailView,
+    DesignationListView,
+    DesignationUpdateView,
     AssignManagerView,
     ChangeManagerView,
     EmployeeDirectoryView,
     EmployeeCreateView,
     EmployeeDetailView,
     OrganizationChartView,
+    OrganizationPositionCreateView,
+    OrganizationPositionDeleteView,
+    OrganizationPositionListView,
+    OrganizationPositionUpdateView,
     ReportingTreeView,
     EmployeeListView,
     EmployeeProfileView,
@@ -40,6 +49,25 @@ urlpatterns = [
         "departments/<uuid:pk>/delete/",
         DepartmentDeleteView.as_view(),
         name="department_delete",
+    ),
+    path("designations/", DesignationListView.as_view(), name="designation_list"),
+    path(
+        "designations/create/", DesignationCreateView.as_view(), name="designation_create"
+    ),
+    path(
+        "designations/<uuid:pk>/",
+        DesignationDetailView.as_view(),
+        name="designation_detail",
+    ),
+    path(
+        "designations/<uuid:pk>/edit/",
+        DesignationUpdateView.as_view(),
+        name="designation_update",
+    ),
+    path(
+        "designations/<uuid:pk>/delete/",
+        DesignationDeleteView.as_view(),
+        name="designation_delete",
     ),
     path("employees/", EmployeeListView.as_view(), name="employee_list"),
     path(
@@ -71,5 +99,25 @@ urlpatterns = [
         "organization/chart/",
         OrganizationChartView.as_view(),
         name="organization_chart",
+    ),
+    path(
+        "organization/positions/",
+        OrganizationPositionListView.as_view(),
+        name="organization_position_list",
+    ),
+    path(
+        "organization/positions/create/",
+        OrganizationPositionCreateView.as_view(),
+        name="organization_position_create",
+    ),
+    path(
+        "organization/positions/<uuid:pk>/edit/",
+        OrganizationPositionUpdateView.as_view(),
+        name="organization_position_update",
+    ),
+    path(
+        "organization/positions/<uuid:pk>/delete/",
+        OrganizationPositionDeleteView.as_view(),
+        name="organization_position_delete",
     ),
 ]

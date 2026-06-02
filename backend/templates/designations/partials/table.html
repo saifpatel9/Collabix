@@ -1,0 +1,35 @@
+<div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+        <thead class="bg-slate-50 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-950">
+            <tr>
+                <th class="px-5 py-4">Sr. No.</th>
+                <th class="px-5 py-4">Title</th>
+                <th class="px-5 py-4">Level</th>
+                <th class="px-5 py-4">Description</th>
+                <th class="px-5 py-4">Created Date</th>
+                <th class="px-5 py-4 text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            {% for designation in designations %}
+                <tr>
+                    <td class="px-5 py-4">{{ forloop.counter }}</td>
+                    <td class="px-5 py-4 font-semibold">{{ designation.title }}</td>
+                    <td class="px-5 py-4">{{ designation.level }}</td>
+                    <td class="px-5 py-4 truncate max-w-xs text-slate-600">{{ designation.description|truncatewords:5 }}</td>
+                    <td class="px-5 py-4">{{ designation.created_at|date:"M d, Y" }}</td>
+                    <td class="px-5 py-4 text-right">
+                        <a href="{% url 'employees:designation_detail' designation.pk %}" class="font-semibold text-cyan-700">View</a>
+                        {% if request.user.role == "admin" or request.user.role == "department_admin" or request.user.role == "hr_manager" or request.user.is_superuser %}
+                            <a href="{% url 'employees:designation_update' designation.pk %}" class="ml-3 font-semibold text-slate-700 dark:text-slate-200">Edit</a>
+                            <a href="{% url 'employees:designation_delete' designation.pk %}" class="ml-3 font-semibold text-red-700">Delete</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="px-5 py-10 text-center text-slate-500">No designations found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include "components/pagination.html" with target="#table-region" %}

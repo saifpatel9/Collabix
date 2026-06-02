@@ -1,0 +1,25 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title %}Organization Positions | {{ APP_NAME }}{% endblock title %}
+
+{% block content %}
+{% url 'employees:organization_position_create' as create_url %}
+{% if request.user.role == "admin" or request.user.role == "department_admin" or request.user.role == "hr_manager" or request.user.is_superuser %}
+    {% include "components/page_header.html" with eyebrow="Organization" title="Position Assignments" subtitle="Manage employee positions and reporting relationships." action_url=create_url action_label="Add Position" %}
+{% else %}
+    {% include "components/page_header.html" with eyebrow="Organization" title="Position Assignments" subtitle="Browse employee positions and reporting relationships." %}
+{% endif %}
+
+<form class="mb-5 max-w-sm" hx-get="{% url 'employees:organization_position_list' %}" hx-target="#table-region" hx-push-url="true" hx-trigger="change from:select">
+    <select name="department" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">All departments</option>
+        {% for department in departments %}
+            <option value="{{ department.pk }}" {% if selected_department == department.pk|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<section id="table-region">
+    {% include "organization_positions/partials/table.html" %}
+</section>
+{% endblock content %}

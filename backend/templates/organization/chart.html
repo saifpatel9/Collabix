@@ -1,7 +1,8 @@
 {% extends "layouts/dashboard.html" %}
 
 {% block content %}
-{% include "components/page_header.html" with eyebrow="Organization" title="Organization Chart" subtitle="Foundation structure for future hierarchy and workforce planning." %}
+{% url 'employees:organization_position_list' as position_url %}
+{% include "components/page_header.html" with eyebrow="Organization" title="Organization Chart" subtitle="Visual representation of organizational hierarchy and reporting relationships." action_url=position_url action_label="Manage Positions" %}
 <form
     class="mb-5 max-w-sm"
     hx-get="{% url 'employees:organization_chart' %}"

@@ -179,10 +179,19 @@ class OrganizationPosition(EmployeeBaseModel):
             models.Index(fields=["department"], name="org_position_dept_idx"),
             models.Index(fields=["designation"], name="org_position_desig_idx"),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["employee"],
+                name="unique_employee_position",
+            )
+        ]
 
     def clean(self):
         if self.reporting_position_id and self.reporting_position_id == self.id:
             raise ValidationError("A position cannot report to itself.")
+
+        if self.reporting_position and self.employee_id == self.reporting_position.employee_id:
+            raise ValidationError("An employee cannot report to themselves.")
 
     def __str__(self) -> str:
         return f"{self.employee.user.full_name} - {self.designation.title}"

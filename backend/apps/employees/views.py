@@ -21,12 +21,15 @@ from apps.core.permissions import (
 
 from .forms import (
     DepartmentForm,
+    DesignationForm,
     EmployeeHierarchyForm,
     EmployeeProfileForm,
     EmployeeStatusForm,
+    OrganizationPositionForm,
 )
-from .models import Department, EmployeeHierarchy, EmployeeProfile
+from .models import Department, Designation, EmployeeHierarchy, EmployeeProfile, OrganizationPosition
 from .services.department_service import DepartmentService
+from .services.designation_service import DesignationService
 from .services.employee_service import EmployeeService
 from .services.hierarchy_service import EmployeeHierarchyService
 from .services.organization_service import OrganizationService
@@ -341,7 +344,7 @@ class ChangeManagerView(ManagerRequiredMixin, UpdateView):
 
 class OrganizationChartView(ManagerRequiredMixin, ListView):
     template_name = "organization/chart.html"
-    context_object_name = "positions"
+    context_object_name = "org_tree"
 
     def get_queryset(self):
         return OrganizationService.positions_for_department(
@@ -355,8 +358,162 @@ class OrganizationChartView(ManagerRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        department_id = self.request.GET.get("department")
+        context["departments"] = Department.objects.filter(is_active=True).order_by(
+            "name"
+        )
+        context["selected_department"] = department_id
+        context["org_tree"] = OrganizationService.build_org_tree(
+            department=department_id
+        )
+        return context
+
+
+class DesignationListView(ManagerRequiredMixin, ListView):
+    model = Designation
+    template_name = "designations/list.html"
+    context_object_name = "designations"
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = DesignationService.all_designations()
+        return DesignationService.search(queryset, self.request.GET.get("q"))
+
+    def get_template_names(self):
+        if is_htmx(self.request):
+            return ["designations/partials/table.html"]
+        return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("q", "")
+        return context
+
+
+class DesignationDetailView(ManagerRequiredMixin, DetailView):
+    model = Designation
+    template_name = "designations/detail.html"
+    context_object_name = "designation"
+
+
+class DesignationCreateView(DepartmentAdminRequiredMixin, CreateView):
+    model = Designation
+    form_class = DesignationForm
+    template_name = "designations/form.html"
+    success_url = reverse_lazy("employees:designation_list")
+
+    def form_valid(self, form):
+        try:
+            DesignationService.create(cleaned_data=form.cleaned_data)
+            messages.success(self.request, "Designation created successfully.")
+            return redirect(self.success_url)
+        except ValidationError as exc:
+            form.add_error(None, exc)
+            return self.form_invalid(form)
+
+
+class DesignationUpdateView(DepartmentAdminRequiredMixin, UpdateView):
+    model = Designation
+    form_class = DesignationForm
+    template_name = "designations/form.html"
+    success_url = reverse_lazy("employees:designation_list")
+
+    def form_valid(self, form):
+        try:
+            DesignationService.update(
+                designation=self.object, cleaned_data=form.cleaned_data
+            )
+            messages.success(self.request, "Designation updated successfully.")
+            return redirect(self.success_url)
+        except ValidationError as exc:
+            form.add_error(None, exc)
+            return self.form_invalid(form)
+
+
+class DesignationDeleteView(DepartmentAdminRequiredMixin, DeleteView):
+    model = Designation
+    template_name = "designations/confirm_delete.html"
+    success_url = reverse_lazy("employees:designation_list")
+
+    def form_valid(self, form):
+        try:
+            DesignationService.delete(designation=self.object)
+            messages.success(self.request, "Designation deleted successfully.")
+            return redirect(self.success_url)
+        except ValidationError as exc:
+            messages.error(self.request, str(exc))
+            return redirect(self.success_url)
+
+
+class OrganizationPositionListView(ManagerRequiredMixin, ListView):
+    model = OrganizationPosition
+    template_name = "organization_positions/list.html"
+    context_object_name = "positions"
+    paginate_by = 10
+
+    def get_queryset(self):
+        return OrganizationService.positions_for_department(
+            self.request.GET.get("department")
+        )
+
+    def get_template_names(self):
+        if is_htmx(self.request):
+            return ["organization_positions/partials/table.html"]
+        return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context["departments"] = Department.objects.filter(is_active=True).order_by(
             "name"
         )
         context["selected_department"] = self.request.GET.get("department", "")
         return context
+
+
+class OrganizationPositionCreateView(DepartmentAdminRequiredMixin, CreateView):
+    model = OrganizationPosition
+    form_class = OrganizationPositionForm
+    template_name = "organization_positions/form.html"
+    success_url = reverse_lazy("employees:organization_position_list")
+
+    def form_valid(self, form):
+        try:
+            OrganizationService.create_position(cleaned_data=form.cleaned_data)
+            messages.success(self.request, "Organization position created successfully.")
+            return redirect(self.success_url)
+        except ValidationError as exc:
+            form.add_error(None, exc)
+            return self.form_invalid(form)
+
+
+class OrganizationPositionUpdateView(DepartmentAdminRequiredMixin, UpdateView):
+    model = OrganizationPosition
+    form_class = OrganizationPositionForm
+    template_name = "organization_positions/form.html"
+    success_url = reverse_lazy("employees:organization_position_list")
+
+    def form_valid(self, form):
+        try:
+            OrganizationService.update_position(
+                position=self.object, cleaned_data=form.cleaned_data
+            )
+            messages.success(self.request, "Organization position updated successfully.")
+            return redirect(self.success_url)
+        except ValidationError as exc:
+            form.add_error(None, exc)
+            return self.form_invalid(form)
+
+
+class OrganizationPositionDeleteView(DepartmentAdminRequiredMixin, DeleteView):
+    model = OrganizationPosition
+    template_name = "organization_positions/confirm_delete.html"
+    success_url = reverse_lazy("employees:organization_position_list")
+
+    def form_valid(self, form):
+        try:
+            OrganizationService.delete_position(position=self.object)
+            messages.success(self.request, "Organization position deleted successfully.")
+            return redirect(self.success_url)
+        except ValidationError as exc:
+            messages.error(self.request, str(exc))
+            return redirect(self.success_url)
