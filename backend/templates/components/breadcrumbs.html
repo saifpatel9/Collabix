@@ -2,7 +2,7 @@
 <nav class="mb-4 flex flex-wrap gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
     {% for crumb in breadcrumbs %}
         {% if crumb.url %}
-            <a href="{{ crumb.url }}" class="font-semibold text-cyan-700 hover:text-cyan-600">{{ crumb.label }}</a>
+            <a href="{{ crumb.url }}" class="font-semibold text-brand-300 hover:text-brand-200">{{ crumb.label }}</a>
         {% else %}
             <span>{{ crumb.label }}</span>
         {% endif %}

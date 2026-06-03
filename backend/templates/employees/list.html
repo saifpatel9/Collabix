@@ -14,20 +14,20 @@
       hx-get="{% url 'employees:employee_list' %}"
       hx-target="#table-region"
       hx-push-url="true">
-    <input name="q" value="{{ filters.q }}" placeholder="Search name, email, employee ID" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
-    <select name="department" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <input name="q" value="{{ filters.q }}" placeholder="Search name, email, employee ID" class="form-control">
+    <select name="department" class="form-control">
         <option value="">All departments</option>
         {% for department in departments %}<option value="{{ department.pk }}" {% if filters.department == department.pk|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>{% endfor %}
     </select>
-    <select name="manager" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <select name="manager" class="form-control">
         <option value="">All managers</option>
         {% for manager in managers %}<option value="{{ manager.pk }}" {% if filters.manager == manager.pk|stringformat:"s" %}selected{% endif %}>{{ manager.user.full_name }}</option>{% endfor %}
     </select>
-    <select name="employment_status" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <select name="employment_status" class="form-control">
         <option value="">All statuses</option>
         {% for value,label in statuses %}<option value="{{ value }}" {% if filters.employment_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
     </select>
-    <button class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white dark:bg-cyan-500 dark:text-slate-950">Apply</button>
+    <button class="btn-primary">Apply</button>
 </form>
 
 <section id="table-region">

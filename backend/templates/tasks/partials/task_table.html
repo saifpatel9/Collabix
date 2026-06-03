@@ -1,6 +1,6 @@
-<div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
-        <thead class="bg-slate-50 text-left text-xs font-bold uppercase text-slate-500 dark:bg-slate-950">
+<div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-md dark:border-white/10 dark:bg-ink-800/80 dark:shadow-workspace">
+    <table class="data-table">
+        <thead>
             <tr>
                 <th class="px-4 py-3">Task</th>
                 <th class="px-4 py-3">Project</th>
@@ -10,22 +10,22 @@
                 <th class="px-4 py-3">Due</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        <tbody>
             {% for task in tasks %}
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-950">
+                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.04]">
                     <td class="px-4 py-3">
-                        <a href="{% url 'tasks:task_detail' task.pk %}" class="font-bold text-cyan-700 dark:text-cyan-300">{{ task.task_code }}</a>
-                        <span class="block text-slate-600 dark:text-slate-300">{{ task.title }}</span>
+                        <a href="{% url 'tasks:task_detail' task.pk %}" class="font-bold text-brand-600 dark:text-brand-300">{{ task.task_code }}</a>
+                        <span class="block text-slate-800 dark:text-slate-300">{{ task.title }}</span>
                     </td>
-                    <td class="px-4 py-3">{{ task.project.code }}</td>
+                    <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ task.project.code }}</td>
                     <td class="px-4 py-3">{% include "tasks/partials/task_status_badge.html" %}</td>
                     <td class="px-4 py-3">{% include "tasks/partials/priority_badge.html" %}</td>
                     <td class="px-4 py-3">
                         {% for assignment in task.assignments.all|slice:":3" %}
-                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-700" title="{{ assignment.employee.user.full_name }}">{{ assignment.employee.user.full_name|slice:":1" }}</span>
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand-400/20 bg-brand-400/15 text-xs font-bold text-brand-700 dark:text-brand-200" title="{{ assignment.employee.user.full_name }}">{{ assignment.employee.user.full_name|slice:":1" }}</span>
                         {% empty %}<span class="text-slate-400">None</span>{% endfor %}
                     </td>
-                    <td class="px-4 py-3">{{ task.due_date|default:"Not set" }}</td>
+                    <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ task.due_date|default:"Not set" }}</td>
                 </tr>
             {% empty %}
                 <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">No tasks found.</td></tr>

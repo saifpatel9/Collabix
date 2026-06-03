@@ -1,12 +1,12 @@
-<header class="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+<header class="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-ink-950/76">
     <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <div class="flex flex-1 items-center gap-3">
-            <button class="rounded-2xl border border-slate-200 px-3 py-2 lg:hidden dark:border-slate-700" x-on:click="sidebarOpen = true">
+            <button class="btn-secondary px-3 py-2 lg:hidden" x-on:click="sidebarOpen = true">
                 Menu
             </button>
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Internal workflow management</p>
-                <h2 class="text-xl font-bold">Operations Dashboard</h2>
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-brand-400">Internal workflow management</p>
+                <h2 class="font-display text-xl font-bold">Operations Dashboard</h2>
             </div>
         </div>
 
@@ -15,7 +15,7 @@
                 name="q"
                 type="search"
                 placeholder="Search Collabix"
-                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+                class="form-control w-full"
                 hx-get="{% url 'core:global_search' %}"
                 hx-trigger="keyup changed delay:250ms, search"
                 hx-target="#global-search-results"
@@ -29,13 +29,14 @@
                 <div hx-get="{% url 'notifications:dropdown' %}" hx-trigger="load, every 30s" hx-swap="innerHTML"></div>
             {% endif %}
             {% if request.user.is_authenticated %}
-                <span class="hidden text-sm font-semibold text-slate-600 dark:text-slate-300 sm:inline">{{ request.user.full_name }}</span>
+                <span class="hidden text-sm font-semibold text-slate-500 dark:text-slate-300 sm:inline">{{ request.user.full_name }}</span>
             {% endif %}
-            <button class="rounded-2xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700" x-on:click="darkMode = !darkMode">
-                Theme
+            <button class="btn-secondary px-3 py-2" x-on:click="darkMode = !darkMode" :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                <span x-show="darkMode">☀ Light</span>
+                <span x-show="!darkMode">☾ Dark</span>
             </button>
             <button
-                class="rounded-2xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700"
+                class="btn-secondary px-3 py-2"
                 hx-get="/api/v1/core/health/"
                 hx-trigger="click"
                 hx-swap="none"
@@ -45,7 +46,7 @@
             {% if request.user.is_authenticated %}
                 <form method="post" action="{% url 'accounts:logout' %}">
                     {% csrf_token %}
-                    <button class="rounded-2xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white dark:bg-cyan-500 dark:text-slate-950">
+                    <button class="btn-primary px-3 py-2">
                         Logout
                     </button>
                 </form>

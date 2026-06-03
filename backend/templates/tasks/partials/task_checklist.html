@@ -9,7 +9,7 @@
                 {% for item in checklist.items.all %}
                     <form method="post" action="{% url 'tasks:task_checklist_toggle' task.pk item.pk %}" hx-post="{% url 'tasks:task_checklist_toggle' task.pk item.pk %}" hx-target="#task-checklists" class="flex items-center gap-2 text-sm">
                         {% csrf_token %}
-                        <input type="checkbox" name="is_completed" {% if item.is_completed %}checked{% endif %} onchange="this.form.requestSubmit()" class="h-4 w-4 rounded border-slate-300 text-cyan-600">
+                        <input type="checkbox" name="is_completed" {% if item.is_completed %}checked{% endif %} onchange="this.form.requestSubmit()" class="h-4 w-4 rounded border-slate-300 text-brand-600">
                         <span class="{% if item.is_completed %}line-through text-slate-400{% endif %}">{{ item.title }}</span>
                     </form>
                 {% empty %}<p class="text-sm text-slate-500">No checklist items.</p>{% endfor %}

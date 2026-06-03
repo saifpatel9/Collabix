@@ -1,7 +1,7 @@
-<span class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-bold
-{% if task.priority == 'critical' %}bg-rose-100 text-rose-700
-{% elif task.priority == 'high' %}bg-amber-100 text-amber-700
-{% elif task.priority == 'medium' %}bg-cyan-100 text-cyan-700
-{% else %}bg-slate-100 text-slate-700{% endif %}">
+<span class="status-pill mt-2
+{% if task.priority == 'critical' %}border-rose-400/20 bg-rose-400/10 text-rose-700 dark:text-rose-300
+{% elif task.priority == 'high' %}border-amber-400/20 bg-amber-400/10 text-amber-700 dark:text-amber-300
+{% elif task.priority == 'medium' %}border-brand-400/20 bg-brand-400/15 text-brand-700 dark:text-brand-200
+{% else %}border-slate-200 bg-slate-100 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400{% endif %}">
     {{ task.get_priority_display }}
 </span>

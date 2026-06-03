@@ -6,13 +6,13 @@
 {% include "components/page_header.html" with eyebrow="Notifications" title="Notification Center" subtitle="Review task, project, mention, approval, and system notifications." %}
 
 <form class="mb-5 grid gap-3 lg:grid-cols-[1fr_180px_180px_auto_auto]" hx-get="{% url 'notifications:center' %}" hx-target="#notification-list" hx-push-url="true" hx-trigger="submit, change from:select, keyup changed delay:300ms from:input[name='q']">
-    <input name="q" value="{{ filters.q }}" placeholder="Search notifications" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
-    <select name="status" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <input name="q" value="{{ filters.q }}" placeholder="Search notifications" class="form-control">
+    <select name="status" class="form-control">
         <option value="">All statuses</option>
         <option value="unread" {% if filters.status == "unread" %}selected{% endif %}>Unread</option>
         <option value="read" {% if filters.status == "read" %}selected{% endif %}>Read</option>
     </select>
-    <select name="category" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <select name="category" class="form-control">
         <option value="">All categories</option>
         {% for value, label in categories %}<option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
     </select>
@@ -27,7 +27,7 @@
     <input type="hidden" name="status" value="{{ filters.status }}">
     <input type="hidden" name="category" value="{{ filters.category }}">
     {% if page_obj %}<input type="hidden" name="page" value="{{ page_obj.number }}">{% endif %}
-    <button class="rounded-2xl bg-cyan-600 px-5 py-3 text-sm font-bold text-white">Mark all read</button>
+    <button class="rounded-2xl bg-brand-600 px-5 py-3 text-sm font-bold text-white">Mark all read</button>
 </form>
 
 <section id="notification-list">

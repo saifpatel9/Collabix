@@ -1,6 +1,6 @@
-<div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
-        <thead class="bg-slate-50 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-950">
+<div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-md dark:border-white/10 dark:bg-ink-800/80 dark:shadow-workspace">
+    <table class="data-table">
+        <thead>
             <tr>
                 <th class="px-5 py-4">Sr. No.</th>
                 <th class="px-5 py-4">Title</th>
@@ -10,19 +10,19 @@
                 <th class="px-5 py-4 text-right">Actions</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        <tbody>
             {% for designation in designations %}
                 <tr>
-                    <td class="px-5 py-4">{{ forloop.counter }}</td>
-                    <td class="px-5 py-4 font-semibold">{{ designation.title }}</td>
-                    <td class="px-5 py-4">{{ designation.level }}</td>
-                    <td class="px-5 py-4 truncate max-w-xs text-slate-600">{{ designation.description|truncatewords:5 }}</td>
-                    <td class="px-5 py-4">{{ designation.created_at|date:"M d, Y" }}</td>
+                    <td class="px-5 py-4 text-slate-600 dark:text-slate-300">{{ forloop.counter }}</td>
+                    <td class="px-5 py-4 font-semibold text-slate-800 dark:text-slate-100">{{ designation.title }}</td>
+                    <td class="px-5 py-4 text-slate-600 dark:text-slate-300">{{ designation.level }}</td>
+                    <td class="px-5 py-4 truncate max-w-xs text-slate-600 dark:text-slate-400">{{ designation.description|truncatewords:5 }}</td>
+                    <td class="px-5 py-4 text-slate-600 dark:text-slate-300">{{ designation.created_at|date:"M d, Y" }}</td>
                     <td class="px-5 py-4 text-right">
-                        <a href="{% url 'employees:designation_detail' designation.pk %}" class="font-semibold text-cyan-700">View</a>
+                        <a href="{% url 'employees:designation_detail' designation.pk %}" class="font-semibold text-brand-600 dark:text-brand-300">View</a>
                         {% if request.user.role == "admin" or request.user.role == "department_admin" or request.user.role == "hr_manager" or request.user.is_superuser %}
-                            <a href="{% url 'employees:designation_update' designation.pk %}" class="ml-3 font-semibold text-slate-700 dark:text-slate-200">Edit</a>
-                            <a href="{% url 'employees:designation_delete' designation.pk %}" class="ml-3 font-semibold text-red-700">Delete</a>
+                            <a href="{% url 'employees:designation_update' designation.pk %}" class="ml-3 font-semibold text-slate-600 dark:text-slate-200">Edit</a>
+                            <a href="{% url 'employees:designation_delete' designation.pk %}" class="ml-3 font-semibold text-red-600 dark:text-red-400">Delete</a>
                         {% endif %}
                     </td>
                 </tr>

@@ -14,7 +14,7 @@
         List View
     </a>
     <span
-        class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white dark:bg-cyan-500 dark:text-slate-950"
+        class="inline-flex items-center justify-center btn-primary px-4"
         aria-current="page"
     >
         Board View
@@ -22,11 +22,11 @@
 </div>
 
 <form class="mb-5 grid gap-3 md:grid-cols-2" hx-get="{% url 'tasks:task_board' %}" hx-target="#kanban-board" hx-push-url="true">
-    <select name="project" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <select name="project" class="form-control">
         <option value="">All projects</option>
         {% for project in projects %}<option value="{{ project.pk }}" {% if filters.project == project.pk|stringformat:"s" %}selected{% endif %}>{{ project }}</option>{% endfor %}
     </select>
-    <select name="milestone" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <select name="milestone" class="form-control">
         <option value="">All milestones</option>
         {% for milestone in milestones %}<option value="{{ milestone.pk }}" {% if filters.milestone == milestone.pk|stringformat:"s" %}selected{% endif %}>{{ milestone.project.code }} - {{ milestone.name }}</option>{% endfor %}
     </select>

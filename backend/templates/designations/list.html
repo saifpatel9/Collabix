@@ -11,7 +11,7 @@
 {% endif %}
 
 <form class="mb-5" hx-get="{% url 'employees:designation_list' %}" hx-target="#table-region" hx-push-url="true">
-    <input name="q" value="{{ search_query }}" placeholder="Search designations" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+    <input name="q" value="{{ search_query }}" placeholder="Search designations" class="w-full form-control">
 </form>
 
 <section id="table-region">

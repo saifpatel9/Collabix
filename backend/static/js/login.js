@@ -47,8 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
 // exactly like the landing page's collabixApp() pattern.
 function loginPageRoot() {
   return {
-    darkMode: true,
+    darkMode: localStorage.getItem("collabix-theme") === "dark",
     loading: true,
+
+    init() {
+      this.$watch("darkMode", (val) => {
+        localStorage.setItem("collabix-theme", val ? "dark" : "light");
+      });
+    }
   };
 }
 

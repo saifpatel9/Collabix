@@ -1,26 +1,3 @@
-const STORAGE_KEY = 'taskflow-theme';
-
-function setTheme(mode) {
-  document.body.classList.toggle('dark-mode', mode === 'dark');
-  localStorage.setItem(STORAGE_KEY, mode);
-  const toggles = document.querySelectorAll('[data-theme-toggle]');
-  toggles.forEach((btn) => {
-    btn.innerHTML = mode === 'dark'
-      ? '<i class="fa-regular fa-sun"></i>'
-      : '<i class="fa-regular fa-moon"></i>';
-  });
-}
-
-function initTheme() {
-  const saved = localStorage.getItem(STORAGE_KEY) || 'light';
-  setTheme(saved);
-  document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const next = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-      setTheme(next);
-    });
-  });
-}
 
 function initCharts() {
   if (!window.Chart) return;
@@ -33,8 +10,8 @@ function initCharts() {
         datasets: [{
           label: 'Tasks Completed',
           data: [6, 8, 7, 11, 9, 13],
-          borderColor: '#06b6d4',
-          backgroundColor: 'rgba(6,182,212,.15)',
+          borderColor: '#e8b84b',
+          backgroundColor: 'rgba(232,184,75,.16)',
           fill: true,
           tension: .4
         }]
@@ -130,7 +107,7 @@ function prependNotification(payload) {
   item.href = href;
   item.className = 'block w-full border-b border-slate-100 px-4 py-3 text-left hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800';
   item.innerHTML = `
-    <span class="text-sm font-semibold text-cyan-700">${escapeHtml(payload.title)}</span>
+    <span class="text-sm font-semibold text-brand-300">${escapeHtml(payload.title)}</span>
     <span class="mt-1 block text-xs text-slate-500">${escapeHtml(payload.message)}</span>
   `;
   list.prepend(item);
@@ -146,7 +123,6 @@ function escapeHtml(value) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
   initCharts();
   initKanban();
   initTaskFilters();
