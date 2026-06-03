@@ -5,13 +5,13 @@
 {% block content %}
 <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-        <p class="text-sm font-bold uppercase tracking-wide text-cyan-600">{{ task.task_code }}</p>
+        <p class="text-sm font-bold uppercase tracking-wide text-accent-500">{{ task.task_code }}</p>
         <h1 class="mt-1 text-3xl font-extrabold">{{ task.title }}</h1>
         <p class="mt-2 max-w-3xl text-sm text-slate-500">{{ task.description|default:"No description provided." }}</p>
     </div>
     <div class="flex gap-2">
         <a href="{% url 'tasks:task_update' task.pk %}" class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-bold dark:border-slate-700">Edit</a>
-        <form method="post" action="{% url 'tasks:task_archive_action' task.pk %}">{% csrf_token %}<button class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-bold text-white dark:bg-white dark:text-slate-900">Archive</button></form>
+        <form method="post" action="{% url 'tasks:task_archive_action' task.pk %}">{% csrf_token %}<button class="btn-ghost btn-accent-sm">Archive</button></form>
     </div>
 </div>
 
@@ -33,7 +33,7 @@
                 {% csrf_token %}
                 {{ checklist_form.title }}
                 {{ checklist_form.position }}
-                <button class="rounded-2xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white">Add Checklist</button>
+                <button class="btn-accent btn-accent-sm">Add Checklist</button>
             </form>
         </div>
 
@@ -44,7 +44,7 @@
                 {% csrf_token %}
                 {{ comment_form.parent }}
                 {{ comment_form.comment }}
-                <button class="mt-3 rounded-2xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white">Add Comment</button>
+                <button class="btn-accent btn-accent-sm mt-3">Add Comment</button>
             </form>
         </div>
     </section>
@@ -59,7 +59,7 @@
             </div>
             <form method="post" action="{% url 'tasks:task_assignment' task.pk %}" class="mt-4 space-y-3">
                 {% csrf_token %}{{ assignment_form.employee }}
-                <button class="rounded-2xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white">Assign</button>
+                <button class="btn-accent btn-accent-sm">Assign</button>
             </form>
         </div>
 
@@ -75,7 +75,7 @@
             </div>
             <form method="post" action="{% url 'tasks:task_dependency' task.pk %}" class="mt-4 space-y-3">
                 {% csrf_token %}{{ dependency_form.predecessor_task }}{{ dependency_form.dependency_type }}
-                <button class="rounded-2xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white">Add Dependency</button>
+                <button class="btn-accent btn-accent-sm">Add Dependency</button>
             </form>
         </div>
 
@@ -88,7 +88,7 @@
             </div>
             <form method="post" enctype="multipart/form-data" action="{% url 'tasks:task_attachment' task.pk %}" class="mt-4 space-y-3">
                 {% csrf_token %}{{ attachment_form.file }}
-                <button class="rounded-2xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white">Upload</button>
+                <button class="btn-accent btn-accent-sm">Upload</button>
             </form>
         </div>
 

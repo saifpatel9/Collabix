@@ -2,7 +2,7 @@
     {% if query %}
         {% for result in results %}
             <a href="{{ result.url }}" class="block border-b border-slate-100 px-4 py-3 text-sm hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800">
-                <span class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-600">{{ result.type }}</span>
+                <span class="text-xs font-bold uppercase tracking-[0.2em] text-accent-500">{{ result.type }}</span>
                 <span class="mt-1 block font-semibold">{{ result.title }}</span>
                 <span class="text-xs text-slate-500">{{ result.subtitle }}</span>
             </a>

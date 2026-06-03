@@ -1,7 +1,7 @@
 <span class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-bold
 {% if task.priority == 'critical' %}bg-rose-100 text-rose-700
 {% elif task.priority == 'high' %}bg-amber-100 text-amber-700
-{% elif task.priority == 'medium' %}bg-cyan-100 text-cyan-700
+{% elif task.priority == 'medium' %}bg-accent-100 text-accent-700
 {% else %}bg-slate-100 text-slate-700{% endif %}">
     {{ task.get_priority_display }}
 </span>

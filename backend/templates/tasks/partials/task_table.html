@@ -14,7 +14,7 @@
             {% for task in tasks %}
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-950">
                     <td class="px-4 py-3">
-                        <a href="{% url 'tasks:task_detail' task.pk %}" class="font-bold text-cyan-700 dark:text-cyan-300">{{ task.task_code }}</a>
+                        <a href="{% url 'tasks:task_detail' task.pk %}" class="font-bold text-accent-600 dark:text-accent-300">{{ task.task_code }}</a>
                         <span class="block text-slate-600 dark:text-slate-300">{{ task.title }}</span>
                     </td>
                     <td class="px-4 py-3">{{ task.project.code }}</td>
@@ -22,7 +22,7 @@
                     <td class="px-4 py-3">{% include "tasks/partials/priority_badge.html" %}</td>
                     <td class="px-4 py-3">
                         {% for assignment in task.assignments.all|slice:":3" %}
-                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-700" title="{{ assignment.employee.user.full_name }}">{{ assignment.employee.user.full_name|slice:":1" }}</span>
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-100 text-xs font-bold text-accent-700" title="{{ assignment.employee.user.full_name }}">{{ assignment.employee.user.full_name|slice:":1" }}</span>
                         {% empty %}<span class="text-slate-400">None</span>{% endfor %}
                     </td>
                     <td class="px-4 py-3">{{ task.due_date|default:"Not set" }}</td>

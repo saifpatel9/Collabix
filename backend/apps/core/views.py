@@ -17,7 +17,7 @@ class GlobalSearchView(LoginRequiredMixin, TemplateView):
 
 
 class RecentActivityPartialView(LoginRequiredMixin, TemplateView):
-    template_name = "dashboard/partials/recent_activity_list.html"
+    template_name = "core/activity_page.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -28,7 +28,7 @@ class RecentActivityPartialView(LoginRequiredMixin, TemplateView):
 
 
 class AuditTimelineView(LoginRequiredMixin, TemplateView):
-    template_name = "components/audit_timeline.html"
+    template_name = "core/audit_page.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

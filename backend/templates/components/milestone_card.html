@@ -7,7 +7,7 @@
         <span class="rounded-full px-3 py-1 text-xs font-semibold
             {% if milestone.status == 'completed' %}bg-emerald-100 text-emerald-700
             {% elif milestone.status == 'delayed' %}bg-red-100 text-red-700
-            {% elif milestone.status == 'in_progress' %}bg-cyan-100 text-cyan-700
+            {% elif milestone.status == 'in_progress' %}bg-accent-100 text-accent-700
             {% else %}bg-slate-100 text-slate-700{% endif %}">
             {{ milestone.get_status_display }}
         </span>

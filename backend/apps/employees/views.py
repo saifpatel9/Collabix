@@ -12,6 +12,7 @@ from django.views.generic import (
 )
 
 from apps.accounts.models import User
+from apps.core.mixins import PageSizeMixin
 from apps.core.permissions import (
     DepartmentAdminRequiredMixin,
     EmployeeAccessMixin,
@@ -39,7 +40,7 @@ def is_htmx(request):
     return request.headers.get("HX-Request") == "true"
 
 
-class DepartmentListView(ManagerRequiredMixin, ListView):
+class DepartmentListView(PageSizeMixin, ManagerRequiredMixin, ListView):
     model = Department
     template_name = "departments/list.html"
     context_object_name = "departments"
@@ -57,6 +58,7 @@ class DepartmentListView(ManagerRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("q", "")
+        context["current_page_size"] = self.get_paginate_by(self.get_queryset())
         return context
 
 
@@ -104,7 +106,7 @@ class DepartmentDeleteView(DepartmentAdminRequiredMixin, DeleteView):
         return redirect(self.success_url)
 
 
-class EmployeeListView(LoginRequiredMixin, ListView):
+class EmployeeListView(PageSizeMixin, LoginRequiredMixin, ListView):
     model = EmployeeProfile
     template_name = "employees/list.html"
     context_object_name = "employees"
@@ -164,6 +166,7 @@ class EmployeeListView(LoginRequiredMixin, ListView):
             "manager": self.request.GET.get("manager", ""),
             "employment_status": self.request.GET.get("employment_status", ""),
         }
+        context["current_page_size"] = self.get_paginate_by(self.get_queryset())
         return context
 
 
@@ -273,7 +276,7 @@ class EmployeeStatusUpdateView(LoginRequiredMixin, UpdateView):
         return redirect("employees:employee_detail", pk=self.object.pk)
 
 
-class EmployeeDirectoryView(ManagerRequiredMixin, ListView):
+class EmployeeDirectoryView(PageSizeMixin, ManagerRequiredMixin, ListView):
     model = EmployeeProfile
     template_name = "employees/directory.html"
     context_object_name = "employees"
@@ -286,6 +289,11 @@ class EmployeeDirectoryView(ManagerRequiredMixin, ListView):
         if is_htmx(self.request):
             return ["employees/partials/directory_grid.html"]
         return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["current_page_size"] = self.get_paginate_by(self.get_queryset())
+        return context
 
 
 class ReportingTreeView(ManagerRequiredMixin, ListView):

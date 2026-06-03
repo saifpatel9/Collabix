@@ -1,0 +1,11 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    {% include "components/page_header.html" with eyebrow="Audit" title="Audit Timeline" subtitle="Review system changes and security events." %}
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        {% include "components/audit_timeline.html" %}
+    </div>
+</div>
+{% endblock content %}

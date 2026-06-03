@@ -1,0 +1,61 @@
+<div id="task-table-region">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-700">
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Task</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Project</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Priority</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Due</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                {% for task in tasks %}
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td class="px-4 py-3">
+                        <div>
+                            <p class="font-semibold text-slate-900 dark:text-white">{{ task.title|truncatechars:40 }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ task.task_code }}</p>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ task.project.name|truncatechars:25 }}</td>
+                    <td class="px-4 py-3">
+                        <span class="tag tag-{% if task.status == 'completed' %}emerald{% elif task.status == 'in_progress' %}blue{% elif task.status == 'review' %}gold{% elif task.status == 'blocked' %}coral{% elif task.status == 'backlog' %}slate{% elif task.status == 'cancelled' %}slate{% else %}amber{% endif %}">
+                            {{ task.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold
+                            {% if task.priority == 'critical' %}text-red-600 dark:text-red-400
+                            {% elif task.priority == 'high' %}text-orange-600 dark:text-orange-400
+                            {% elif task.priority == 'medium' %}text-blue-600 dark:text-blue-400
+                            {% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                            <span class="h-1.5 w-1.5 rounded-full
+                                {% if task.priority == 'critical' %}bg-red-500
+                                {% elif task.priority == 'high' %}bg-orange-500
+                                {% elif task.priority == 'medium' %}bg-blue-500
+                                {% else %}bg-slate-400{% endif %}"></span>
+                            {{ task.get_priority_display }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        {% if task.due_date %}
+                        <span class="text-xs font-semibold {% if task.due_date < today and task.status != 'completed' and task.status != 'cancelled' %}text-red-500{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                            {{ task.due_date|date:"M d" }}
+                        </span>
+                        {% else %}
+                        <span class="text-xs text-slate-400">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-4 py-12 text-center text-sm text-slate-500 dark:text-slate-400">No tasks found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include "components/pagination.html" with page_obj=tasks target="#task-table-region" is_paginated=tasks.has_other_pages section="tasks" %}
+</div>

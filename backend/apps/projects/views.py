@@ -7,6 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
+from apps.core.mixins import PageSizeMixin
 from apps.core.permissions import ManagerRequiredMixin, ProjectManagerRequiredMixin
 
 from .forms import (
@@ -31,7 +32,7 @@ def is_htmx(request):
     return request.headers.get("HX-Request") == "true"
 
 
-class TeamDirectoryView(LoginRequiredMixin, ListView):
+class TeamDirectoryView(PageSizeMixin, LoginRequiredMixin, ListView):
     model = Team
     template_name = "teams/directory.html"
     context_object_name = "teams"
@@ -49,6 +50,7 @@ class TeamDirectoryView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("q", "")
+        context["current_page_size"] = self.get_paginate_by(self.get_queryset())
         return context
 
 
@@ -135,7 +137,7 @@ class TeamMemberRemoveView(ManagerRequiredMixin, View):
         return redirect("projects:team_detail", pk=team.pk)
 
 
-class ProjectDirectoryView(LoginRequiredMixin, ListView):
+class ProjectDirectoryView(PageSizeMixin, LoginRequiredMixin, ListView):
     model = Project
     template_name = "projects/directory.html"
     context_object_name = "projects"
@@ -166,6 +168,7 @@ class ProjectDirectoryView(LoginRequiredMixin, ListView):
             "status": self.request.GET.get("status", ""),
             "priority": self.request.GET.get("priority", ""),
         }
+        context["current_page_size"] = self.get_paginate_by(self.get_queryset())
         return context
 
 
@@ -280,7 +283,7 @@ class ProjectMemberRemoveView(ProjectManageMixin, View):
         return redirect("projects:project_detail", pk=self.project_object.pk)
 
 
-class MilestoneListView(LoginRequiredMixin, ListView):
+class MilestoneListView(PageSizeMixin, LoginRequiredMixin, ListView):
     model = Milestone
     template_name = "milestones/list.html"
     context_object_name = "milestones"
@@ -293,6 +296,11 @@ class MilestoneListView(LoginRequiredMixin, ListView):
         if is_htmx(self.request):
             return ["milestones/partials/list.html"]
         return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["current_page_size"] = self.get_paginate_by(self.get_queryset())
+        return context
 
 
 class MilestoneCreateView(ProjectManageMixin, View):

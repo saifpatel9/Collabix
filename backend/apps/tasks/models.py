@@ -1,12 +1,16 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q, CheckConstraint
 from django.utils import timezone
 
 from apps.core.models import BaseModel
 
 
 def task_attachment_upload_path(instance, filename):
-    return f"uploads/tasks/{instance.task_id}/{filename}"
+    # Fallback for unsaved tasks
+    if instance.task_id:
+        return f"uploads/tasks/{instance.task_id}/{filename}"
+    return f"uploads/tasks/temp/{filename}"
 
 
 class TaskBaseModel(BaseModel):
@@ -319,8 +323,8 @@ class TaskDependency(TaskBaseModel):
                 fields=["predecessor_task", "successor_task", "dependency_type"],
                 name="uniq_task_dependency",
             ),
-            models.CheckConstraint(
-                check=~models.Q(predecessor_task=models.F("successor_task")),
+            CheckConstraint(
+                condition=~Q(predecessor_task=models.F("successor_task")),  # FIXED
                 name="prevent_task_self_dependency",
             ),
         ]

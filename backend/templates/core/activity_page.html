@@ -1,0 +1,11 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    {% include "components/page_header.html" with eyebrow="Activity" title="Recent Activity" subtitle="Track actions and events across your workspace." %}
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        {% include "dashboard/partials/recent_activity_list.html" %}
+    </div>
+</div>
+{% endblock content %}

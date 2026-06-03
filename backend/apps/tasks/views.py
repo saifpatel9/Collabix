@@ -6,6 +6,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
+from apps.core.mixins import PageSizeMixin
 from apps.employees.models import EmployeeProfile
 from apps.projects.models import Milestone, Project
 
@@ -33,11 +34,17 @@ def is_htmx(request):
     return request.headers.get("HX-Request") == "true"
 
 
-class TaskListView(LoginRequiredMixin, ListView):
+class TaskListView(PageSizeMixin, LoginRequiredMixin, ListView):
     model = Task
     template_name = "tasks/task_list.html"
     context_object_name = "tasks"
     paginate_by = 25
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(task_filter_context(self.request))
+        context["current_page_size"] = self.get_paginate_by(self.get_queryset())
+        return context
 
     def get_queryset(self):
         queryset = TaskSelector.active_for(self.request.user)
@@ -58,12 +65,6 @@ class TaskListView(LoginRequiredMixin, ListView):
         if is_htmx(self.request):
             return ["tasks/partials/task_table.html"]
         return [self.template_name]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(task_filter_context(self.request))
-        return context
-
 
 class TaskDetailView(TaskAccessMixin, DetailView):
     model = Task
@@ -158,7 +159,7 @@ class TaskArchiveView(TaskManageMixin, View):
         return redirect("tasks:task_archive")
 
 
-class TaskArchiveListView(LoginRequiredMixin, ListView):
+class TaskArchiveListView(PageSizeMixin, LoginRequiredMixin, ListView):
     model = Task
     template_name = "tasks/task_archive.html"
     context_object_name = "tasks"
@@ -166,6 +167,11 @@ class TaskArchiveListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return TaskSelector.visible_to(self.request.user).filter(is_archived=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["current_page_size"] = self.get_paginate_by(self.get_queryset())
+        return context
 
 
 class TaskStatusUpdateView(TaskExecuteMixin, View):

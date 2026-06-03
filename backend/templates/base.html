@@ -8,8 +8,9 @@
     <title>{% block title %}{{ APP_NAME }}{% endblock title %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'dist/css/app.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     {% block extra_css %}{% endblock extra_css %}
 </head>
@@ -30,30 +31,14 @@
     <script>
         function dashboardApp() {
             return {
-                sidebarOpen: false,
+                sidebarCollapsed: window.innerWidth < 1024 ? true : (localStorage.getItem('sidebarCollapsed') === 'true' || false),
                 darkMode: localStorage.getItem('theme') === 'dark' || false,
                 init() {
                     this.initTheme();
                     this.setupThemeObserver();
                     this.setupHTMXCallbacks();
-                    // Close sidebar when clicking outside on mobile
-                    document.addEventListener('click', (e) => {
-                        const sidebar = document.querySelector('aside');
-                        const menuBtn = document.querySelector('button[x-on\\\\:click*="sidebarOpen = true"]');
-                        if (sidebar && !sidebar.contains(e.target) && !menuBtn?.contains(e.target)) {
-                            this.sidebarOpen = false;
-                        }
-                    });
-                    // Close dropdown menus when pressing Escape
-                    document.addEventListener('keydown', (e) => {
-                        if (e.key === 'Escape') {
-                            const accountMenus = document.querySelectorAll('[x-data*="accountOpen"]');
-                            accountMenus.forEach(menu => {
-                                if (menu.__x) {
-                                    menu.__x.getUnobservedData().accountOpen = false;
-                                }
-                            });
-                        }
+                    this.$watch('sidebarCollapsed', (value) => {
+                        localStorage.setItem('sidebarCollapsed', value);
                     });
                 },
                 initTheme() {
@@ -71,23 +56,23 @@
                     });
                 },
                 setupHTMXCallbacks() {
+                    const updateBadge = (target) => {
+                        const countBadge = document.querySelector('#notification-count');
+                        if (countBadge) {
+                            const unreadEl = target.querySelector('[data-unread-count]');
+                            const count = unreadEl ? unreadEl.getAttribute('data-unread-count') : '0';
+                            countBadge.textContent = count;
+                            countBadge.style.display = parseInt(count) > 0 ? 'inline-flex' : 'none';
+                        }
+                    };
                     document.addEventListener('htmx:afterSwap', (e) => {
-                        // Update notification count if notifications were loaded
-                        if (e.detail.target.id === 'global-search-results') {
-                            // Search results loaded
-                        }
                         if (e.detail.target.id === 'notifications-dropdown') {
-                            // Notifications loaded - check for count update
-                            const countBadge = document.querySelector('#notification-count');
-                            if (countBadge) {
-                                const count = e.detail.target.querySelector('[data-count]')?.getAttribute('data-count') || '0';
-                                countBadge.textContent = count;
-                                if (count > 0) {
-                                    countBadge.classList.add('opacity-100');
-                                    countBadge.classList.remove('opacity-0');
-                                }
-                            }
+                            updateBadge(e.detail.target);
                         }
+                    });
+                    document.addEventListener('notification-read', (e) => {
+                        const dropdown = document.getElementById('notifications-dropdown');
+                        if (dropdown) updateBadge(dropdown);
                     });
                     document.addEventListener('htmx:responseError', (e) => {
                         console.error('HTMX Error:', e);
@@ -101,21 +86,34 @@
             return {
                 currentPath: window.location.pathname,
                 isActive(urlName) {
-                    const urlMap = {
-                        'dashboard:home': '/dashboard/',
-                        'projects:project_directory': '/projects/',
-                        'projects:team_directory': '/teams/',
-                        'projects:milestone_list': '/milestones/',
-                        'employees:employee_list': '/employees/',
-                        'employees:employee_directory': '/employees/directory/',
-                        'employees:department_list': '/employees/departments/',
-                        'employees:reporting_tree': '/employees/tree/',
-                        'employees:organization_chart': '/employees/org-chart/',
-                        'accounts:profile': '/auth/profile/',
-                    };
-                    const pattern = urlMap[urlName];
-                    if (!pattern) return false;
-                    return this.currentPath.includes(pattern);
+                    const urlMap = [
+                        ['dashboard:home', '/dashboard/'],
+                        ['projects:project_directory', '/projects/'],
+                        ['tasks:task_list', '/tasks/'],
+                        ['tasks:task_board', '/tasks/board/'],
+                        ['projects:team_directory', '/teams/'],
+                        ['employees:employee_list', '/employees/'],
+                        ['projects:milestone_list', '/milestones/'],
+                        ['employees:employee_directory', '/employees/directory/'],
+                        ['employees:organization_chart', '/organization/chart/'],
+                        ['employees:reporting_tree', '/hierarchy/'],
+                        ['employees:department_list', '/departments/'],
+                        ['core:recent_activity', '/activity/recent/'],
+                        ['core:audit_timeline', '/audit/timeline/'],
+                        ['accounts:profile_update', '/auth/profile/edit/'],
+                        ['accounts:profile', '/auth/profile/'],
+                        ['accounts:password_change', '/auth/change-password/'],
+                    ];
+                    const cp = this.currentPath;
+                    let best = null;
+                    for (const [name, pattern] of urlMap) {
+                        if (cp === pattern || (cp.startsWith(pattern) && pattern.endsWith('/'))) {
+                            if (!best || pattern.length > best.length) {
+                                best = { name, pattern };
+                            }
+                        }
+                    }
+                    return best ? best.name === urlName : false;
                 }
             }
         }

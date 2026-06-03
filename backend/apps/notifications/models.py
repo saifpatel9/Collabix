@@ -18,13 +18,6 @@ class Notification(NotificationBaseModel):
         APPROVAL = "approval", "Approval"
         SYSTEM = "system", "System"
 
-    class Category(models.TextChoices):
-        TASK = "task", "Task"
-        PROJECT = "project", "Project"
-        MENTION = "mention", "Mention"
-        APPROVAL = "approval", "Approval"
-        SYSTEM = "system", "System"
-
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -37,14 +30,7 @@ class Notification(NotificationBaseModel):
         choices=Type.choices,
         default=Type.INFO,
     )
-    category = models.CharField(
-        max_length=30,
-        choices=Category.choices,
-        default=Category.SYSTEM,
-    )
-    action_url = models.CharField(max_length=500, blank=True)
-    target_type = models.CharField(max_length=150, blank=True)
-    target_id = models.CharField(max_length=64, blank=True)
+    link = models.CharField(max_length=500, blank=True, default="")
     is_read = models.BooleanField(default=False)
 
     class Meta:
@@ -55,38 +41,7 @@ class Notification(NotificationBaseModel):
                 fields=["recipient", "is_read"], name="notif_recipient_read_idx"
             ),
             models.Index(fields=["notification_type"], name="notif_type_idx"),
-            models.Index(fields=["category"], name="notif_category_idx"),
-            models.Index(fields=["target_type", "target_id"], name="notif_target_idx"),
         ]
 
     def __str__(self) -> str:
         return self.title
-
-
-class NotificationPreference(NotificationBaseModel):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="notification_preference",
-    )
-    task_notifications = models.BooleanField(default=True)
-    project_notifications = models.BooleanField(default=True)
-    mention_notifications = models.BooleanField(default=True)
-    approval_notifications = models.BooleanField(default=True)
-    system_notifications = models.BooleanField(default=True)
-    realtime_enabled = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = "notification_preferences"
-
-    def allows(self, category):
-        return {
-            Notification.Category.TASK: self.task_notifications,
-            Notification.Category.PROJECT: self.project_notifications,
-            Notification.Category.MENTION: self.mention_notifications,
-            Notification.Category.APPROVAL: self.approval_notifications,
-            Notification.Category.SYSTEM: self.system_notifications,
-        }.get(category, True)
-
-    def __str__(self):
-        return f"Notification preferences for {self.user}"
