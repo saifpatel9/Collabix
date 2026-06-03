@@ -5,8 +5,21 @@ from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView
 
-from .models import Notification
+from .forms import NotificationPreferenceForm
+from .models import Notification, NotificationPreference
 from .services.notification_service import NotificationService
+
+
+class NotificationCenterView(LoginRequiredMixin, TemplateView):
+    template_name = "notifications/center.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["notifications"] = Notification.objects.filter(
+            recipient=self.request.user
+        ).order_by("-created_at")[:50]
+        context["unread_count"] = NotificationService.unread_count(self.request.user)
+        return context
 
 
 class NotificationDropdownView(LoginRequiredMixin, TemplateView):
@@ -42,6 +55,28 @@ class NotificationMarkReadView(LoginRequiredMixin, View):
         return redirect(request.META.get("HTTP_REFERER", "dashboard:home"))
 
 
+class NotificationPreferenceView(LoginRequiredMixin, TemplateView):
+    template_name = "notifications/preferences.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        preference, _ = NotificationPreference.objects.get_or_create(
+            user=self.request.user
+        )
+        context["form"] = NotificationPreferenceForm(instance=preference)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        preference, _ = NotificationPreference.objects.get_or_create(
+            user=request.user
+        )
+        form = NotificationPreferenceForm(request.POST, instance=preference)
+        if form.is_valid():
+            form.save()
+            return redirect("notifications:preferences")
+        return self.render_to_response({"form": form})
+
+
 class NotificationMarkAllReadView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         NotificationService.mark_all_read(user=request.user)
@@ -60,3 +95,25 @@ class NotificationMarkAllReadView(LoginRequiredMixin, View):
             return response
 
         return redirect(request.META.get("HTTP_REFERER", "dashboard:home"))
+
+
+class NotificationPreferenceView(LoginRequiredMixin, TemplateView):
+    template_name = "notifications/preferences.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        preference, _ = NotificationPreference.objects.get_or_create(
+            user=self.request.user
+        )
+        context["form"] = NotificationPreferenceForm(instance=preference)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        preference, _ = NotificationPreference.objects.get_or_create(
+            user=request.user
+        )
+        form = NotificationPreferenceForm(request.POST, instance=preference)
+        if form.is_valid():
+            form.save()
+            return redirect("notifications:preferences")
+        return self.render_to_response({"form": form})

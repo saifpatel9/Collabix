@@ -1,0 +1,199 @@
+{% extends "layouts/dashboard.html" %}
+{% load static report_filters %}
+
+{% block title %}Workflow Analytics{% endblock %}
+
+{% block page_header %}
+  {% include "partials/page_header.html" with title="Workflow Analytics" eyebrow="Analytics" subtitle="Workflow efficiency, workload distribution, SLA compliance, and bottleneck identification" %}
+{% endblock %}
+
+{% block content %}
+<div x-data="workflowApp()" x-init="initWorkflow()" class="space-y-6">
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Tasks</p>
+          <p class="mt-1 text-2xl font-bold font-display text-gray-900 dark:text-white">{{ workflow.total_tasks|default:"0" }}</p>
+        </div>
+        <span class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">On-Time Rate</p>
+      <p class="mt-1 text-2xl font-bold font-display
+        {% if workflow.on_time_rate >= 80 %}text-green-600
+        {% elif workflow.on_time_rate >= 50 %}text-amber-600
+        {% else %}text-red-600{% endif %}">
+        {{ workflow.on_time_rate|default:"0" }}%
+      </p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Overdue Tasks</p>
+      <p class="mt-1 text-2xl font-bold font-display
+        {% if workflow.overdue > 0 %}text-red-600{% else %}text-gray-900 dark:text-white{% endif %}">
+        {{ workflow.overdue|default:"0" }}
+      </p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Avg Completion</p>
+      <p class="mt-1 text-2xl font-bold font-display text-gray-900 dark:text-white">{{ workflow.avg_completion_hours|default:"0" }}h</p>
+    </div>
+  </div>
+
+  <!-- Workload Distribution Chart -->
+  <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-5 card-lift">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white">Workload Distribution</h3>
+      <span class="text-xs text-gray-400">Top employees by load score</span>
+    </div>
+    {% if workload %}
+    <canvas id="workloadChart" height="240"></canvas>
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+      <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+      <p class="text-sm font-medium">No workload data available</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- SLA Breaches Table -->
+  <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden card-lift">
+    <div class="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white">SLA Breaches</h3>
+      <span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">{{ sla_breaches|length }}</span>
+    </div>
+    {% if sla_breaches %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 dark:bg-white/5">
+            <th class="text-left px-5 py-3 font-semibold text-gray-600">Task</th>
+            <th class="text-left px-5 py-3 font-semibold text-gray-600">Project</th>
+            <th class="text-left px-5 py-3 font-semibold text-gray-600">Assignee</th>
+            <th class="text-center px-5 py-3 font-semibold text-gray-600">Status</th>
+            <th class="text-center px-5 py-3 font-semibold text-gray-600">Completed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in sla_breaches|slice:":8" %}
+          <tr class="border-t border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+            <td class="px-5 py-3.5 font-medium text-gray-900 dark:text-white">{{ task.title|truncatechars:40 }}</td>
+            <td class="px-5 py-3.5 text-gray-500">{{ task.project.name|default:"—" }}</td>
+            <td class="px-5 py-3.5 text-gray-500">{{ task.assigned_to|default:"—" }}</td>
+            <td class="px-5 py-3.5 text-center">
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">{{ task.get_status_display }}</span>
+            </td>
+            <td class="px-5 py-3.5 text-center text-xs text-gray-400">{{ task.completed_at|date:"M d, Y"|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+      <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <p class="text-sm font-medium">No SLA breaches in the last 30 days</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Bottleneck List -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden card-lift">
+      <div class="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+        <h3 class="font-display font-bold text-gray-900 dark:text-white">Blocked / Stuck Tasks</h3>
+        <span class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">{{ bottleneck.blocked_tasks|length }}</span>
+      </div>
+      {% if bottleneck.blocked_tasks %}
+      <div class="divide-y divide-gray-100 dark:divide-white/5">
+        {% for task in bottleneck.blocked_tasks|slice:":5" %}
+        <div class="px-5 py-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+          <span class="text-sm font-medium text-gray-900 dark:text-white">{{ task.title|truncatechars:45 }}</span>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">{{ task.get_status_display }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="flex flex-col items-center justify-center py-10 text-gray-400">
+        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4"/></svg>
+        <p class="text-sm font-medium">No stuck tasks</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden card-lift">
+      <div class="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+        <h3 class="font-display font-bold text-gray-900 dark:text-white">Top Workload</h3>
+        <span class="text-xs text-gray-400">By load score</span>
+      </div>
+      {% if bottleneck.workload %}
+      <div class="divide-y divide-gray-100 dark:divide-white/5">
+        {% for item in bottleneck.workload %}
+        <div class="px-5 py-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+          <div class="flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-full bg-accent/20 text-accent text-xs font-bold flex items-center justify-center">{{ item.name|first|upper }}</span>
+            <span class="text-sm text-gray-900 dark:text-white">{{ item.name }}</span>
+          </div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-full
+            {% if item.load_score >= 10 %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400
+            {% elif item.load_score >= 5 %}bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400
+            {% else %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% endif %}">
+            Score: {{ item.load_score }}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="flex flex-col items-center justify-center py-10 text-gray-400">
+        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4"/></svg>
+        <p class="text-sm font-medium">No workload data</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if workload %}
+<script>
+function workflowApp() {
+  return {
+    initWorkflow() {
+      this.renderWorkload();
+    },
+    renderWorkload() {
+      const ctx = document.getElementById('workloadChart');
+      if (!ctx) return;
+      const labels = {{ workload|slice:":10"|map_attr:"name"|list|safe }};
+      const activeTasks = {{ workload|slice:":10"|map_attr:"active_tasks"|list|safe }};
+      const overdue = {{ workload|slice:":10"|map_attr:"overdue_tasks"|list|safe }};
+      if (!labels || !labels.length) return;
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Active Tasks', data: activeTasks, backgroundColor: '#3b82f6', borderRadius: 4 },
+            { label: 'Overdue', data: overdue, backgroundColor: '#ef4444', borderRadius: 4 },
+          ],
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+          plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { family: 'DM Sans' } } } },
+          scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false } } },
+        },
+      });
+    },
+  };
+}
+</script>
+{% else %}
+<script>function workflowApp() { return { initWorkflow() {} }; }</script>
+{% endif %}
+{% endblock %}

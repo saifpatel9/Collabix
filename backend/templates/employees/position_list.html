@@ -1,0 +1,36 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    {% include "components/page_header.html" with eyebrow="Organization" title="Positions" subtitle="Map employees to designations and departments." action_url="employees:position_create" action_label="Add Position" %}
+
+    <div class="panel overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-800">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Employee</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Designation</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Department</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Reports To</th>
+                        <th class="px-4 py-3 text-right text-xs font-bold uppercase text-slate-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for p in positions %}
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="px-4 py-3 text-sm font-semibold">{{ p.employee.user.full_name }}</td>
+                        <td class="px-4 py-3 text-sm">{{ p.designation.title }}</td>
+                        <td class="px-4 py-3 text-sm">{{ p.department.name }}</td>
+                        <td class="px-4 py-3 text-sm">{{ p.reporting_position.employee.user.full_name|default:"-" }}</td>
+                        <td class="px-4 py-3 text-right"><a href="{% url 'employees:position_update' p.pk %}" class="text-xs font-bold text-accent-600 hover:text-accent-700">Edit</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">No positions defined.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

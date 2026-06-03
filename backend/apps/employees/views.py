@@ -478,6 +478,27 @@ class OrganizationPositionListView(ManagerRequiredMixin, ListView):
         return context
 
 
+class DesignationListView(ManagerRequiredMixin, ListView):
+    model = Designation
+    template_name = "employees/designation_list.html"
+    context_object_name = "designations"
+    ordering = ["level", "title"]
+
+
+class DesignationCreateView(ManagerRequiredMixin, CreateView):
+    model = Designation
+    form_class = DesignationForm
+    template_name = "employees/designation_form.html"
+    success_url = reverse_lazy("employees:designation_list")
+
+
+class DesignationUpdateView(ManagerRequiredMixin, UpdateView):
+    model = Designation
+    form_class = DesignationForm
+    template_name = "employees/designation_form.html"
+    success_url = reverse_lazy("employees:designation_list")
+
+
 class OrganizationPositionCreateView(DepartmentAdminRequiredMixin, CreateView):
     model = OrganizationPosition
     form_class = OrganizationPositionForm

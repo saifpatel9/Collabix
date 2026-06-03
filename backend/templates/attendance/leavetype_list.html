@@ -1,0 +1,25 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    {% include "components/page_header.html" with eyebrow="Attendance" title="Leave Types" subtitle="Configure leave categories and allowances." action_url="attendance:leavetype_create" action_label="Add Leave Type" %}
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for lt in leave_types %}
+        <div class="panel card-lift">
+            <div class="flex items-center justify-between">
+                <span class="font-display text-lg font-bold">{{ lt.name }}</span>
+                <span class="text-2xl font-extrabold text-accent-600">{{ lt.days_allowed }}</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-500">{{ lt.code }}</p>
+            <div class="mt-3 flex items-center justify-between">
+                <span class="text-xs">{% if lt.requires_approval %}<span class="tag-amber">Requires approval</span>{% else %}<span class="tag-emerald">Auto-approved</span>{% endif %}</span>
+                <a href="{% url 'attendance:leavetype_update' lt.pk %}" class="text-xs font-bold text-accent-600 hover:text-accent-700">Edit</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full flex flex-col items-center py-12"><p class="text-sm text-slate-500">No leave types configured.</p></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

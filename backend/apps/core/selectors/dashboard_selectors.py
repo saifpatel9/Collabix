@@ -4,6 +4,7 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.core.models import ApprovalInstance
 from apps.employees.models import Department, EmployeeProfile
+from apps.attendance.selectors.attendance_selectors import AttendanceSelector
 from apps.notifications.services.notification_service import NotificationService
 from apps.projects.models import Project
 from apps.tasks.models import Task
@@ -58,4 +59,6 @@ class DashboardSelector:
             "tasks_by_status": visible_tasks.values("status").annotate(total=Count("id")).order_by("status"),
             "employee_status_counts": employees.values("employment_status").annotate(total=Count("id")),
             "task_completion_rate": round((completed.count() / max(not_cancelled.count(), 1)) * 100),
+            "pending_leaves": AttendanceSelector.pending_leave_count(),
+            "today_attendance": AttendanceSelector.today_summary(),
         }

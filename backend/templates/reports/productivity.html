@@ -1,0 +1,164 @@
+{% extends "layouts/dashboard.html" %}
+{% load static report_filters %}
+
+{% block title %}Team Productivity Analytics{% endblock %}
+
+{% block page_header %}
+  {% include "partials/page_header.html" with title="Team Productivity" eyebrow="Analytics" subtitle="Department-level productivity, task completion analysis, and team efficiency metrics" %}
+{% endblock %}
+
+{% block content %}
+<div x-data="productivityApp()" x-init="initProductivity()" class="space-y-6">
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4">
+    <form method="GET" class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Department</label>
+        {{ filter_form.department }}
+      </div>
+      <div class="flex gap-2">
+        <button type="submit" class="btn-accent btn-accent-sm">Apply</button>
+        <a href="{% url 'reports:analytics_productivity' %}" class="btn-ghost text-xs">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Departments</p>
+      <p class="mt-1 text-2xl font-bold font-display text-gray-900 dark:text-white">{{ productivity_data|length }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Employees</p>
+      <p class="mt-1 text-2xl font-bold font-display text-gray-900 dark:text-white">{{ summary.total_employees }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Tasks</p>
+      <p class="mt-1 text-2xl font-bold font-display text-gray-900 dark:text-white">{{ summary.total_tasks }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Completed Tasks</p>
+      <p class="mt-1 text-2xl font-bold font-display text-green-600">{{ summary.completed_tasks }}</p>
+    </div>
+  </div>
+
+  <!-- Chart: Productivity by Department -->
+  <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-5 card-lift">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white">Productivity by Department</h3>
+      <span class="text-xs text-gray-400">Completion rate comparison</span>
+    </div>
+    <canvas id="productivityChart" height="200"></canvas>
+    <div x-show="!hasData" class="flex flex-col items-center justify-center py-10 text-gray-400">
+      <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <p class="text-sm font-medium">No productivity data available</p>
+    </div>
+  </div>
+
+  <!-- Department Details Table -->
+  <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden card-lift">
+    <div class="p-5 border-b border-gray-100 dark:border-white/5">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white">Department Breakdown</h3>
+    </div>
+    {% if productivity_data %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 dark:bg-white/5">
+            <th class="text-left px-5 py-3 font-semibold text-gray-600 dark:text-gray-400">Department</th>
+            <th class="text-center px-5 py-3 font-semibold text-gray-600 dark:text-gray-400">Employees</th>
+            <th class="text-center px-5 py-3 font-semibold text-gray-600 dark:text-gray-400">Total Tasks</th>
+            <th class="text-center px-5 py-3 font-semibold text-gray-600 dark:text-gray-400">Completed</th>
+            <th class="text-center px-5 py-3 font-semibold text-gray-600 dark:text-gray-400">Overdue</th>
+            <th class="text-center px-5 py-3 font-semibold text-gray-600 dark:text-gray-400">Completion Rate</th>
+            <th class="text-left px-5 py-3 font-semibold text-gray-600 dark:text-gray-400">Progress</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dept in productivity_data %}
+          <tr class="border-t border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+            <td class="px-5 py-3.5 font-medium text-gray-900 dark:text-white">{{ dept.department }}</td>
+            <td class="px-5 py-3.5 text-center text-gray-500">{{ dept.employee_count }}</td>
+            <td class="px-5 py-3.5 text-center font-medium text-gray-900 dark:text-white">{{ dept.total_tasks }}</td>
+            <td class="px-5 py-3.5 text-center text-green-600 font-medium">{{ dept.completed_tasks }}</td>
+            <td class="px-5 py-3.5 text-center">
+              {% if dept.overdue_tasks > 0 %}<span class="text-red-600 font-medium">{{ dept.overdue_tasks }}</span>{% else %}<span class="text-gray-400">—</span>{% endif %}
+            </td>
+            <td class="px-5 py-3.5 text-center">
+              <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold
+                {% if dept.completion_rate >= 80 %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400
+                {% elif dept.completion_rate >= 50 %}bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400
+                {% else %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400{% endif %}">
+                {{ dept.completion_rate }}%
+              </span>
+            </td>
+            <td class="px-5 py-3.5">
+              <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500 bg-accent" style="width: {{ dept.completion_rate }}%"></div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+      <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <p class="text-lg font-medium">No departments configured</p>
+      <p class="text-sm mt-1">Create departments and assign employees to get started</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if productivity_data %}
+<script>
+function productivityApp() {
+  return {
+    hasData: true,
+    initProductivity() {
+      this.renderChart();
+    },
+    renderChart() {
+      const labels = {{ productivity_data|slice:":10"|map_attr:"department"|list|safe }};
+      const completion = {{ productivity_data|slice:":10"|map_attr:"completion_rate"|list|safe }};
+      const allTasks = {{ productivity_data|slice:":10"|map_attr:"total_tasks"|list|safe }};
+      const ctx = document.getElementById('productivityChart');
+      if (!ctx) return;
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Completion Rate (%)', data: completion, backgroundColor: '#e8b84b', borderRadius: 4, yAxisID: 'y' },
+            { label: 'Total Tasks', data: allTasks, backgroundColor: 'rgba(59,130,246,0.3)', borderRadius: 4, yAxisID: 'y1' },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, font: { family: 'DM Sans' } } },
+            tooltip: { mode: 'index', intersect: false },
+          },
+          scales: {
+            y: { beginAtZero: true, max: 100, grid: { display: false }, title: { display: true, text: 'Completion Rate %' } },
+            y1: { position: 'right', beginAtZero: true, grid: { display: false }, title: { display: true, text: 'Tasks' } },
+            x: { grid: { display: false } },
+          },
+        },
+      });
+    },
+  };
+}
+</script>
+{% else %}
+<script>
+function productivityApp() { return { hasData: false, initProductivity() {} }; }
+</script>
+{% endif %}
+{% endblock %}

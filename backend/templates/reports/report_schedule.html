@@ -1,0 +1,33 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+
+{% block title %}Schedule Report{% endblock %}
+
+{% block page_header %}
+  {% include "partials/page_header.html" with title="Schedule: "|add:report.name breadcrumb="Reports > Schedule" %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+  <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-8">
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+      <div class="flex items-center gap-3 pt-4 border-t border-gray-100 dark:border-white/10">
+        <button type="submit" class="btn-accent">Save Schedule</button>
+        <a href="{% url 'reports:report_detail' pk=report.pk %}" class="btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

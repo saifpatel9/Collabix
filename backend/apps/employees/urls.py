@@ -1,6 +1,8 @@
 from django.urls import path
 
 from .views import (
+    AssignManagerView,
+    ChangeManagerView,
     DepartmentCreateView,
     DepartmentDeleteView,
     DepartmentDetailView,
@@ -11,21 +13,19 @@ from .views import (
     DesignationDetailView,
     DesignationListView,
     DesignationUpdateView,
-    AssignManagerView,
-    ChangeManagerView,
-    EmployeeDirectoryView,
     EmployeeCreateView,
     EmployeeDetailView,
+    EmployeeDirectoryView,
+    EmployeeListView,
+    EmployeeProfileView,
+    EmployeeStatusUpdateView,
+    EmployeeUpdateView,
     OrganizationChartView,
     OrganizationPositionCreateView,
     OrganizationPositionDeleteView,
     OrganizationPositionListView,
     OrganizationPositionUpdateView,
     ReportingTreeView,
-    EmployeeListView,
-    EmployeeProfileView,
-    EmployeeStatusUpdateView,
-    EmployeeUpdateView,
 )
 
 app_name = "employees"

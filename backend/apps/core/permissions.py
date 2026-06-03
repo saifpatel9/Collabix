@@ -66,16 +66,21 @@ class EmployeeAccessMixin(LoginRequiredMixin):
     def get_employee_object(self):
         from apps.employees.models import EmployeeProfile
 
+        pk = self.kwargs.get(self.object_kwarg)
+        if pk is None:
+            return None
         return get_object_or_404(
             EmployeeProfile.objects.select_related(
                 "user", "department", "manager__user"
             ),
-            pk=self.kwargs[self.object_kwarg],
+            pk=pk,
         )
 
     def can_access_employee(self, employee):
         user = self.request.user
         if user.is_superuser or user.role == User.Role.ADMIN:
+            return True
+        if employee is None:
             return True
         if user.role == User.Role.MANAGER:
             return employee.manager and employee.manager.user_id == user.id
@@ -85,6 +90,6 @@ class EmployeeAccessMixin(LoginRequiredMixin):
         if not request.user.is_authenticated:
             return super().dispatch(request, *args, **kwargs)
         self.employee_object = self.get_employee_object()
-        if not self.can_access_employee(self.employee_object):
+        if self.employee_object is not None and not self.can_access_employee(self.employee_object):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)

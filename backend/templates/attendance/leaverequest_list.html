@@ -1,0 +1,32 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    {% include "components/page_header.html" with eyebrow="Attendance" title="Leave Requests" subtitle="View and manage leave applications." action_url="attendance:leave_apply" action_label="Apply Leave" %}
+
+    <div class="space-y-3">
+        {% for lr in leave_requests %}
+        <div class="panel flex items-center justify-between">
+            <div>
+                <p class="text-sm font-semibold">{{ lr.leave_type.name }}</p>
+                <p class="text-xs text-slate-500">{{ lr.start_date|date:"M d" }} - {{ lr.end_date|date:"M d, Y" }} ({{ lr.total_days }} days)</p>
+                <p class="text-xs text-slate-400 mt-0.5">{{ lr.reason|truncatewords:20 }}</p>
+            </div>
+            <div class="flex items-center gap-3">
+                {% if lr.status == "pending" %}
+                <span class="tag-amber">Pending</span>
+                {% elif lr.status == "approved" %}
+                <span class="tag-emerald">Approved</span>
+                {% elif lr.status == "rejected" %}
+                <span class="tag-coral">Rejected</span>
+                {% else %}
+                <span class="tag-slate">Cancelled</span>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="flex flex-col items-center py-12"><p class="text-sm text-slate-500">No leave requests found.</p></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

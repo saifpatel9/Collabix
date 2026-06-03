@@ -1,0 +1,199 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+
+{% block title %}Task Analytics{% endblock %}
+
+{% block page_header %}
+  {% include "partials/page_header.html" with title="Task Analytics" eyebrow="Analytics" subtitle="Task distribution, workflow efficiency, bottlenecks, and overdue analysis" %}
+{% endblock %}
+
+{% block content %}
+<div x-data="tasksApp()" x-init="initTasks()" class="space-y-6">
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4">
+    <form method="GET" class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Project</label>
+        {{ filter_form.project }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+        <select name="status" class="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg">
+          <option value="">All Statuses</option>
+          <option value="todo">To Do</option>
+          <option value="in_progress">In Progress</option>
+          <option value="done">Done</option>
+          <option value="review">Review</option>
+          <option value="blocked">Blocked</option>
+        </select>
+      </div>
+      <div class="flex gap-2">
+        <button type="submit" class="btn-accent btn-accent-sm">Apply</button>
+        <a href="{% url 'reports:analytics_tasks' %}" class="btn-ghost text-xs">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</p>
+      <p class="mt-1 text-2xl font-bold font-display text-gray-900 dark:text-white">{{ task_stats.total|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">In Progress</p>
+      <p class="mt-1 text-2xl font-bold font-display text-blue-600">{{ task_stats.in_progress|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Done</p>
+      <p class="mt-1 text-2xl font-bold font-display text-green-600">{{ task_stats.done|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Overdue</p>
+      <p class="mt-1 text-2xl font-bold font-display {% if task_stats.overdue > 0 %}text-red-600{% else %}text-gray-900 dark:text-white{% endif %}">{{ task_stats.overdue|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Completion Rate</p>
+      <p class="mt-1 text-2xl font-bold font-display
+        {% if task_stats.completion_rate >= 80 %}text-green-600
+        {% elif task_stats.completion_rate >= 50 %}text-amber-600
+        {% else %}text-red-600{% endif %}">
+        {{ task_stats.completion_rate|default:"0" }}%
+      </p>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-5 card-lift">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">Task Status Distribution</h3>
+      <canvas id="taskStatusChart" height="220"></canvas>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-5 card-lift">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">Workflow Efficiency</h3>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="text-center p-3 rounded-lg bg-green-50 dark:bg-green-900/10">
+          <p class="text-xs text-gray-500">On Time</p>
+          <p class="text-xl font-bold text-green-600">{{ workflow.completed_on_time|default:"0" }}</p>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10">
+          <p class="text-xs text-gray-500">Late</p>
+          <p class="text-xl font-bold text-amber-600">{{ workflow.completed_late|default:"0" }}</p>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-red-50 dark:bg-red-900/10">
+          <p class="text-xs text-gray-500">Overdue</p>
+          <p class="text-xl font-bold text-red-600">{{ workflow.overdue|default:"0" }}</p>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/10">
+          <p class="text-xs text-gray-500">Avg Hours</p>
+          <p class="text-xl font-bold text-blue-600">{{ workflow.avg_completion_hours|default:"0" }}</p>
+        </div>
+      </div>
+      <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        {% with on_time=workflow.completed_on_time|default:0 late=workflow.completed_late|default:0 %}
+        {% with total=on_time|add:late %}
+        {% if total > 0 %}
+        <div class="flex h-full">
+          <div class="bg-green-500 h-full transition-all" style="width: {% widthratio on_time total 100 %}%"></div>
+          <div class="bg-amber-500 h-full transition-all" style="width: {% widthratio late total 100 %}%"></div>
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottlenecks Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden card-lift">
+      <div class="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+        <h3 class="font-display font-bold text-gray-900 dark:text-white">Bottleneck Tasks</h3>
+        <span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">{{ bottlenecks|length }}</span>
+      </div>
+      {% if bottlenecks %}
+      <div class="divide-y divide-gray-100 dark:divide-white/5">
+        {% for task in bottlenecks|slice:":5" %}
+        <div class="px-5 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ task.title|truncatechars:40 }}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full {% if task.status == 'blocked' %}bg-red-100 text-red-700{% else %}bg-amber-100 text-amber-700{% endif %}">{{ task.get_status_display }}</span>
+          </div>
+          <div class="mt-1 flex items-center gap-3 text-xs text-gray-400">
+            <span>{{ task.project.name|default:"No Project" }}</span>
+            {% if task.assigned_to %}<span>· {{ task.assigned_to }}</span>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="flex flex-col items-center justify-center py-10 text-gray-400">
+        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <p class="text-sm font-medium">No bottlenecks detected</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden card-lift">
+      <div class="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+        <h3 class="font-display font-bold text-gray-900 dark:text-white">Overdue Tasks</h3>
+        <span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">{{ overdue_tasks|length }}</span>
+      </div>
+      {% if overdue_tasks %}
+      <div class="divide-y divide-gray-100 dark:divide-white/5">
+        {% for task in overdue_tasks|slice:":5" %}
+        <div class="px-5 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ task.title|truncatechars:40 }}</span>
+            <span class="text-xs text-red-500 font-medium">{{ task.due_date|date:"M d" }}</span>
+          </div>
+          <div class="mt-1 flex items-center gap-3 text-xs text-gray-400">
+            <span>{{ task.project.name|default:"No Project" }}</span>
+            {% if task.assigned_to %}<span>· {{ task.assigned_to }}</span>{% endif %}
+            <span class="text-red-400 font-medium">⚠ Overdue</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="flex flex-col items-center justify-center py-10 text-gray-400">
+        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <p class="text-sm font-medium">No overdue tasks</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function tasksApp() {
+  return {
+    initTasks() {
+      this.renderStatusChart();
+    },
+    renderStatusChart() {
+      const ctx = document.getElementById('taskStatusChart');
+      if (!ctx) return;
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['To Do', 'In Progress', 'Done', 'Review', 'Blocked'],
+          datasets: [{
+            data: [{{ task_stats.todo|default:"0" }}, {{ task_stats.in_progress|default:"0" }}, {{ task_stats.done|default:"0" }}, {{ task_stats.review|default:"0" }}, {{ task_stats.blocked|default:"0" }}],
+            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444'],
+            borderWidth: 0,
+          }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { family: 'DM Sans' } } } },
+        },
+      });
+    },
+  };
+}
+</script>
+{% endblock %}

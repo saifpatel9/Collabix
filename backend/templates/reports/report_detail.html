@@ -1,0 +1,124 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+
+{% block title %}{{ report.name }}{% endblock %}
+
+{% block page_header %}
+  {% include "partials/page_header.html" with title=report.name breadcrumb="Reports > "|add:report.name %}
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Report Info -->
+  <div class="lg:col-span-2 space-y-6">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-6">
+      <div class="flex items-start justify-between mb-6">
+        <div>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-accent-dim text-accent">{{ report.get_report_type_display }}</span>
+          <h2 class="text-xl font-bold font-display text-gray-900 dark:text-white mt-3">{{ report.name }}</h2>
+          {% if report.description %}
+            <p class="text-sm text-gray-400 mt-2">{{ report.description }}</p>
+          {% endif %}
+        </div>
+        <div class="flex gap-2">
+          <a href="{% url 'reports:report_update' pk=report.pk %}" class="btn-ghost text-sm">Edit</a>
+          <a href="{% url 'reports:report_schedule' pk=report.pk %}" class="btn-ghost text-sm">
+            {% if report.is_scheduled %}Edit Schedule{% else %}Schedule{% endif %}
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="text-center p-3 bg-gray-50 dark:bg-white/5 rounded-lg">
+          <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ report.get_frequency_display }}</div>
+          <div class="text-xs text-gray-400">Frequency</div>
+        </div>
+        <div class="text-center p-3 bg-gray-50 dark:bg-white/5 rounded-lg">
+          <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ report.export_format|upper }}</div>
+          <div class="text-xs text-gray-400">Format</div>
+        </div>
+        <div class="text-center p-3 bg-gray-50 dark:bg-white/5 rounded-lg">
+          <div class="text-sm font-semibold text-gray-900 dark:text-white">{% if report.is_scheduled %}Yes{% else %}No{% endif %}</div>
+          <div class="text-xs text-gray-400">Scheduled</div>
+        </div>
+        <div class="text-center p-3 bg-gray-50 dark:bg-white/5 rounded-lg">
+          <div class="text-sm font-semibold text-gray-900 dark:text-white">{% if report.last_generated %}{{ report.last_generated|date:"M d, Y" }}{% else %}Never{% endif %}</div>
+          <div class="text-xs text-gray-400">Last Generated</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3 mt-6">
+        <form method="post" action="{% url 'reports:report_generate' pk=report.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-accent inline-flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            Generate Now
+          </button>
+        </form>
+        <a href="{% url 'reports:report_export' pk=report.pk export_format='csv' %}" class="btn-ghost text-sm">Export CSV</a>
+        <a href="{% url 'reports:report_export' pk=report.pk export_format='xlsx' %}" class="btn-ghost text-sm">Export XLSX</a>
+        <a href="{% url 'reports:report_export' pk=report.pk export_format='pdf' %}" class="btn-ghost text-sm">Export PDF</a>
+        <a href="{% url 'reports:report_delete' pk=report.pk %}" class="btn-ghost text-sm text-red-500 hover:text-red-600 ml-auto">Delete</a>
+      </div>
+    </div>
+
+    <!-- Exports History -->
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-6">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">Export History</h3>
+      <div class="space-y-3">
+        {% for export in exports %}
+        <div class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-white/5 last:border-0">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold
+              {% if export.export_format == 'csv' %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400
+              {% elif export.export_format == 'xlsx' %}bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400
+              {% else %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400{% endif %}">
+              {{ export.export_format|upper }}
+            </span>
+            <div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ export.created_at|date:"M d, Y H:i" }}</div>
+              <div class="text-xs text-gray-400">
+                {% if export.file_size %}{{ export.file_size|filesizeformat }} &middot; {% endif %}
+                Status: {{ export.get_status_display }}
+              </div>
+            </div>
+          </div>
+          {% if export.status == "completed" and export.file %}
+            <a href="{{ export.file.url }}" class="text-accent hover:text-accent/80" download>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </a>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-sm text-gray-400 text-center py-4">No exports generated yet. Click "Generate Now" to create one.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="space-y-6">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-6">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">Filters</h3>
+      {% if report.filters %}
+        <pre class="text-xs text-gray-400 bg-gray-50 dark:bg-white/5 p-3 rounded-lg overflow-x-auto">{{ report.filters|pprint }}</pre>
+      {% else %}
+        <p class="text-sm text-gray-400">No filters configured.</p>
+      {% endif %}
+    </div>
+
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-6">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+      <div class="space-y-2">
+        <form method="post" action="{% url 'reports:report_generate' pk=report.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="w-full btn-accent-sm justify-center">Generate Report</button>
+        </form>
+        <a href="{% url 'reports:report_export' pk=report.pk export_format='csv' %}" class="w-full btn-ghost text-sm justify-center">Download CSV</a>
+        <a href="{% url 'reports:report_schedule' pk=report.pk %}" class="w-full btn-ghost text-sm justify-center">Schedule</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    {% include "components/page_header.html" with eyebrow="Organization" title="Designations" subtitle="Manage job titles and hierarchy levels." action_url="employees:designation_create" action_label="Add Designation" %}
+
+    <div class="panel overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-800">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Title</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Level</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Description</th>
+                        <th class="px-4 py-3 text-right text-xs font-bold uppercase text-slate-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for d in designations %}
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="px-4 py-3 text-sm font-semibold">{{ d.title }}</td>
+                        <td class="px-4 py-3"><span class="tag-slate">Level {{ d.level }}</span></td>
+                        <td class="px-4 py-3 text-sm text-slate-500">{{ d.description|truncatewords:20|default:"-" }}</td>
+                        <td class="px-4 py-3 text-right"><a href="{% url 'employees:designation_update' d.pk %}" class="text-xs font-bold text-accent-600 hover:text-accent-700">Edit</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">No designations defined.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

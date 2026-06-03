@@ -18,6 +18,8 @@ urlpatterns = [
     path("", include(("apps.projects.urls", "projects"), namespace="projects")),
     path("", include(("apps.tasks.urls", "tasks"), namespace="tasks")),
     path("", include(("apps.dashboard.urls", "dashboard"), namespace="dashboard")),
+    path("", include(("apps.attendance.urls", "attendance"), namespace="attendance")),
+    path("", include(("apps.reports.urls", "reports"), namespace="reports")),
 ]
 
 if settings.DEBUG:

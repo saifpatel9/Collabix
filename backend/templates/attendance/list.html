@@ -1,0 +1,41 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    {% include "components/page_header.html" with eyebrow="Attendance" title="All Attendance Records" subtitle="View and manage daily attendance." action_url="attendance:create" action_label="Record Attendance" %}
+
+    <div class="panel overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-800">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Employee</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Date</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Check In</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Check Out</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold uppercase text-slate-500">Hours</th>
+                        <th class="px-4 py-3 text-right text-xs font-bold uppercase text-slate-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for a in attendances %}
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="px-4 py-3 text-sm font-semibold">{{ a.employee.user.full_name }}</td>
+                        <td class="px-4 py-3 text-sm">{{ a.date|date:"M d, Y" }}</td>
+                        <td class="px-4 py-3">{% include "components/approval_badge.html" with status=a.status %}</td>
+                        <td class="px-4 py-3 text-sm">{{ a.check_in|time:"H:i"|default:"-" }}</td>
+                        <td class="px-4 py-3 text-sm">{{ a.check_out|time:"H:i"|default:"-" }}</td>
+                        <td class="px-4 py-3 text-sm">{{ a.worked_hours }}h</td>
+                        <td class="px-4 py-3 text-right"><a href="{% url 'attendance:update' a.pk %}" class="text-xs font-bold text-accent-600 hover:text-accent-700">Edit</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500">No attendance records found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% include "components/pagination.html" with page_obj=page_obj %}
+</div>
+{% endblock content %}

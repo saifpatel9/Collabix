@@ -279,7 +279,7 @@ button {
     margin-bottom: 16px;
 }
 .section-header {
-    margin-bottom: 72px;
+    margin-bottom: 60px;
 }
 .gradient-text {
     background: var(--grad-text);
@@ -519,7 +519,6 @@ button {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    padding: 140px 0 100px;
     position: relative;
     overflow: hidden;
 }
@@ -964,7 +963,7 @@ button {
 .features-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 24px;
 }
 .feature-card {
     background: var(--surface);
@@ -1152,11 +1151,12 @@ button {
 .timeline-connector {
     position: absolute;
     top: 60px;
-    left: calc(12.5% + 20px);
-    right: calc(12.5% + 20px);
+    left: calc(12.5% + 40px);
+    right: calc(12.5% + 40px);
     height: 2px;
     background: linear-gradient(90deg, var(--accent), rgba(232, 184, 75, 0.3), var(--accent));
     z-index: 0;
+    pointer-events: none;
 }
 .timeline-connector::before {
     content: "";

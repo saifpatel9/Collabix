@@ -1,0 +1,167 @@
+{% extends "layouts/dashboard.html" %}
+{% load static report_filters %}
+
+{% block title %}Attendance Analytics{% endblock %}
+
+{% block page_header %}
+  {% include "partials/page_header.html" with title="Attendance Analytics" eyebrow="Analytics" subtitle="Attendance rates, leave trends, and department attendance comparison" %}
+{% endblock %}
+
+{% block content %}
+<div x-data="attendanceApp()" x-init="initAttendance()" class="space-y-6">
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4">
+    <form method="GET" class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Department</label>
+        {{ filter_form.department }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Date From</label>
+        {{ filter_form.date_from }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Date To</label>
+        {{ filter_form.date_to }}
+      </div>
+      <div class="flex gap-2">
+        <button type="submit" class="btn-accent btn-accent-sm">Apply</button>
+        <a href="{% url 'reports:analytics_attendance' %}" class="btn-ghost text-xs">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Attendance Rate</p>
+          <p class="mt-1 text-2xl font-bold font-display
+            {% if attendance_data.attendance_rate >= 90 %}text-green-600
+            {% elif attendance_data.attendance_rate >= 75 %}text-amber-600
+            {% else %}text-red-600{% endif %}">
+            {{ attendance_data.attendance_rate|default:"0" }}%
+          </p>
+        </div>
+        <span class="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-500">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Present</p>
+      <p class="mt-1 text-2xl font-bold font-display text-green-600">{{ attendance_data.present|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Absent</p>
+      <p class="mt-1 text-2xl font-bold font-display text-red-600">{{ attendance_data.absent|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 card-lift">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pending Leaves</p>
+      <p class="mt-1 text-2xl font-bold font-display text-amber-600">{{ attendance_data.pending_leaves|default:"0" }}</p>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-5 card-lift">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">Attendance Breakdown</h3>
+      {% if attendance_data.total_records > 0 %}
+      <canvas id="attendanceDoughnutChart" height="220"></canvas>
+      {% else %}
+      <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+        <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <p class="text-sm font-medium">No attendance records</p>
+        <p class="text-xs mt-1">Attendance data will appear once records are created</p>
+      </div>
+      {% endif %}
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-5 card-lift">
+      <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">Monthly Trend</h3>
+      {% if monthly_trend %}
+      <canvas id="attendanceTrendChart" height="220"></canvas>
+      {% else %}
+      <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+        <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <p class="text-sm font-medium">No trend data available</p>
+        <p class="text-xs mt-1">Data will populate over time</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 text-center card-lift">
+      <p class="text-xs font-semibold text-gray-400">Late</p>
+      <p class="mt-1 text-xl font-bold text-amber-600">{{ attendance_data.late|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 text-center card-lift">
+      <p class="text-xs font-semibold text-gray-400">Half Day</p>
+      <p class="mt-1 text-xl font-bold text-gray-900 dark:text-white">{{ attendance_data.half_day|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 text-center card-lift">
+      <p class="text-xs font-semibold text-gray-400">Approved Leaves</p>
+      <p class="mt-1 text-xl font-bold text-blue-600">{{ attendance_data.approved_leaves|default:"0" }}</p>
+    </div>
+    <div class="bg-white dark:bg-[#141c2e] rounded-xl border border-gray-100 dark:border-white/10 p-4 text-center card-lift">
+      <p class="text-xs font-semibold text-gray-400">Total Records</p>
+      <p class="mt-1 text-xl font-bold text-gray-900 dark:text-white">{{ attendance_data.total_records|default:"0" }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function attendanceApp() {
+  return {
+    initAttendance() {
+      this.renderDoughnut();
+      this.renderTrend();
+    },
+    renderDoughnut() {
+      const ctx = document.getElementById('attendanceDoughnutChart');
+      if (!ctx) return;
+      const data = {
+        present: {{ attendance_data.present|default:"0" }},
+        absent: {{ attendance_data.absent|default:"0" }},
+        late: {{ attendance_data.late|default:"0" }},
+        halfDay: {{ attendance_data.half_day|default:"0" }},
+      };
+      const hasData = data.present + data.absent + data.late + data.halfDay > 0;
+      if (!hasData) return;
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Absent', 'Late', 'Half Day'],
+          datasets: [{ data: [data.present, data.absent, data.late, data.halfDay], backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#8b5cf6'], borderWidth: 0 }],
+        },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { family: 'DM Sans' } } } } },
+      });
+    },
+    renderTrend() {
+      const ctx = document.getElementById('attendanceTrendChart');
+      if (!ctx) return;
+      const months = {{ monthly_trend|slice:":6"|map_attr:"month"|list|safe }};
+      const present = {{ monthly_trend|slice:":6"|map_attr:"present"|list|safe }};
+      const absent = {{ monthly_trend|slice:":6"|map_attr:"absent"|list|safe }};
+      if (!months || !months.length) return;
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            { label: 'Present', data: present, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 3 },
+            { label: 'Absent', data: absent, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.4, pointRadius: 3 },
+          ],
+        },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { family: 'DM Sans' } } } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } },
+      });
+    },
+  };
+}
+</script>
+{% endblock %}
