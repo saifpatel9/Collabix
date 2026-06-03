@@ -23,7 +23,7 @@
             {% endif %}
         </article>
     {% empty %}
-        <p class="px-5 py-8 text-center text-sm text-slate-500">No notifications found.</p>
+        <p class="px-5 py-8 text-center text-sm text-slate-500 dark:text-slate-400">No notifications found.</p>
     {% endfor %}
 </div>
 {% include "components/pagination.html" with target="#notification-list" %}

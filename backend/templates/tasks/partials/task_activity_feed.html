@@ -7,7 +7,7 @@
                 <p class="text-xs text-slate-500">{{ activity.actor.user.full_name|default:"System" }} · {{ activity.created_at }}</p>
             </div>
         {% empty %}
-            <p class="text-sm text-slate-500">No task activity yet.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">No task activity yet.</p>
         {% endfor %}
     </div>
 </div>

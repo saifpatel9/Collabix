@@ -2,7 +2,7 @@
     <div class="flex items-start justify-between gap-3">
         <div>
             <h3 class="font-display font-semibold text-slate-900 dark:text-slate-50">{{ milestone.name }}</h3>
-            <p class="mt-1 text-sm text-slate-500">{{ milestone.project.code }}{% if milestone.project.name %} - {{ milestone.project.name }}{% endif %}</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ milestone.project.code }}{% if milestone.project.name %} - {{ milestone.project.name }}{% endif %}</p>
         </div>
         <span class="status-pill
             {% if milestone.status == 'completed' %}border-emerald-400/20 bg-emerald-400/10 text-emerald-700 dark:text-emerald-300

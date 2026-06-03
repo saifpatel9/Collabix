@@ -55,7 +55,7 @@
             <div class="mt-4 space-y-2">
                 {% for assignment in assignments %}
                     {% include "tasks/partials/assignee_avatar.html" with employee=assignment.employee %}
-                {% empty %}<p class="text-sm text-slate-500">No assignees yet.</p>{% endfor %}
+                {% empty %}<p class="text-sm text-slate-500 dark:text-slate-400">No assignees yet.</p>{% endfor %}
             </div>
             <form method="post" action="{% url 'tasks:task_assignment' task.pk %}" class="mt-4 space-y-3">
                 {% csrf_token %}{{ assignment_form.employee }}
@@ -71,7 +71,7 @@
                         <span>{{ dependency.predecessor_task.task_code }} · {{ dependency.get_dependency_type_display }}</span>
                         <form method="post" action="{% url 'tasks:task_dependency_delete' task.pk dependency.pk %}">{% csrf_token %}<button class="text-rose-600">Remove</button></form>
                     </div>
-                {% empty %}<p class="text-sm text-slate-500">No dependencies.</p>{% endfor %}
+                {% empty %}<p class="text-sm text-slate-500 dark:text-slate-400">No dependencies.</p>{% endfor %}
             </div>
             <form method="post" action="{% url 'tasks:task_dependency' task.pk %}" class="mt-4 space-y-3">
                 {% csrf_token %}{{ dependency_form.predecessor_task }}{{ dependency_form.dependency_type }}
@@ -84,7 +84,7 @@
             <div class="mt-4 space-y-2">
                 {% for attachment in attachments %}
                     <a href="{{ attachment.file.url }}" class="block rounded-2xl bg-slate-50 p-3 text-sm font-semibold dark:bg-slate-950">{{ attachment.original_filename }}</a>
-                {% empty %}<p class="text-sm text-slate-500">No attachments.</p>{% endfor %}
+                {% empty %}<p class="text-sm text-slate-500 dark:text-slate-400">No attachments.</p>{% endfor %}
             </div>
             <form method="post" enctype="multipart/form-data" action="{% url 'tasks:task_attachment' task.pk %}" class="mt-4 space-y-3">
                 {% csrf_token %}{{ attachment_form.file }}

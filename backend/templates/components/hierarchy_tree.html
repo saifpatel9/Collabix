@@ -5,9 +5,9 @@
             <p class="mt-1 text-sm text-slate-300">
                 manages <span class="font-semibold text-slate-100">{{ assignment.employee.user.full_name }}</span>
             </p>
-            <p class="mt-1 text-xs text-slate-500">Effective {{ assignment.effective_from|date:"M d, Y" }}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Effective {{ assignment.effective_from|date:"M d, Y" }}</p>
         </div>
     {% empty %}
-        <p class="text-sm text-slate-500">No active reporting hierarchy has been configured.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 ">No active reporting hierarchy has been configured.</p>
     {% endfor %}
 </div>

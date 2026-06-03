@@ -4,10 +4,10 @@
             <div class="mt-1 h-2 w-2 rounded-full bg-brand-500"></div>
             <div>
                 <p class="text-sm font-semibold">{{ activity.actor.full_name|default:"System" }} {{ activity.verb }}</p>
-                <p class="text-xs text-slate-500">{{ activity.timestamp|timesince }} ago</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ activity.timestamp|timesince }} ago</p>
             </div>
         </div>
     {% empty %}
-        <p class="text-sm text-slate-500">No recent activity yet.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">No recent activity yet.</p>
     {% endfor %}
 </div>

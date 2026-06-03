@@ -4,12 +4,12 @@
             <a href="{{ result.url }}" class="block border-b border-slate-200 px-4 py-3 text-sm hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.04]">
                 <span class="text-xs font-bold uppercase tracking-[0.2em] text-brand-400">{{ result.type }}</span>
                 <span class="mt-1 block font-semibold text-slate-800 dark:text-slate-200">{{ result.title }}</span>
-                <span class="text-xs text-slate-500">{{ result.subtitle }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ result.subtitle }}</span>
             </a>
         {% empty %}
-            <div class="px-4 py-4 text-sm text-slate-500">No results found.</div>
+            <div class="px-4 py-4 text-sm text-slate-500 dark:text-slate-400">No results found.</div>
         {% endfor %}
     {% else %}
-        <div class="px-4 py-4 text-sm text-slate-500">Start typing to search.</div>
+        <div class="px-4 py-4 text-sm text-slate-500 dark:text-slate-400">Start typing to search.</div>
     {% endif %}
 </div>

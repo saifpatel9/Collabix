@@ -10,7 +10,7 @@
                         <span>{{ item.total }}</span>
                     </div>
                 {% empty %}
-                    <p class="text-sm text-slate-500">No tasks yet.</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">No tasks yet.</p>
                 {% endfor %}
             </div>
         </div>
@@ -42,10 +42,10 @@
                 {% for activity in recent_task_activity %}
                     <a href="{% url 'tasks:task_detail' activity.task.pk %}" class="workspace-panel block text-sm transition hover:border-brand-400/25 hover:bg-brand-400/10">
                         <span class="font-semibold">{{ activity.message|title }}</span>
-                        <span class="block text-slate-500">{{ activity.task.task_code }} - {{ activity.created_at }}</span>
+                        <span class="block text-slate-500 dark:text-slate-400">{{ activity.task.task_code }} - {{ activity.created_at }}</span>
                     </a>
                 {% empty %}
-                    <p class="text-sm text-slate-500">No task activity yet.</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">No task activity yet.</p>
                 {% endfor %}
             </div>
         </div>
