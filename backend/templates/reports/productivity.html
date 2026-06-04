@@ -125,9 +125,6 @@ function productivityApp() {
       this.renderChart();
     },
     renderChart() {
-      const labels = {{ productivity_data|slice:":10"|map_attr:"department"|list|safe }};
-      const completion = {{ productivity_data|slice:":10"|map_attr:"completion_rate"|list|safe }};
-      const allTasks = {{ productivity_data|slice:":10"|map_attr:"total_tasks"|list|safe }};
       const ctx = document.getElementById('productivityChart');
       if (!ctx) return;
       new Chart(ctx, {
