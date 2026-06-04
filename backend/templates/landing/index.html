@@ -20,11 +20,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
 
+<<<<<<< HEAD
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
 
+=======
+  <!-- Alpine Collapse Plugin -->
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine Collapse Plugin -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine Intersect Plugin -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+  
+>>>>>>> f64c6ce33102f171fec7c32ab35989d365cfe6b0
   <!-- HTMX -->
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 
@@ -80,6 +91,10 @@
 
       <!-- Right Controls -->
       <div class="nav-actions">
+<<<<<<< HEAD
+=======
+        <!-- Theme Toggle -->
+>>>>>>> f64c6ce33102f171fec7c32ab35989d365cfe6b0
         <button id="themeToggle" class="theme-toggle" @click="darkMode = !darkMode" :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
           <span x-show="darkMode" aria-hidden="true">☀</span>
           <span x-show="!darkMode" aria-hidden="true">☾</span>

@@ -10,7 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'dist/css/app.css' %}">
+<<<<<<< HEAD
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+=======
+>>>>>>> f64c6ce33102f171fec7c32ab35989d365cfe6b0
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     {% block extra_css %}{% endblock extra_css %}
 </head>
@@ -31,14 +34,39 @@
     <script>
         function dashboardApp() {
             return {
+<<<<<<< HEAD
                 sidebarCollapsed: window.innerWidth < 1024 ? true : (localStorage.getItem('sidebarCollapsed') === 'true' || false),
+=======
+                sidebarOpen: false,
+>>>>>>> f64c6ce33102f171fec7c32ab35989d365cfe6b0
                 darkMode: localStorage.getItem('theme') === 'dark' || false,
                 init() {
                     this.initTheme();
                     this.setupThemeObserver();
                     this.setupHTMXCallbacks();
+<<<<<<< HEAD
                     this.$watch('sidebarCollapsed', (value) => {
                         localStorage.setItem('sidebarCollapsed', value);
+=======
+                    // Close sidebar when clicking outside on mobile
+                    document.addEventListener('click', (e) => {
+                        const sidebar = document.querySelector('aside');
+                        const menuBtn = document.querySelector('button[x-on\\\\:click*="sidebarOpen = true"]');
+                        if (sidebar && !sidebar.contains(e.target) && !menuBtn?.contains(e.target)) {
+                            this.sidebarOpen = false;
+                        }
+                    });
+                    // Close dropdown menus when pressing Escape
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            const accountMenus = document.querySelectorAll('[x-data*="accountOpen"]');
+                            accountMenus.forEach(menu => {
+                                if (menu.__x) {
+                                    menu.__x.getUnobservedData().accountOpen = false;
+                                }
+                            });
+                        }
+>>>>>>> f64c6ce33102f171fec7c32ab35989d365cfe6b0
                     });
                 },
                 initTheme() {
@@ -56,6 +84,7 @@
                     });
                 },
                 setupHTMXCallbacks() {
+<<<<<<< HEAD
                     const updateBadge = (target) => {
                         const countBadge = document.querySelector('#notification-count');
                         if (countBadge) {
@@ -73,6 +102,25 @@
                     document.addEventListener('notification-read', (e) => {
                         const dropdown = document.getElementById('notifications-dropdown');
                         if (dropdown) updateBadge(dropdown);
+=======
+                    document.addEventListener('htmx:afterSwap', (e) => {
+                        // Update notification count if notifications were loaded
+                        if (e.detail.target.id === 'global-search-results') {
+                            // Search results loaded
+                        }
+                        if (e.detail.target.id === 'notifications-dropdown') {
+                            // Notifications loaded - check for count update
+                            const countBadge = document.querySelector('#notification-count');
+                            if (countBadge) {
+                                const count = e.detail.target.querySelector('[data-count]')?.getAttribute('data-count') || '0';
+                                countBadge.textContent = count;
+                                if (count > 0) {
+                                    countBadge.classList.add('opacity-100');
+                                    countBadge.classList.remove('opacity-0');
+                                }
+                            }
+                        }
+>>>>>>> f64c6ce33102f171fec7c32ab35989d365cfe6b0
                     });
                     document.addEventListener('htmx:responseError', (e) => {
                         console.error('HTMX Error:', e);
@@ -86,6 +134,7 @@
             return {
                 currentPath: window.location.pathname,
                 isActive(urlName) {
+<<<<<<< HEAD
                     const urlMap = [
                         ['dashboard:home', '/dashboard/'],
                         ['projects:project_directory', '/projects/'],
@@ -123,6 +172,23 @@
                         }
                     }
                     return best ? best.name === urlName : false;
+=======
+                    const urlMap = {
+                        'dashboard:home': '/dashboard/',
+                        'projects:project_directory': '/projects/',
+                        'projects:team_directory': '/teams/',
+                        'projects:milestone_list': '/milestones/',
+                        'employees:employee_list': '/employees/',
+                        'employees:employee_directory': '/employees/directory/',
+                        'employees:department_list': '/employees/departments/',
+                        'employees:reporting_tree': '/employees/tree/',
+                        'employees:organization_chart': '/employees/org-chart/',
+                        'accounts:profile': '/auth/profile/',
+                    };
+                    const pattern = urlMap[urlName];
+                    if (!pattern) return false;
+                    return this.currentPath.includes(pattern);
+>>>>>>> f64c6ce33102f171fec7c32ab35989d365cfe6b0
                 }
             }
         }
