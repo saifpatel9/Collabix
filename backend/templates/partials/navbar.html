@@ -14,20 +14,7 @@
             </div>
         </div>
 
-        <div class="hidden max-w-md flex-1 lg:block" x-data="{ open: false }">
-            <input
-                name="q"
-                type="search"
-                placeholder="Search Collabix"
-                class="form-control w-full"
-                hx-get="{% url 'core:global_search' %}"
-                hx-trigger="keyup changed delay:250ms, search"
-                hx-target="#global-search-results"
-                x-on:focus="open = true"
-            >
-            <div id="global-search-results" class="relative" x-show="open" x-on:click.outside="open = false"></div>
-        </div>
-
+        <!-- Removed Search Bar and Ping API button -->
         <div class="flex items-center gap-3 text-slate-700 dark:text-slate-200">
             {% if request.user.is_authenticated %}
                 <div hx-get="{% url 'notifications:dropdown' %}" hx-trigger="load, every 30s" hx-swap="innerHTML"></div>
@@ -38,14 +25,6 @@
             <button class="btn-secondary px-3 py-2" x-on:click="toggleTheme()" :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
                 <span x-show="darkMode">☀ Light</span>
                 <span x-show="!darkMode">☾ Dark</span>
-            </button>
-            <button
-                class="btn-secondary px-3 py-2"
-                hx-get="/api/v1/core/health/"
-                hx-trigger="click"
-                hx-swap="none"
-            >
-                Ping API
             </button>
             {% if request.user.is_authenticated %}
                 <form method="post" action="{% url 'accounts:logout' %}">
