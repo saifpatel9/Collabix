@@ -1,13 +1,89 @@
-from django.contrib.auth.forms import AuthenticationForm, ReadOnlyPasswordHashField
+import re
+
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    ReadOnlyPasswordHashField,
+    PasswordChangeForm,
+    SetPasswordForm,
+)
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from .models import User
+
 
 INPUT_CLASS = (
     "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm "
     "text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-4 "
     "focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
 )
+
+
+def validate_password_strength(password, user_email=None):
+    errors = []
+    if len(password) < 8:
+        errors.append(_("Password must be at least 8 characters long."))
+    if not re.search(r"[A-Z]", password):
+        errors.append(_("Password must contain at least one uppercase letter."))
+    if not re.search(r"[0-9]", password):
+        errors.append(_("Password must contain at least one number."))
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        errors.append(_("Password must contain at least one special character."))
+    if user_email and password.lower() in user_email.lower():
+        errors.append(_("Password cannot be too similar to your email address."))
+
+    if errors:
+        raise ValidationError(errors)
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": INPUT_CLASS, "placeholder": "Current Password"}
+        )
+    )
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": INPUT_CLASS, "placeholder": "New Password"}
+        )
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": INPUT_CLASS, "placeholder": "Confirm New Password"}
+        )
+    )
+
+    def clean_new_password1(self):
+        password1 = self.cleaned_data.get("new_password1")
+        validate_password_strength(password1, user_email=self.user.email)
+        return password1
+
+
+class CustomSetPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": INPUT_CLASS, "placeholder": "New Password"}
+        )
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": INPUT_CLASS, "placeholder": "Confirm New Password"}
+        )
+    )
+
+    def clean_new_password1(self):
+        password1 = self.cleaned_data.get("new_password1")
+        validate_password_strength(password1, user_email=self.user.email)
+        return password1
+
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(
+            attrs={"class": INPUT_CLASS, "placeholder": "your@email.com"}
+        )
+    )
 
 
 class UserCreationForm(forms.ModelForm):
@@ -69,6 +145,11 @@ class EmailAuthenticationForm(AuthenticationForm):
                 "placeholder": "Password",
             }
         )
+    )
+    remember = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={"class": "checkbox-input"}),
     )
 
 
