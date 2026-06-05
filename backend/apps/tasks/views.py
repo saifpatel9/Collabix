@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -134,14 +135,18 @@ class TaskUpdateView(TaskManageMixin, UpdateView):
         return reverse("tasks:task_detail", kwargs={"pk": self.object.pk})
 
     def form_valid(self, form):
-        TaskService.update(
-            task=self.object,
-            cleaned_data=form.cleaned_data,
-            user=self.request.user,
-            request=self.request,
-        )
-        messages.success(self.request, "Task updated successfully.")
-        return redirect(self.get_success_url())
+        try:
+            TaskService.update(
+                task=self.object,
+                cleaned_data=form.cleaned_data,
+                user=self.request.user,
+                request=self.request,
+            )
+            messages.success(self.request, "Task updated successfully.")
+            return redirect(self.get_success_url())
+        except ValidationError as e:
+            form.add_error(None, str(e))
+            return self.form_invalid(form)
 
 
 class TaskDeleteView(TaskManageMixin, View):
@@ -173,12 +178,23 @@ class TaskStatusUpdateView(TaskExecuteMixin, View):
         status = request.POST.get("status")
         if status not in Task.Status.values:
             return HttpResponseBadRequest("Invalid status")
-        task = TaskService.change_status(
-            task=self.task_object, status=status, user=request.user, request=request
-        )
-        if is_htmx(request):
-            return render(request, "tasks/partials/task_card.html", {"task": task})
-        return redirect("tasks:task_detail", pk=task.pk)
+        try:
+            task = TaskService.change_status(
+                task=self.task_object, status=status, user=request.user, request=request
+            )
+            if is_htmx(request):
+                return render(request, "tasks/partials/task_card.html", {"task": task})
+            return redirect("tasks:task_detail", pk=task.pk)
+        except ValidationError as e:
+            if is_htmx(request):
+                response = HttpResponseBadRequest(str(e))
+                response["HX-Retarget"] = "body"
+                response["HX-Reswap"] = "none"
+                messages.error(request, str(e))
+                return response
+            else:
+                messages.error(request, str(e))
+                return redirect("tasks:task_detail", pk=self.task_object.pk)
 
 
 class TaskPriorityUpdateView(TaskManageMixin, View):
