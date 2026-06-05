@@ -1,10 +1,11 @@
 from datetime import timedelta
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 
-from ..models import Task, TaskActivity
+from ..models import Task, TaskActivity, TaskDependency
 from ._helpers import (
     audit_create,
     audit_delete,
@@ -13,6 +14,31 @@ from ._helpers import (
     notify_task_assignees,
 )
 from .activity_service import TaskActivityService
+
+
+def validate_dependencies(task, new_status):
+    """Validate task status transitions against dependencies."""
+    dependencies = task.predecessor_dependencies.select_related("predecessor_task")
+    
+    for dep in dependencies:
+        predecessor = dep.predecessor_task
+        dep_type = dep.dependency_type
+        
+        # Check rules
+        if dep_type == TaskDependency.Type.START_TO_START:
+            # Successor can't start (IN_PROGRESS) until predecessor is IN_PROGRESS or COMPLETED
+            if new_status == Task.Status.IN_PROGRESS:
+                if predecessor.status not in [Task.Status.IN_PROGRESS, Task.Status.COMPLETED]:
+                    raise ValidationError(
+                        f"Task cannot start until predecessor task {predecessor.task_code} has started."
+                    )
+        elif dep_type in [TaskDependency.Type.FINISH_TO_START, TaskDependency.Type.FINISH_TO_FINISH]:
+            # Successor can't complete until predecessor is COMPLETED
+            if new_status == Task.Status.COMPLETED:
+                if predecessor.status != Task.Status.COMPLETED:
+                    raise ValidationError(
+                        f"Task cannot be completed until predecessor task {predecessor.task_code} is completed."
+                    )
 
 
 class TaskService:
@@ -42,6 +68,12 @@ class TaskService:
     @transaction.atomic
     def update(*, task, cleaned_data, user=None, request=None):
         actor = employee_for_user(user)
+        
+        # Check if we're changing status
+        new_status = cleaned_data.get("status")
+        if new_status is not None and new_status != task.status:
+            validate_dependencies(task, new_status)
+            
         old_data = {
             "title": task.title,
             "status": task.status,
