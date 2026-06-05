@@ -58,42 +58,55 @@ class OrganizationService:
 
     @staticmethod
     def has_circular_reporting(position_id, reporting_position_id):
+        """
+        Returns True if assigning `reporting_position_id` as the parent
+        of `position_id` would create a cycle.
+        """
+
+        if not position_id or not reporting_position_id:
+            return False
+
         if position_id == reporting_position_id:
             return True
 
-        if not reporting_position_id:
-            return False
-
-        visited = set()
         current = reporting_position_id
 
         while current:
-            if current in visited:
+            if current == position_id:
                 return True
-            visited.add(current)
 
             try:
-                parent = OrganizationPosition.objects.get(
+                current = OrganizationPosition.objects.get(
                     pk=current
                 ).reporting_position_id
-                current = parent
             except OrganizationPosition.DoesNotExist:
-                break
+                return False
 
         return False
 
     @staticmethod
     def validate_position(*, employee, reporting_position):
-        if reporting_position and employee.pk == reporting_position.employee_id:
+        # Root positions are allowed
+        if not reporting_position:
+            return
+
+        # Prevent self-reporting
+        if employee.pk == reporting_position.employee_id:
             raise ValidationError("An employee cannot report to themselves.")
 
-        if reporting_position:
-            if OrganizationService.has_circular_reporting(
-                employee.pk, reporting_position.pk
-            ):
-                raise ValidationError(
-                    "This would create a circular reporting relationship."
-                )
+        try:
+            current_position = OrganizationPosition.objects.get(employee=employee)
+        except OrganizationPosition.DoesNotExist:
+            current_position = None
+
+        # Prevent circular reporting relationships
+        if current_position and OrganizationService.has_circular_reporting(
+            current_position.pk,
+            reporting_position.pk,
+        ):
+            raise ValidationError(
+                "This would create a circular reporting relationship."
+            )
 
     @staticmethod
     @transaction.atomic

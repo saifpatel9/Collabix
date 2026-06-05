@@ -186,9 +186,16 @@ class OrganizationPositionServiceTests(TestCase):
         self.assertEqual(child_position.reporting_position, root_position)
 
     def test_self_reporting_validation(self):
+        ceo_position = OrganizationPosition.objects.create(
+            employee=self.employee_ceo,
+            designation=self.designation_ceo,
+            department=self.department,
+        )
+
         with self.assertRaises(ValidationError):
             OrganizationService.validate_position(
-                employee=self.employee_ceo, reporting_position=None
+                employee=self.employee_ceo,
+                reporting_position=ceo_position,
             )
 
     def test_circular_reporting_detection(self):
