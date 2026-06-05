@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -271,6 +272,17 @@ class EmployeeStatusUpdateView(LoginRequiredMixin, UpdateView):
         if is_htmx(self.request):
             return redirect("employees:employee_detail", pk=self.object.pk)
         return redirect("employees:employee_detail", pk=self.object.pk)
+
+
+class EmployeeDeactivateView(HRManagerRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        employee = get_object_or_404(EmployeeProfile, pk=kwargs["pk"])
+        try:
+            EmployeeService.deactivate(employee=employee, performed_by=request.user)
+            messages.success(request, "Employee deactivated successfully.")
+        except ValidationError as exc:
+            messages.error(request, str(exc))
+        return redirect("employees:employee_list")
 
 
 class EmployeeDirectoryView(ManagerRequiredMixin, ListView):

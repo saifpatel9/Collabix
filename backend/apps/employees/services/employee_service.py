@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 
@@ -33,13 +34,45 @@ class EmployeeService:
                 | Q(user__email__icontains=search)
                 | Q(employee_id__icontains=search)
             )
+
         if department:
             queryset = queryset.filter(department_id=department)
+
         if manager:
             queryset = queryset.filter(manager_id=manager)
-        if employment_status:
-            queryset = queryset.filter(employment_status=employment_status)
+
+        if not employment_status:
+            employment_status = EmployeeProfile.EmploymentStatus.ACTIVE
+
+        queryset = queryset.filter(employment_status=employment_status)
+
         return queryset
+        
+    @staticmethod
+    @transaction.atomic
+    def deactivate(*, employee, performed_by):
+        if employee.employment_status == EmployeeProfile.EmploymentStatus.INACTIVE:
+            raise ValidationError("This employee is already inactive.")
+        if employee.user.is_superuser:
+            raise ValidationError("Cannot deactivate a superuser.")
+        if performed_by == employee.user:
+            raise ValidationError("You cannot deactivate yourself.")
+            
+        employee.employment_status = EmployeeProfile.EmploymentStatus.INACTIVE
+        employee.user.is_active = False
+        employee.save(update_fields=["employment_status", "updated_at"])
+        employee.user.save(update_fields=["is_active", "updated_at"])
+        
+        return employee
+
+    @staticmethod
+    def _extract_user_data(cleaned_data):
+        return {
+            "full_name": cleaned_data.pop("user_full_name"),
+            "email": cleaned_data.pop("user_email"),
+            "role": cleaned_data.pop("user_role"),
+            "phone": cleaned_data.pop("user_phone", ""),
+        }
 
     @staticmethod
     @transaction.atomic
@@ -55,6 +88,7 @@ class EmployeeService:
             is_active=True,
         )
         return EmployeeProfile.objects.create(user=user, **cleaned_data)
+    
 
     @staticmethod
     @transaction.atomic
@@ -76,13 +110,13 @@ class EmployeeService:
     def update_status(*, employee, status):
         employee.employment_status = status
         employee.save(update_fields=["employment_status", "updated_at"])
-        return employee
 
-    @staticmethod
-    def _extract_user_data(cleaned_data):
-        return {
-            "full_name": cleaned_data.pop("user_full_name"),
-            "email": cleaned_data.pop("user_email"),
-            "role": cleaned_data.pop("user_role"),
-            "phone": cleaned_data.pop("user_phone", ""),
-        }
+        if status == EmployeeProfile.EmploymentStatus.INACTIVE:
+            employee.user.is_active = False
+            employee.user.save(update_fields=["is_active", "updated_at"])
+
+        elif employee.user.is_active is False:
+            employee.user.is_active = True
+            employee.user.save(update_fields=["is_active", "updated_at"])
+
+        return employee

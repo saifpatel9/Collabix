@@ -26,6 +26,7 @@ from .views import (
     EmployeeProfileView,
     EmployeeStatusUpdateView,
     EmployeeUpdateView,
+    EmployeeDeactivateView,
 )
 
 app_name = "employees"
@@ -87,6 +88,11 @@ urlpatterns = [
         "employees/<uuid:pk>/status/",
         EmployeeStatusUpdateView.as_view(),
         name="employee_status",
+    ),
+    path(
+        "employees/<uuid:pk>/deactivate/",
+        EmployeeDeactivateView.as_view(),
+        name="employee_deactivate",
     ),
     path("hierarchy/", ReportingTreeView.as_view(), name="reporting_tree"),
     path("hierarchy/assign/", AssignManagerView.as_view(), name="assign_manager"),
