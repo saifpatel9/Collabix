@@ -285,21 +285,6 @@ class EmployeeDeactivateView(HRManagerRequiredMixin, View):
         return redirect("employees:employee_list")
 
 
-class EmployeeDirectoryView(ManagerRequiredMixin, ListView):
-    model = EmployeeProfile
-    template_name = "employees/directory.html"
-    context_object_name = "employees"
-    paginate_by = 20
-
-    def get_queryset(self):
-        return EmployeeHierarchyService.directory_queryset()
-
-    def get_template_names(self):
-        if is_htmx(self.request):
-            return ["employees/partials/directory_grid.html"]
-        return [self.template_name]
-
-
 class ReportingTreeView(ManagerRequiredMixin, ListView):
     model = EmployeeHierarchy
     template_name = "hierarchy/tree.html"

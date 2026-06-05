@@ -14,13 +14,6 @@ class HierarchySelector:
             "reporting_manager__user",
         ).filter(is_active=True)
 
-    @staticmethod
-    def employee_directory():
-        return EmployeeProfile.objects.select_related(
-            "user",
-            "department",
-            "manager__user",
-        ).order_by("user__full_name")
 
     @staticmethod
     def positions_by_department(department: Department | None = None):
