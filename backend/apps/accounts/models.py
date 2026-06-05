@@ -107,12 +107,11 @@ class LoginHistory(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
-        db_table = "auth_login_history"
         ordering = ["-timestamp"]
         indexes = [
             models.Index(fields=["user", "-timestamp"]),
         ]
-
+        
     def __str__(self) -> str:
         status = "success" if self.success else "failed"
         return f"{self.user.email} - {status} at {self.timestamp}"
