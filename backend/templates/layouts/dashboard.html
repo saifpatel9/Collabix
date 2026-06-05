@@ -1,15 +1,13 @@
 {% extends "base.html" %}
 
 {% block body %}
-<div class="min-h-screen bg-grid">
-    <div class="flex min-h-screen">
-        {% include "partials/sidebar.html" %}
-        <div class="flex min-h-screen flex-1 flex-col">
-            {% include "partials/navbar.html" %}
-            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-                {% block content %}{% endblock content %}
-            </main>
-        </div>
+<div class="flex h-full bg-grid">
+    {% include "partials/sidebar.html" %}
+    <div class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        {% include "partials/navbar.html" %}
+        <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+            {% block content %}{% endblock content %}
+        </main>
     </div>
 </div>
 {% endblock body %}

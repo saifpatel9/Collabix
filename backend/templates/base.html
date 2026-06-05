@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="{% static 'dist/css/app.css' %}">
     {% block extra_css %}{% endblock extra_css %}
 </head>
-<body class="min-h-full">
+<body class="h-full overflow-hidden">
     {% if messages %}
         <div class="fixed right-4 top-4 z-50 space-y-3">
             {% for message in messages %}
