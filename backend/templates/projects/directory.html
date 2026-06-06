@@ -4,7 +4,7 @@
 
 {% block content %}
 {% url 'projects:project_create' as create_url %}
-{% include "components/page_header.html" with eyebrow="Work Management" title="Projects" subtitle="Plan and organize project foundations before task execution." action_url=create_url action_label="Add Project" %}
+{% include "components/page_header.html" with eyebrow="Work Management" title="Projects" subtitle="Plan and organize project foundations before task execution." action_url=create_url action_label="Add Project" only_if=can_create_project %}
 
 <form class="mb-5 grid gap-3 lg:grid-cols-[1fr_180px_180px]" hx-get="{% url 'projects:project_directory' %}" hx-target="#project-grid" hx-push-url="true">
     <input name="q" value="{{ filters.q }}" placeholder="Search projects" class="form-control">

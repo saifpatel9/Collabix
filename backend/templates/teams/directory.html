@@ -4,7 +4,7 @@
 
 {% block content %}
 {% url 'projects:team_create' as create_url %}
-{% include "components/page_header.html" with eyebrow="Work Management" title="Teams" subtitle="Organize employees into durable delivery teams." action_url=create_url action_label="Add Team" %}
+{% include "components/page_header.html" with eyebrow="Work Management" title="Teams" subtitle="Organize employees into durable delivery teams." action_url=create_url action_label="Add Team" only_if=can_create_team %}
 
 <form class="mb-5" hx-get="{% url 'projects:team_directory' %}" hx-target="#team-grid" hx-push-url="true">
     <input name="q" value="{{ search_query }}" placeholder="Search teams" class="w-full form-control">

@@ -63,6 +63,7 @@
             </li>
         </ul>
 
+        {% if can_view_people %}
         {# ── People ── #}
         <p class="mb-2 mt-6 px-4 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">People</p>
         <ul class="space-y-1">
@@ -115,6 +116,7 @@
                 </a>
             </li>
         </ul>
+        {% endif %}
 
         {# ── Operations ── #}
         <p class="mb-2 mt-6 px-4 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">Operations</p>
