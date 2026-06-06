@@ -103,3 +103,92 @@
         @apply bg-gradient-to-r from-brand-300 via-brand-400 to-brand-700 bg-clip-text text-transparent;
     }
 }
+
+  .nav-icon {
+    display: block;
+    flex: none;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    color: inherit;
+    stroke: currentColor;
+    fill: none;
+    /* Prevents Safari from scaling SVG to its intrinsic/viewport size */
+    overflow: visible;
+  }
+
+  /* Ensure nav-item anchor color propagates to SVG stroke in Safari */
+  .nav-item {
+    display: flex;
+    align-items: center;
+    color: inherit;
+  }
+
+  /* Safari SVG fix: explicit color inheritance */
+  .nav-item svg {
+    color: inherit;
+  }
+
+/* ============================================================
+   Sidebar Nav Icon — Cross-Browser Fix
+   Add this to your global CSS file (e.g. base.css, main.css,
+   or inside a Tailwind @layer base / @layer components block).
+   ============================================================ */
+
+.nav-icon {
+    /* Hard-pin size — overrides any cascade or browser default */
+    display: block !important;
+    flex: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+
+    /* Heroicon stroke style */
+    fill: none;
+    stroke: currentColor;
+
+    /*
+     * Safari fix: without overflow:visible, strokes near the SVG
+     * boundary can be clipped on retina displays.
+     */
+    overflow: visible;
+
+    /*
+     * Prevent Safari from treating inline SVG as a replaced element
+     * that grows to fill available space.
+     */
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+}
+
+/*
+ * Ensure anchor color propagates into SVG stroke in Safari.
+ * Safari does not always inherit `color` into SVG children
+ * unless it is set explicitly on a direct parent.
+ */
+.nav-item {
+    display: flex;
+    align-items: center;
+    /* color must be set here so currentColor resolves correctly */
+    color: inherit;
+}
+
+.nav-item svg {
+    color: inherit;
+}
+
+/* ============================================================
+   If you use Tailwind @layer, wrap the above like this:
+
+   @layer components {
+     .nav-icon { ... }
+     .nav-item { ... }
+     .nav-item svg { ... }
+   }
+   ============================================================ */
