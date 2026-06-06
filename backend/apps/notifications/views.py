@@ -84,6 +84,28 @@ class NotificationMarkReadView(LoginRequiredMixin, View):
         return redirect(next_url)
 
 
+class NotificationMarkUnreadView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        notification = get_object_or_404(
+            Notification, pk=kwargs["pk"], recipient=request.user
+        )
+        NotificationService.mark_as_unread(notification=notification, user=request.user)
+        if is_htmx(request):
+            if request.POST.get("response_scope") == "center":
+                return render(
+                    request,
+                    "notifications/partials/notification_list.html",
+                    notification_list_context(request.user, request.POST),
+                )
+            return render(
+                request,
+                "components/notification_dropdown.html",
+                dropdown_context(request.user, force_open=True),
+            )
+        next_url = notification.action_url or "notifications:center"
+        return redirect(next_url)
+
+
 class NotificationMarkAllReadView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         NotificationService.mark_all_read(user=request.user)

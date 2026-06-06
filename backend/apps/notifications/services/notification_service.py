@@ -123,6 +123,15 @@ class NotificationService:
         return notification
 
     @staticmethod
+    def mark_as_unread(*, notification, user):
+        if notification.recipient_id != user.id:
+            return notification
+        notification.is_read = False
+        notification.save(update_fields=["is_read", "updated_at"])
+        NotificationService.broadcast_summary(user=user)
+        return notification
+
+    @staticmethod
     def mark_all_read(*, user):
         updated = Notification.objects.filter(recipient=user, is_read=False).update(
             is_read=True
