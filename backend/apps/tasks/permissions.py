@@ -38,7 +38,6 @@ def has_task_admin_role(user):
         in (
             User.Role.ADMIN,
             User.Role.DEPARTMENT_ADMIN,
-            User.Role.HR_MANAGER,
             User.Role.PROJECT_MANAGER,
         )
     )

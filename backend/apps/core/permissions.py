@@ -77,8 +77,13 @@ class EmployeeAccessMixin(LoginRequiredMixin):
         user = self.request.user
         if user.is_superuser or user.role == User.Role.ADMIN:
             return True
-        if user.role == User.Role.MANAGER:
-            return employee.manager and employee.manager.user_id == user.id
+        if user.role == User.Role.HR_MANAGER:
+            return True
+        if user.role == User.Role.DEPARTMENT_ADMIN:
+            # Department Admin can access employees in their department
+            return employee.department and employee.department.name == user.department
+        if user.role in (User.Role.MANAGER, User.Role.PROJECT_MANAGER):
+            return (employee.manager and employee.manager.user_id == user.id) or (employee.user_id == user.id)
         return employee.user_id == user.id
 
     def dispatch(self, request, *args, **kwargs):

@@ -9,18 +9,13 @@ from ..models import Department
 class DepartmentService:
     @staticmethod
     def visible_to(user):
-        if (
-            user.role
-            in (
-                User.Role.ADMIN,
-                User.Role.DEPARTMENT_ADMIN,
-                User.Role.HR_MANAGER,
-                User.Role.PROJECT_MANAGER,
-                User.Role.MANAGER,
-            )
-            or user.is_superuser
-        ):
-            return Department.objects.select_related("head").all()
+        queryset = Department.objects.select_related("head")
+        if user.is_superuser or user.role in (User.Role.ADMIN, User.Role.HR_MANAGER):
+            return queryset.all()
+        if user.role == User.Role.DEPARTMENT_ADMIN:
+            return queryset.filter(name=user.department)
+        if user.role in (User.Role.PROJECT_MANAGER, User.Role.MANAGER):
+            return queryset.all()
         return Department.objects.none()
 
     @staticmethod

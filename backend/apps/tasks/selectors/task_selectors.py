@@ -32,13 +32,15 @@ class TaskSelector:
         queryset = TaskSelector.base_queryset()
         if not getattr(user, "is_authenticated", False):
             return Task.objects.none()
-        if user.is_superuser or user.role in (
-            User.Role.ADMIN,
-            User.Role.HR_MANAGER,
-            User.Role.DEPARTMENT_ADMIN,
-            User.Role.PROJECT_MANAGER,
-            User.Role.MANAGER,
-        ):
+        if user.is_superuser or user.role == User.Role.ADMIN:
+            return queryset
+        if user.role == User.Role.HR_MANAGER:
+            # HR Manager should not have access to tasks
+            return Task.objects.none()
+        if user.role == User.Role.DEPARTMENT_ADMIN:
+            # Department Admin can see tasks in their department's projects
+            return queryset.filter(project__department__name=user.department)
+        if user.role in (User.Role.PROJECT_MANAGER, User.Role.MANAGER):
             return queryset
         return queryset.filter(
             Q(created_by__user=user)

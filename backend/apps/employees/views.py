@@ -145,10 +145,10 @@ class EmployeeListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["departments"] = Department.objects.filter(is_active=True).order_by(
-            "name"
-        )
-        context["managers"] = EmployeeProfile.objects.select_related("user").filter(
+        context["departments"] = DepartmentService.visible_to(self.request.user).filter(
+            is_active=True
+        ).order_by("name")
+        context["managers"] = EmployeeService.visible_to(self.request.user).select_related("user").filter(
             user__role__in=[
                 User.Role.ADMIN,
                 User.Role.HR_MANAGER,
@@ -213,28 +213,14 @@ class EmployeeCreateView(HRManagerRequiredMixin, CreateView):
         return redirect(self.success_url)
 
 
-class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
+class EmployeeUpdateView(EmployeeAccessMixin, UpdateView):
     model = EmployeeProfile
     form_class = EmployeeProfileForm
     template_name = "employees/form.html"
     success_url = reverse_lazy("employees:employee_list")
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return super().dispatch(request, *args, **kwargs)
-        self.object = self.get_object()
-        if request.user.is_superuser or request.user.role in (
-            User.Role.ADMIN,
-            User.Role.HR_MANAGER,
-        ):
-            return super().dispatch(request, *args, **kwargs)
-        if (
-            request.user.role in (User.Role.MANAGER, User.Role.PROJECT_MANAGER)
-            and self.object.manager
-            and self.object.manager.user_id == request.user.id
-        ):
-            return super().dispatch(request, *args, **kwargs)
-        raise PermissionDenied
+    def get_object(self, queryset=None):
+        return self.employee_object
 
     def form_valid(self, form):
         EmployeeService.update(employee=self.object, cleaned_data=form.cleaned_data)
@@ -242,27 +228,13 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
         return redirect(self.success_url)
 
 
-class EmployeeStatusUpdateView(LoginRequiredMixin, UpdateView):
+class EmployeeStatusUpdateView(EmployeeAccessMixin, UpdateView):
     model = EmployeeProfile
     form_class = EmployeeStatusForm
     template_name = "employees/partials/status_form.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return super().dispatch(request, *args, **kwargs)
-        self.object = self.get_object()
-        if request.user.is_superuser or request.user.role in (
-            User.Role.ADMIN,
-            User.Role.HR_MANAGER,
-        ):
-            return super().dispatch(request, *args, **kwargs)
-        if (
-            request.user.role in (User.Role.MANAGER, User.Role.PROJECT_MANAGER)
-            and self.object.manager
-            and self.object.manager.user_id == request.user.id
-        ):
-            return super().dispatch(request, *args, **kwargs)
-        raise PermissionDenied
+    def get_object(self, queryset=None):
+        return self.employee_object
 
     def form_valid(self, form):
         EmployeeService.update_status(

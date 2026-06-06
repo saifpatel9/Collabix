@@ -360,6 +360,8 @@ class TaskBoardView(LoginRequiredMixin, ListView):
         return [self.template_name]
 
     def get_context_data(self, **kwargs):
+        from apps.projects.selectors.project_selectors import ProjectSelector, MilestoneSelector
+
         context = super().get_context_data(**kwargs)
         tasks = list(context["tasks"])
         context["columns"] = [
@@ -367,8 +369,8 @@ class TaskBoardView(LoginRequiredMixin, ListView):
             for status, label in Task.Status.choices
             if status != Task.Status.CANCELLED
         ]
-        context["projects"] = Project.objects.filter(is_archived=False).order_by("name")
-        context["milestones"] = Milestone.objects.select_related("project").order_by(
+        context["projects"] = ProjectSelector.visible_to(self.request.user).filter(is_archived=False).order_by("name")
+        context["milestones"] = MilestoneSelector.visible_to(self.request.user).select_related("project").order_by(
             "project__name", "due_date"
         )
         context["filters"] = {
@@ -379,14 +381,17 @@ class TaskBoardView(LoginRequiredMixin, ListView):
 
 
 def task_filter_context(request):
+    from apps.projects.selectors.project_selectors import ProjectSelector, MilestoneSelector
+    from apps.employees.services.employee_service import EmployeeService
+
     return {
         "statuses": Task.Status.choices,
         "priorities": Task.Priority.choices,
-        "projects": Project.objects.filter(is_archived=False).order_by("name"),
-        "milestones": Milestone.objects.select_related("project").order_by(
+        "projects": ProjectSelector.visible_to(request.user).filter(is_archived=False).order_by("name"),
+        "milestones": MilestoneSelector.visible_to(request.user).select_related("project").order_by(
             "project__name", "due_date"
         ),
-        "employees": EmployeeProfile.objects.select_related("user").order_by(
+        "employees": EmployeeService.visible_to(request.user).select_related("user").order_by(
             "user__full_name"
         ),
         "filters": {

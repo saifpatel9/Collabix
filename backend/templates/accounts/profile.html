@@ -23,7 +23,7 @@
             <div><dt class="text-sm font-semibold text-slate-500">Department</dt><dd class="mt-1 font-bold">{{ profile_user.department|default:"Not set" }}</dd></div>
             <div><dt class="text-sm font-semibold text-slate-500">Status</dt><dd class="mt-1 font-bold">{{ profile_user.is_active|yesno:"Active,Inactive" }}</dd></div>
         </dl>
-        <a href="{% url 'accounts:password_change' %}" class="btn-secondary mt-8 inline-flex px-4">Change password</a>
+        <a href="{% url 'accounts:change_password' %}" class="btn-secondary mt-8 inline-flex px-4">Change password</a>
     </div>
 </section>
 {% endblock content %}

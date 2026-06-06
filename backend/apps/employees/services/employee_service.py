@@ -14,12 +14,13 @@ class EmployeeService:
         queryset = EmployeeProfile.objects.select_related(
             "user", "department", "manager__user"
         )
-        if user.is_superuser or user.role in (
-            User.Role.ADMIN,
-            User.Role.HR_MANAGER,
-            User.Role.DEPARTMENT_ADMIN,
-        ):
+        if user.is_superuser or user.role == User.Role.ADMIN:
             return queryset
+        if user.role == User.Role.HR_MANAGER:
+            return queryset
+        if user.role == User.Role.DEPARTMENT_ADMIN:
+            # Department Admin can see employees in their department
+            return queryset.filter(department__name=user.department)
         if user.role in (User.Role.MANAGER, User.Role.PROJECT_MANAGER):
             return queryset.filter(Q(manager__user=user) | Q(user=user))
         return queryset.filter(user=user)
@@ -81,7 +82,7 @@ class EmployeeService:
         UserModel = get_user_model()
         user = UserModel.objects.create_user(
             email=user_data["email"],
-            password=None,
+            password="ChangeMe@123",
             full_name=user_data["full_name"],
             role=user_data["role"],
             phone=user_data["phone"],
