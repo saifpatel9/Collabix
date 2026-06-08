@@ -101,17 +101,39 @@ def can_execute_task(user, task) -> bool:
     return can_manage_task(user, task) or is_task_assignee(user, task)
 
 
+
 def can_access_employee(user, employee) -> bool:
     if not is_authenticated(user):
         return False
+
     if user.is_superuser or user.role == User.Role.ADMIN:
         return True
+
     if user.role == User.Role.HR_MANAGER:
         return True
+
+    # Department Admin
     if user.role == User.Role.DEPARTMENT_ADMIN:
-        return employee.department and employee.department.name == user.department
+        user_profile = getattr(user, "employee_profile", None)
+
+        if not user_profile:
+            return False
+
+        return (
+            getattr(user_profile, "department_id", None)
+            == getattr(employee, "department_id", None)
+        )
+
+    # Manager → direct reports
     if user.role == User.Role.MANAGER:
-        return (employee.manager and employee.manager.user_id == user.id) or (employee.user_id == user.id)
+        return (
+            (employee.manager and employee.manager.user_id == user.id)
+            or employee.user_id == user.id
+        )
+
+    # Project Manager → self only
     if user.role == User.Role.PROJECT_MANAGER:
         return employee.user_id == user.id
+
+    # Employee → self only
     return employee.user_id == user.id

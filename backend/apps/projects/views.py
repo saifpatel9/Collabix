@@ -8,7 +8,7 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from apps.core.rbac import (
-    ROLE_MANAGER_REQUIRED,
+    MANAGEMENT_ROLES,
     can_manage_milestone,
     can_manage_project,
     user_has_role,
@@ -70,9 +70,8 @@ class TeamDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["memberships"] = TeamSelector.memberships_for(self.object)
         context["membership_form"] = TeamMembershipForm(team=self.object)
-        context["can_manage_team"] = user_has_role(
-            self.request.user, ROLE_MANAGER_REQUIRED
-        )
+        context["can_manage_team"] = user_has_role
+        (self.request.user, MANAGEMENT_ROLES)
         return context
 
 

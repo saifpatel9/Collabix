@@ -4,11 +4,11 @@ from django.shortcuts import get_object_or_404
 
 from apps.core.rbac import (
     ADMIN_ONLY_ROLES,
-    ROLE_DEPARTMENT_ADMIN_REQUIRED,
-    ROLE_EMPLOYEE_REQUIRED,
-    ROLE_HR_MANAGER_REQUIRED,
-    ROLE_MANAGER_REQUIRED,
-    ROLE_PROJECT_MANAGER_REQUIRED,
+    ALL_MANAGEMENT_ROLES,
+    DEPARTMENT_ACCESS_ROLES,
+    HR_ACCESS_ROLES,
+    INTERNAL_USER_ROLES,
+    PROJECT_MODULE_ACCESS_ROLES,
     user_has_role,
     can_access_employee,
 )
@@ -31,23 +31,23 @@ class AdminRequiredMixin(RoleRequiredMixin):
 
 
 class ManagerRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ROLE_MANAGER_REQUIRED
+    allowed_roles = ALL_MANAGEMENT_ROLES
 
 
 class HRManagerRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ROLE_HR_MANAGER_REQUIRED
+    allowed_roles = HR_ACCESS_ROLES
 
 
 class DepartmentAdminRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ROLE_DEPARTMENT_ADMIN_REQUIRED
+    allowed_roles = DEPARTMENT_ACCESS_ROLES
 
 
 class ProjectManagerRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ROLE_PROJECT_MANAGER_REQUIRED
+    allowed_roles = PROJECT_MODULE_ACCESS_ROLES
 
 
 class EmployeeRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ROLE_EMPLOYEE_REQUIRED
+    allowed_roles = INTERNAL_USER_ROLES
 
 
 class EmployeeAccessMixin(LoginRequiredMixin):
@@ -58,7 +58,9 @@ class EmployeeAccessMixin(LoginRequiredMixin):
 
         return get_object_or_404(
             EmployeeProfile.objects.select_related(
-                "user", "department", "manager__user"
+                "user",
+                "department",
+                "manager__user",
             ),
             pk=self.kwargs[self.object_kwarg],
         )
@@ -69,7 +71,10 @@ class EmployeeAccessMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return super().dispatch(request, *args, **kwargs)
+
         self.employee_object = self.get_employee_object()
+
         if not self.can_access_employee(self.employee_object):
             raise PermissionDenied
+
         return super().dispatch(request, *args, **kwargs)

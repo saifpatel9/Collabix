@@ -1,29 +1,54 @@
 from apps.accounts.models import User
 
+# =========================================================
+# ROLE GROUPS
+# =========================================================
 
-ADMIN_ONLY_ROLES: tuple[str, ...] = (User.Role.ADMIN,)
-ADMIN_ROLES: tuple[str, ...] = (
+ADMIN_ONLY_ROLES = (User.Role.ADMIN,)
+
+ELEVATED_ROLES = (
     User.Role.ADMIN,
     User.Role.DEPARTMENT_ADMIN,
     User.Role.HR_MANAGER,
 )
-MANAGER_ROLES: tuple[str, ...] = (User.Role.PROJECT_MANAGER, User.Role.MANAGER)
 
-ROLE_MANAGER_REQUIRED: tuple[str, ...] = (
+MANAGEMENT_ROLES = (
+    User.Role.PROJECT_MANAGER,
+    User.Role.MANAGER,
+)
+
+ALL_MANAGEMENT_ROLES = (
     User.Role.ADMIN,
     User.Role.DEPARTMENT_ADMIN,
     User.Role.HR_MANAGER,
     User.Role.PROJECT_MANAGER,
     User.Role.MANAGER,
 )
-ROLE_HR_MANAGER_REQUIRED: tuple[str, ...] = (User.Role.ADMIN, User.Role.HR_MANAGER)
-ROLE_DEPARTMENT_ADMIN_REQUIRED: tuple[str, ...] = (
+
+EMPLOYEE_DIRECTORY_ACCESS_ROLES = (
+    User.Role.ADMIN,
+    User.Role.HR_MANAGER,
+    User.Role.DEPARTMENT_ADMIN,
+    User.Role.MANAGER,
+)
+
+PROJECT_MODULE_ACCESS_ROLES = (
+    User.Role.ADMIN,
+    User.Role.PROJECT_MANAGER,
+)
+
+HR_ACCESS_ROLES = (
+    User.Role.ADMIN,
+    User.Role.HR_MANAGER,
+)
+
+DEPARTMENT_ACCESS_ROLES = (
     User.Role.ADMIN,
     User.Role.DEPARTMENT_ADMIN,
     User.Role.HR_MANAGER,
 )
-ROLE_PROJECT_MANAGER_REQUIRED: tuple[str, ...] = (User.Role.ADMIN, User.Role.PROJECT_MANAGER)
-ROLE_EMPLOYEE_REQUIRED: tuple[str, ...] = (
+
+INTERNAL_USER_ROLES = (
     User.Role.ADMIN,
     User.Role.DEPARTMENT_ADMIN,
     User.Role.HR_MANAGER,
@@ -32,13 +57,9 @@ ROLE_EMPLOYEE_REQUIRED: tuple[str, ...] = (
     User.Role.EMPLOYEE,
 )
 
-ROLE_EMPLOYEE_LIST_ACCESS: tuple[str, ...] = (
-    User.Role.ADMIN,
-    User.Role.HR_MANAGER,
-    User.Role.DEPARTMENT_ADMIN,
-    User.Role.MANAGER,
-)
-
+# =========================================================
+# AUTH HELPERS
+# =========================================================
 
 def is_authenticated(user) -> bool:
     return bool(getattr(user, "is_authenticated", False))
@@ -53,9 +74,16 @@ def user_has_role(user, roles: tuple[str, ...]) -> bool:
         return False
     return is_superuser(user) or getattr(user, "role", None) in roles
 
+# =========================================================
+# ROLE HELPERS
+# =========================================================
 
 def is_admin(user) -> bool:
-    return user_has_role(user, ADMIN_ROLES)
+    return user_has_role(user, ADMIN_ONLY_ROLES)
+
+
+def is_elevated_user(user) -> bool:
+    return user_has_role(user, ELEVATED_ROLES)
 
 
 def is_department_admin(user) -> bool:
@@ -71,7 +99,11 @@ def is_project_manager(user) -> bool:
 
 
 def is_manager(user) -> bool:
-    return user_has_role(user, MANAGER_ROLES)
+    return user_has_role(user, MANAGEMENT_ROLES)
+
+
+def is_management_user(user) -> bool:
+    return user_has_role(user, ALL_MANAGEMENT_ROLES)
 
 
 def is_employee(user) -> bool:
@@ -80,3 +112,26 @@ def is_employee(user) -> bool:
     if is_superuser(user):
         return False
     return getattr(user, "role", None) == User.Role.EMPLOYEE
+
+# =========================================================
+# ACTION PERMISSIONS (can_* layer)
+# =========================================================
+
+def can_manage_employees(user):
+    return user_has_role(user, DEPARTMENT_ACCESS_ROLES)
+
+
+def can_view_employee_directory(user):
+    return user_has_role(user, EMPLOYEE_DIRECTORY_ACCESS_ROLES)
+
+
+def can_manage_projects(user):
+    return user_has_role(user, PROJECT_MODULE_ACCESS_ROLES)
+
+
+def can_manage_tasks(user):
+    return user_has_role(user, (
+        User.Role.ADMIN,
+        User.Role.PROJECT_MANAGER,
+        User.Role.MANAGER,
+    ))

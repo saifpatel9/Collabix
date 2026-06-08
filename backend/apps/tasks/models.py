@@ -138,6 +138,11 @@ class TaskAssignment(TaskBaseModel):
             models.Index(fields=["employee"], name="task_assign_emp_idx"),
             models.Index(fields=["assigned_at"], name="task_assign_at_idx"),
         ]
+        constraints = [
+            models.UniqueConstraint(
+            fields=["task", "employee"],
+            name="uniq_task_employee_assignment",),
+        ]
 
     def __str__(self):
         return f"{self.employee} -> {self.task}"
@@ -336,22 +341,40 @@ class TaskDependency(TaskBaseModel):
             if self._creates_cycle(self.predecessor_task_id, self.successor_task_id):
                 raise ValidationError("Circular task dependencies are not allowed.")
 
+    
     def _creates_cycle(self, predecessor_id, successor_id):
+        """
+        Returns True if adding:
+
+            predecessor -> successor
+
+        would create a circular dependency.
+        """
+
         visited = set()
-        stack = [predecessor_id]
+        stack = [successor_id]
+
         while stack:
             current = stack.pop()
-            if current == successor_id:
+
+            if current == predecessor_id:
                 return True
+
             if current in visited:
                 continue
-            visited.add(current)
-            stack.extend(
-                TaskDependency.objects.filter(successor_task_id=current)
-                .exclude(pk=self.pk)
-                .values_list("predecessor_task_id", flat=True)
-            )
-        return False
 
+            visited.add(current)
+
+            next_tasks = (
+                TaskDependency.objects.filter(
+                    predecessor_task_id=current
+                )
+                .exclude(pk=self.pk)
+                .values_list("successor_task_id", flat=True)
+            )
+
+            stack.extend(next_tasks)
+
+        return False
     def __str__(self):
-        return f"{self.predecessor_task} -> {self.successor_task}"
+            return f"{self.predecessor_task} -> {self.successor_task}"

@@ -70,7 +70,7 @@ class TaskService:
     def create(*, cleaned_data, user=None, request=None):
         TaskService._ensure_can_create(user=user, cleaned_data=cleaned_data)
         actor = employee_for_user(user)
-        task = Task.objects.create(created_by=actor, updated_by=actor, **cleaned_data)
+        task = Task(created_by=actor,updated_by=actor,**cleaned_data,)
         task.full_clean()
         task.save()
         audit_create(

@@ -1,17 +1,14 @@
 from apps.core.rbac import (
-    ROLE_DEPARTMENT_ADMIN_REQUIRED,
-    ROLE_EMPLOYEE_LIST_ACCESS,
+    can_create_project,
+    can_create_team,
+    can_manage_employees,
+    can_view_admin_dashboard,
+    can_view_all_activity,
+    can_view_employee_directory,
+    can_view_people,
     is_admin,
     is_employee,
     is_manager,
-    user_has_role,
-)
-from apps.core.rbac import (
-    can_create_project,
-    can_create_team,
-    can_view_admin_dashboard,
-    can_view_all_activity,
-    can_view_people,
 )
 
 
@@ -31,12 +28,15 @@ def rbac_context(request):
             "APP_NAME": "Collabix",
             "COMPANY_NAME": "Collabix Internal",
         }
+
     user = request.user
+
     user_is_admin = is_admin(user)
     user_is_manager = is_manager(user)
     user_is_employee = is_employee(user)
-    can_view_employees = user_has_role(user, ROLE_EMPLOYEE_LIST_ACCESS)
-    can_manage_people = user_has_role(user, ROLE_DEPARTMENT_ADMIN_REQUIRED)
+
+    can_view_employees = can_view_employee_directory(user)
+    can_manage_people = can_manage_employees(user)
 
     return {
         "is_admin": user_is_admin,
