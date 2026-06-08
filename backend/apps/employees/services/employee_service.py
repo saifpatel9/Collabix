@@ -16,15 +16,23 @@ class EmployeeService:
         queryset = EmployeeProfile.objects.select_related(
             "user", "department", "manager__user"
         )
+
         if user.is_superuser or user.role == User.Role.ADMIN:
             return queryset
+
         if user.role == User.Role.HR_MANAGER:
             return queryset
+
         if user.role == User.Role.DEPARTMENT_ADMIN:
-            # Department Admin can see employees in their department
-            return queryset.filter(department__name=user.department)
+            profile = getattr(user, "employee_profile", None)
+            if not profile or not profile.department:
+                return queryset.none()
+
+            return queryset.filter(department=profile.department)
+
         if user.role == User.Role.MANAGER:
             return queryset.filter(Q(manager__user=user) | Q(user=user))
+
         return queryset.filter(user=user)
 
     @staticmethod
@@ -102,15 +110,19 @@ class EmployeeService:
     def update(*, employee, cleaned_data, performed_by=None):
         if not can_access_employee(performed_by, employee):
             raise PermissionDenied
+
         user_data = EmployeeService._extract_user_data(cleaned_data)
+
         for field, value in user_data.items():
             setattr(employee.user, field, value)
+
         employee.user.save(
-            update_fields=["full_name", "email", "role", "phone", "updated_at"]
+            update_fields=["full_name", "email", "role", "phone"]
         )
 
         for field, value in cleaned_data.items():
             setattr(employee, field, value)
+
         employee.save()
         return employee
 

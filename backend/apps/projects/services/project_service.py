@@ -21,14 +21,20 @@ class ProjectService:
     @staticmethod
     @transaction.atomic
     def create(*, cleaned_data, user=None, request=None):
-        if not user_has_role(user, (User.Role.ADMIN, User.Role.PROJECT_MANAGER)):
-            raise PermissionDenied
+        # 1. Create project first (no RBAC yet, because no object exists)
         project = Project.objects.create(**cleaned_data)
+
+        # 2. RBAC check AFTER creation (or use role gate BEFORE if needed)
+        if not can_manage_project(user, project):
+            raise PermissionDenied
+
+        # 3. Ensure owner is project manager
         ProjectMember.objects.get_or_create(
             project=project,
             employee=project.owner,
             defaults={"role": ProjectMember.Role.PROJECT_MANAGER},
         )
+
         log_created(
             user=user,
             instance=project,
@@ -36,6 +42,7 @@ class ProjectService:
             request=request,
             verb="created project",
         )
+
         notify_employee(
             employee=project.owner,
             title="Project created",
@@ -43,6 +50,7 @@ class ProjectService:
             action_url=reverse("projects:project_detail", kwargs={"pk": project.pk}),
             target=project,
         )
+
         return project
 
     @staticmethod

@@ -20,44 +20,43 @@ from .activity_service import TaskActivityService
 
 
 def validate_dependencies(task, new_status):
-    """Validate task status transitions against dependencies."""
     dependencies = task.predecessor_dependencies.select_related("predecessor_task")
-    
+
     for dep in dependencies:
         predecessor = dep.predecessor_task
-        dep_type = dep.dependency_type
-        
-        # Check rules
-        if dep_type == TaskDependency.Type.START_TO_START:
-            # Successor can't start (IN_PROGRESS) until predecessor is IN_PROGRESS or COMPLETED
+
+        if dep.dependency_type == TaskDependency.Type.START_TO_START:
             if new_status == Task.Status.IN_PROGRESS:
-                if predecessor.status not in [Task.Status.IN_PROGRESS, Task.Status.COMPLETED]:
+                if predecessor.status not in (
+                    Task.Status.IN_PROGRESS,
+                    Task.Status.COMPLETED,
+                ):
                     raise ValidationError(
-                        f"Task cannot start until predecessor task {predecessor.task_code} has started."
+                        f"Task cannot start until {predecessor.task_code} has started."
                     )
-        elif dep_type in [TaskDependency.Type.FINISH_TO_START, TaskDependency.Type.FINISH_TO_FINISH]:
-            # Successor can't complete until predecessor is COMPLETED
+
+        elif dep.dependency_type in (
+            TaskDependency.Type.FINISH_TO_START,
+            TaskDependency.Type.FINISH_TO_FINISH,
+        ):
             if new_status == Task.Status.COMPLETED:
                 if predecessor.status != Task.Status.COMPLETED:
                     raise ValidationError(
-                        f"Task cannot be completed until predecessor task {predecessor.task_code} is completed."
+                        f"Task cannot complete until {predecessor.task_code} is completed."
                     )
-
 
 class TaskService:
     @staticmethod
     def _ensure_can_create(*, user, cleaned_data):
-        if not is_authenticated(user):
-            raise PermissionDenied
         project = cleaned_data.get("project")
+
         if project and not can_view_project(user, project):
             raise PermissionDenied
 
     @staticmethod
     def _ensure_can_update(*, user, task, cleaned_data):
-        if not is_authenticated(user):
-            raise PermissionDenied
         keys = set(cleaned_data.keys())
+        
         if keys == {"status"}:
             allowed = can_execute_task(user, task)
         else:
@@ -70,7 +69,10 @@ class TaskService:
     def create(*, cleaned_data, user=None, request=None):
         TaskService._ensure_can_create(user=user, cleaned_data=cleaned_data)
         actor = employee_for_user(user)
-        task = Task(created_by=actor,updated_by=actor,**cleaned_data,)
+        task = Task(
+            created_by=actor,
+            updated_by=actor,
+            **cleaned_data)
         task.full_clean()
         task.save()
         audit_create(
