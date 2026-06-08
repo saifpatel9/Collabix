@@ -1,7 +1,9 @@
 from django.db import transaction
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
 
 from apps.notifications.models import Notification
+from apps.core.rbac.rules import can_execute_task
 
 from ..models import TaskActivity, TaskChecklist, TaskChecklistItem
 from ._helpers import employee_for_user, notify_task_assignees
@@ -12,6 +14,8 @@ class TaskChecklistService:
     @staticmethod
     @transaction.atomic
     def create_checklist(*, task, cleaned_data, user=None, request=None):
+        if not can_execute_task(user, task):
+            raise PermissionDenied
         actor = employee_for_user(user)
         checklist = TaskChecklist.objects.create(task=task, **cleaned_data)
         TaskActivityService.record(
@@ -26,6 +30,8 @@ class TaskChecklistService:
     @staticmethod
     @transaction.atomic
     def create_item(*, checklist, cleaned_data, user=None, request=None):
+        if not can_execute_task(user, checklist.task):
+            raise PermissionDenied
         actor = employee_for_user(user)
         item = TaskChecklistItem.objects.create(checklist=checklist, **cleaned_data)
         TaskActivityService.record(
@@ -40,6 +46,8 @@ class TaskChecklistService:
     @staticmethod
     @transaction.atomic
     def toggle_item(*, item, is_completed, user=None, request=None):
+        if not can_execute_task(user, item.checklist.task):
+            raise PermissionDenied
         actor = employee_for_user(user)
         item.is_completed = is_completed
         item.completed_by = actor if is_completed else None

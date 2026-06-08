@@ -2,13 +2,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
-from apps.accounts.models import User
-
-
-def user_has_role(user, roles: tuple[str, ...]) -> bool:
-    return bool(
-        user and user.is_authenticated and (user.is_superuser or user.role in roles)
-    )
+from apps.core.rbac import (
+    ADMIN_ONLY_ROLES,
+    ROLE_DEPARTMENT_ADMIN_REQUIRED,
+    ROLE_EMPLOYEE_REQUIRED,
+    ROLE_HR_MANAGER_REQUIRED,
+    ROLE_MANAGER_REQUIRED,
+    ROLE_PROJECT_MANAGER_REQUIRED,
+    user_has_role,
+    can_access_employee,
+)
 
 
 class RoleRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -24,40 +27,27 @@ class RoleRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class AdminRequiredMixin(RoleRequiredMixin):
-    allowed_roles = (User.Role.ADMIN,)
+    allowed_roles = ADMIN_ONLY_ROLES
 
 
 class ManagerRequiredMixin(RoleRequiredMixin):
-    allowed_roles = (
-        User.Role.ADMIN,
-        User.Role.DEPARTMENT_ADMIN,
-        User.Role.HR_MANAGER,
-        User.Role.PROJECT_MANAGER,
-        User.Role.MANAGER,
-    )
+    allowed_roles = ROLE_MANAGER_REQUIRED
 
 
 class HRManagerRequiredMixin(RoleRequiredMixin):
-    allowed_roles = (User.Role.ADMIN, User.Role.HR_MANAGER)
+    allowed_roles = ROLE_HR_MANAGER_REQUIRED
 
 
 class DepartmentAdminRequiredMixin(RoleRequiredMixin):
-    allowed_roles = (User.Role.ADMIN, User.Role.DEPARTMENT_ADMIN, User.Role.HR_MANAGER)
+    allowed_roles = ROLE_DEPARTMENT_ADMIN_REQUIRED
 
 
 class ProjectManagerRequiredMixin(RoleRequiredMixin):
-    allowed_roles = (User.Role.ADMIN, User.Role.PROJECT_MANAGER, User.Role.MANAGER)
+    allowed_roles = ROLE_PROJECT_MANAGER_REQUIRED
 
 
 class EmployeeRequiredMixin(RoleRequiredMixin):
-    allowed_roles = (
-        User.Role.ADMIN,
-        User.Role.DEPARTMENT_ADMIN,
-        User.Role.HR_MANAGER,
-        User.Role.PROJECT_MANAGER,
-        User.Role.MANAGER,
-        User.Role.EMPLOYEE,
-    )
+    allowed_roles = ROLE_EMPLOYEE_REQUIRED
 
 
 class EmployeeAccessMixin(LoginRequiredMixin):
@@ -74,17 +64,7 @@ class EmployeeAccessMixin(LoginRequiredMixin):
         )
 
     def can_access_employee(self, employee):
-        user = self.request.user
-        if user.is_superuser or user.role == User.Role.ADMIN:
-            return True
-        if user.role == User.Role.HR_MANAGER:
-            return True
-        if user.role == User.Role.DEPARTMENT_ADMIN:
-            # Department Admin can access employees in their department
-            return employee.department and employee.department.name == user.department
-        if user.role in (User.Role.MANAGER, User.Role.PROJECT_MANAGER):
-            return (employee.manager and employee.manager.user_id == user.id) or (employee.user_id == user.id)
-        return employee.user_id == user.id
+        return can_access_employee(self.request.user, employee)
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:

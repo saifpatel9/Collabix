@@ -1,6 +1,10 @@
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
+from apps.accounts.models import User
+from apps.core.rbac.permissions import user_has_role
+from apps.core.rbac.rules import can_manage_project
 from apps.core.services.audit_service import AuditService
 
 from ..models import Project, ProjectMember
@@ -17,6 +21,8 @@ class ProjectService:
     @staticmethod
     @transaction.atomic
     def create(*, cleaned_data, user=None, request=None):
+        if not user_has_role(user, (User.Role.ADMIN, User.Role.PROJECT_MANAGER)):
+            raise PermissionDenied
         project = Project.objects.create(**cleaned_data)
         ProjectMember.objects.get_or_create(
             project=project,
@@ -42,6 +48,8 @@ class ProjectService:
     @staticmethod
     @transaction.atomic
     def update(*, project, cleaned_data, user=None, request=None):
+        if not can_manage_project(user, project):
+            raise PermissionDenied
         old_status = project.status
         old_data = {
             "name": project.name,
@@ -96,6 +104,8 @@ class ProjectService:
     @staticmethod
     @transaction.atomic
     def archive(*, project, user=None, request=None):
+        if not can_manage_project(user, project):
+            raise PermissionDenied
         old_data = {"is_archived": project.is_archived}
         project.is_archived = True
         project.save(update_fields=["is_archived", "updated_at"])

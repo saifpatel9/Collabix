@@ -1,7 +1,9 @@
 from django.db import transaction
 from django.db.models import Q
+from django.core.exceptions import PermissionDenied
 
 from apps.accounts.models import User
+from apps.core.rbac.permissions import user_has_role
 
 from ..models import Department
 
@@ -14,8 +16,6 @@ class DepartmentService:
             return queryset.all()
         if user.role == User.Role.DEPARTMENT_ADMIN:
             return queryset.filter(name=user.department)
-        if user.role in (User.Role.PROJECT_MANAGER, User.Role.MANAGER):
-            return queryset.all()
         return Department.objects.none()
 
     @staticmethod
@@ -28,12 +28,22 @@ class DepartmentService:
 
     @staticmethod
     @transaction.atomic
-    def create(*, cleaned_data):
+    def create(*, cleaned_data, performed_by=None):
+        if not user_has_role(
+            performed_by,
+            (User.Role.ADMIN, User.Role.HR_MANAGER, User.Role.DEPARTMENT_ADMIN),
+        ):
+            raise PermissionDenied
         return Department.objects.create(**cleaned_data)
 
     @staticmethod
     @transaction.atomic
-    def update(*, department, cleaned_data):
+    def update(*, department, cleaned_data, performed_by=None):
+        if not user_has_role(
+            performed_by,
+            (User.Role.ADMIN, User.Role.HR_MANAGER, User.Role.DEPARTMENT_ADMIN),
+        ):
+            raise PermissionDenied
         for field, value in cleaned_data.items():
             setattr(department, field, value)
         department.save()
@@ -41,5 +51,10 @@ class DepartmentService:
 
     @staticmethod
     @transaction.atomic
-    def delete(*, department):
+    def delete(*, department, performed_by=None):
+        if not user_has_role(
+            performed_by,
+            (User.Role.ADMIN, User.Role.HR_MANAGER, User.Role.DEPARTMENT_ADMIN),
+        ):
+            raise PermissionDenied
         department.delete()

@@ -40,7 +40,7 @@ def is_htmx(request):
     return request.headers.get("HX-Request") == "true"
 
 
-class DepartmentListView(ManagerRequiredMixin, ListView):
+class DepartmentListView(DepartmentAdminRequiredMixin, ListView):
     model = Department
     template_name = "departments/list.html"
     context_object_name = "departments"
@@ -61,7 +61,7 @@ class DepartmentListView(ManagerRequiredMixin, ListView):
         return context
 
 
-class DepartmentDetailView(ManagerRequiredMixin, DetailView):
+class DepartmentDetailView(DepartmentAdminRequiredMixin, DetailView):
     model = Department
     template_name = "departments/detail.html"
     context_object_name = "department"
@@ -77,7 +77,7 @@ class DepartmentCreateView(DepartmentAdminRequiredMixin, CreateView):
     success_url = reverse_lazy("employees:department_list")
 
     def form_valid(self, form):
-        DepartmentService.create(cleaned_data=form.cleaned_data)
+        DepartmentService.create(cleaned_data=form.cleaned_data, performed_by=self.request.user)
         messages.success(self.request, "Department created successfully.")
         return redirect(self.success_url)
 
@@ -89,7 +89,9 @@ class DepartmentUpdateView(DepartmentAdminRequiredMixin, UpdateView):
     success_url = reverse_lazy("employees:department_list")
 
     def form_valid(self, form):
-        DepartmentService.update(department=self.object, cleaned_data=form.cleaned_data)
+        DepartmentService.update(
+            department=self.object, cleaned_data=form.cleaned_data, performed_by=self.request.user
+        )
         messages.success(self.request, "Department updated successfully.")
         return redirect(self.success_url)
 
@@ -100,7 +102,7 @@ class DepartmentDeleteView(DepartmentAdminRequiredMixin, DeleteView):
     success_url = reverse_lazy("employees:department_list")
 
     def form_valid(self, form):
-        DepartmentService.delete(department=self.object)
+        DepartmentService.delete(department=self.object, performed_by=self.request.user)
         messages.success(self.request, "Department deleted successfully.")
         return redirect(self.success_url)
 
@@ -120,7 +122,6 @@ class EmployeeListView(LoginRequiredMixin, ListView):
                 User.Role.ADMIN,
                 User.Role.HR_MANAGER,
                 User.Role.DEPARTMENT_ADMIN,
-                User.Role.PROJECT_MANAGER,
                 User.Role.MANAGER,
             )
             and not request.user.is_superuser
@@ -153,7 +154,6 @@ class EmployeeListView(LoginRequiredMixin, ListView):
                 User.Role.ADMIN,
                 User.Role.HR_MANAGER,
                 User.Role.DEPARTMENT_ADMIN,
-                User.Role.PROJECT_MANAGER,
                 User.Role.MANAGER,
             ],
             employment_status=EmployeeProfile.EmploymentStatus.ACTIVE,
@@ -208,7 +208,7 @@ class EmployeeCreateView(HRManagerRequiredMixin, CreateView):
     success_url = reverse_lazy("employees:employee_list")
 
     def form_valid(self, form):
-        EmployeeService.create(cleaned_data=form.cleaned_data)
+        EmployeeService.create(cleaned_data=form.cleaned_data, performed_by=self.request.user)
         messages.success(self.request, "Employee profile created successfully.")
         return redirect(self.success_url)
 
@@ -223,7 +223,9 @@ class EmployeeUpdateView(EmployeeAccessMixin, UpdateView):
         return self.employee_object
 
     def form_valid(self, form):
-        EmployeeService.update(employee=self.object, cleaned_data=form.cleaned_data)
+        EmployeeService.update(
+            employee=self.object, cleaned_data=form.cleaned_data, performed_by=self.request.user
+        )
         messages.success(self.request, "Employee profile updated successfully.")
         return redirect(self.success_url)
 
@@ -238,7 +240,9 @@ class EmployeeStatusUpdateView(EmployeeAccessMixin, UpdateView):
 
     def form_valid(self, form):
         EmployeeService.update_status(
-            employee=self.object, status=form.cleaned_data["employment_status"]
+            employee=self.object,
+            status=form.cleaned_data["employment_status"],
+            performed_by=self.request.user,
         )
         messages.success(self.request, "Employee status updated.")
         if is_htmx(self.request):
@@ -257,7 +261,7 @@ class EmployeeDeactivateView(HRManagerRequiredMixin, View):
         return redirect("employees:employee_list")
 
 
-class ReportingTreeView(ManagerRequiredMixin, ListView):
+class ReportingTreeView(DepartmentAdminRequiredMixin, ListView):
     model = EmployeeHierarchy
     template_name = "hierarchy/tree.html"
     context_object_name = "assignments"
@@ -271,7 +275,7 @@ class ReportingTreeView(ManagerRequiredMixin, ListView):
         return [self.template_name]
 
 
-class AssignManagerView(ManagerRequiredMixin, CreateView):
+class AssignManagerView(DepartmentAdminRequiredMixin, CreateView):
     model = EmployeeHierarchy
     form_class = EmployeeHierarchyForm
     template_name = "hierarchy/form.html"
@@ -291,7 +295,7 @@ class AssignManagerView(ManagerRequiredMixin, CreateView):
         return redirect(self.success_url)
 
 
-class ChangeManagerView(ManagerRequiredMixin, UpdateView):
+class ChangeManagerView(DepartmentAdminRequiredMixin, UpdateView):
     model = EmployeeHierarchy
     form_class = EmployeeHierarchyForm
     template_name = "hierarchy/form.html"
@@ -311,7 +315,7 @@ class ChangeManagerView(ManagerRequiredMixin, UpdateView):
         return redirect(self.success_url)
 
 
-class OrganizationChartView(ManagerRequiredMixin, ListView):
+class OrganizationChartView(DepartmentAdminRequiredMixin, ListView):
     template_name = "organization/chart.html"
     context_object_name = "org_tree"
 
@@ -338,7 +342,7 @@ class OrganizationChartView(ManagerRequiredMixin, ListView):
         return context
 
 
-class DesignationListView(ManagerRequiredMixin, ListView):
+class DesignationListView(DepartmentAdminRequiredMixin, ListView):
     model = Designation
     template_name = "designations/list.html"
     context_object_name = "designations"
@@ -359,7 +363,7 @@ class DesignationListView(ManagerRequiredMixin, ListView):
         return context
 
 
-class DesignationDetailView(ManagerRequiredMixin, DetailView):
+class DesignationDetailView(DepartmentAdminRequiredMixin, DetailView):
     model = Designation
     template_name = "designations/detail.html"
     context_object_name = "designation"
@@ -414,7 +418,7 @@ class DesignationDeleteView(DepartmentAdminRequiredMixin, DeleteView):
             return redirect(self.success_url)
 
 
-class OrganizationPositionListView(ManagerRequiredMixin, ListView):
+class OrganizationPositionListView(DepartmentAdminRequiredMixin, ListView):
     model = OrganizationPosition
     template_name = "organization_positions/list.html"
     context_object_name = "positions"

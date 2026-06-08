@@ -4,7 +4,7 @@
 
 {% block content %}
 {% url 'projects:project_update' project.pk as edit_url %}
-{% include "components/page_header.html" with eyebrow=project.code title=project.name subtitle=project.description action_url=edit_url action_label="Edit Project" %}
+{% include "components/page_header.html" with eyebrow=project.code title=project.name subtitle=project.description action_url=edit_url action_label="Edit Project" only_if=can_manage_project %}
 
 <div class="grid gap-6 xl:grid-cols-[1fr_360px]">
     <section class="space-y-6">
@@ -46,13 +46,15 @@
                 {% for milestone in milestones %}
                     <div class="relative">
                         {% include "components/milestone_card.html" with milestone=milestone %}
-                        <div class="mt-2 flex gap-3 text-sm">
-                            <a class="font-semibold text-brand-300" href="{% url 'projects:milestone_update' project.pk milestone.pk %}">Edit</a>
-                            <form method="post" action="{% url 'projects:milestone_delete' project.pk milestone.pk %}">
-                                {% csrf_token %}
-                                <button class="font-semibold text-red-600">Delete</button>
-                            </form>
-                        </div>
+                        {% if can_manage_milestone %}
+                            <div class="mt-2 flex gap-3 text-sm">
+                                <a class="font-semibold text-brand-300" href="{% url 'projects:milestone_update' project.pk milestone.pk %}">Edit</a>
+                                <form method="post" action="{% url 'projects:milestone_delete' project.pk milestone.pk %}">
+                                    {% csrf_token %}
+                                    <button class="font-semibold text-red-600">Delete</button>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
                 {% empty %}
                     <p class="text-sm text-slate-500 dark:text-slate-400">No milestones yet.</p>
@@ -62,36 +64,42 @@
     </section>
 
     <aside class="space-y-6">
-        <form method="post" action="{% url 'projects:project_member_add' project.pk %}" class="workspace-card p-5">
-            {% csrf_token %}
-            <h2 class="text-lg font-bold">Add Member</h2>
-            <div class="mt-4 space-y-4">
-                {{ member_form.employee }}
-                {{ member_form.role }}
-            </div>
-            <button class="mt-4 btn-primary px-4">Add member</button>
-        </form>
+        {% if can_manage_project %}
+            <form method="post" action="{% url 'projects:project_member_add' project.pk %}" class="workspace-card p-5">
+                {% csrf_token %}
+                <h2 class="text-lg font-bold">Add Member</h2>
+                <div class="mt-4 space-y-4">
+                    {{ member_form.employee }}
+                    {{ member_form.role }}
+                </div>
+                <button class="mt-4 btn-primary px-4">Add member</button>
+            </form>
+        {% endif %}
 
-        <form method="post" action="{% url 'projects:milestone_create' project.pk %}" class="workspace-card p-5">
-            {% csrf_token %}
-            <h2 class="text-lg font-bold">Add Milestone</h2>
-            <div class="mt-4 space-y-4">
-                {% for field in milestone_form %}
-                    <div>
-                        <label class="text-sm font-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        <div class="mt-2">{{ field }}</div>
-                    </div>
-                {% endfor %}
-            </div>
-            <button class="mt-4 btn-primary px-4">Add milestone</button>
-        </form>
+        {% if can_manage_milestone %}
+            <form method="post" action="{% url 'projects:milestone_create' project.pk %}" class="workspace-card p-5">
+                {% csrf_token %}
+                <h2 class="text-lg font-bold">Add Milestone</h2>
+                <div class="mt-4 space-y-4">
+                    {% for field in milestone_form %}
+                        <div>
+                            <label class="text-sm font-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <div class="mt-2">{{ field }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="mt-4 btn-primary px-4">Add milestone</button>
+            </form>
+        {% endif %}
 
-        <form method="post" action="{% url 'projects:project_archive' project.pk %}" class="rounded-3xl border border-red-200 bg-white p-5 shadow-sm dark:border-red-900 dark:bg-slate-900">
-            {% csrf_token %}
-            <h2 class="text-lg font-bold">Archive Project</h2>
-            <p class="mt-2 text-sm text-slate-500">Archived projects are hidden from the active directory.</p>
-            <button class="mt-4 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white">Archive</button>
-        </form>
+        {% if can_manage_project %}
+            <form method="post" action="{% url 'projects:project_archive' project.pk %}" class="rounded-3xl border border-red-200 bg-white p-5 shadow-sm dark:border-red-900 dark:bg-slate-900">
+                {% csrf_token %}
+                <h2 class="text-lg font-bold">Archive Project</h2>
+                <p class="mt-2 text-sm text-slate-500">Archived projects are hidden from the active directory.</p>
+                <button class="mt-4 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white">Archive</button>
+            </form>
+        {% endif %}
     </aside>
 </div>
 {% endblock content %}

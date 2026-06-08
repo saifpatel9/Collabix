@@ -1,6 +1,8 @@
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
+from apps.core.rbac.rules import can_manage_milestone
 from apps.core.services.audit_service import AuditService
 from apps.notifications.models import Notification
 
@@ -18,6 +20,8 @@ class MilestoneService:
     @staticmethod
     @transaction.atomic
     def create(*, project, cleaned_data, user=None, request=None):
+        if not can_manage_milestone(user, project):
+            raise PermissionDenied
         milestone = Milestone.objects.create(project=project, **cleaned_data)
         log_created(
             user=user,
@@ -39,6 +43,8 @@ class MilestoneService:
     @staticmethod
     @transaction.atomic
     def update(*, milestone, cleaned_data, user=None, request=None):
+        if not can_manage_milestone(user, milestone.project):
+            raise PermissionDenied
         old_status = milestone.status
         old_data = {"name": milestone.name, "status": milestone.status}
         for field, value in cleaned_data.items():
@@ -83,6 +89,8 @@ class MilestoneService:
     @staticmethod
     @transaction.atomic
     def delete(*, milestone, user=None, request=None):
+        if not can_manage_milestone(user, milestone.project):
+            raise PermissionDenied
         project = milestone.project
         old_data = {
             "project": str(project.pk),

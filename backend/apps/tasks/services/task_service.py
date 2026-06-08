@@ -1,9 +1,12 @@
 from datetime import timedelta
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
+
+from apps.core.rbac.permissions import is_authenticated
+from apps.core.rbac.rules import can_edit_task, can_execute_task, can_view_project
 
 from ..models import Task, TaskActivity, TaskDependency
 from ._helpers import (
@@ -43,8 +46,29 @@ def validate_dependencies(task, new_status):
 
 class TaskService:
     @staticmethod
+    def _ensure_can_create(*, user, cleaned_data):
+        if not is_authenticated(user):
+            raise PermissionDenied
+        project = cleaned_data.get("project")
+        if project and not can_view_project(user, project):
+            raise PermissionDenied
+
+    @staticmethod
+    def _ensure_can_update(*, user, task, cleaned_data):
+        if not is_authenticated(user):
+            raise PermissionDenied
+        keys = set(cleaned_data.keys())
+        if keys == {"status"}:
+            allowed = can_execute_task(user, task)
+        else:
+            allowed = can_edit_task(user, task)
+        if not allowed:
+            raise PermissionDenied
+
+    @staticmethod
     @transaction.atomic
     def create(*, cleaned_data, user=None, request=None):
+        TaskService._ensure_can_create(user=user, cleaned_data=cleaned_data)
         actor = employee_for_user(user)
         task = Task.objects.create(created_by=actor, updated_by=actor, **cleaned_data)
         task.full_clean()
@@ -67,6 +91,7 @@ class TaskService:
     @staticmethod
     @transaction.atomic
     def update(*, task, cleaned_data, user=None, request=None):
+        TaskService._ensure_can_update(user=user, task=task, cleaned_data=cleaned_data)
         actor = employee_for_user(user)
         
         # Check if we're changing status
@@ -170,6 +195,8 @@ class TaskService:
     @staticmethod
     @transaction.atomic
     def delete(*, task, user=None, request=None):
+        if not can_edit_task(user, task):
+            raise PermissionDenied
         old_data = {"task_code": task.task_code, "title": task.title}
         audit_delete(user=user, instance=task, old_data=old_data, request=request)
         task.delete()

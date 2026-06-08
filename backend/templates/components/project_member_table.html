@@ -14,21 +14,29 @@
                     <td class="px-4 py-3 font-semibold text-slate-800 dark:text-slate-100">{{ membership.employee.user.full_name }}</td>
                     <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ membership.employee.department.name|default:"-" }}</td>
                     <td class="px-4 py-3">
-                        <form method="post" action="{% url 'projects:project_member_role' project.pk membership.pk %}" class="flex items-center gap-2">
-                            {% csrf_token %}
-                            <select name="role" class="form-control px-3 py-2">
-                                {% for value, label in role_form.fields.role.choices %}
-                                    <option value="{{ value }}" {% if value == membership.role %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                            <button class="btn-primary px-3 py-2 text-xs">Save</button>
-                        </form>
+                        {% if can_manage_project %}
+                            <form method="post" action="{% url 'projects:project_member_role' project.pk membership.pk %}" class="flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="role" class="form-control px-3 py-2">
+                                    {% for value, label in role_form.fields.role.choices %}
+                                        <option value="{{ value }}" {% if value == membership.role %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn-primary px-3 py-2 text-xs">Save</button>
+                            </form>
+                        {% else %}
+                            {{ membership.get_role_display }}
+                        {% endif %}
                     </td>
                     <td class="px-4 py-3 text-right">
-                        <form method="post" action="{% url 'projects:project_member_remove' project.pk membership.pk %}">
-                            {% csrf_token %}
-                            <button class="text-sm font-semibold text-red-600">Remove</button>
-                        </form>
+                        {% if can_manage_project %}
+                            <form method="post" action="{% url 'projects:project_member_remove' project.pk membership.pk %}">
+                                {% csrf_token %}
+                                <button class="text-sm font-semibold text-red-600">Remove</button>
+                            </form>
+                        {% else %}
+                            <span class="text-slate-500 dark:text-slate-400">—</span>
+                        {% endif %}
                     </td>
                 </tr>
             {% empty %}

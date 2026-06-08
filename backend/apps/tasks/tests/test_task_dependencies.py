@@ -58,7 +58,7 @@ class TaskDependencyEnforcementTests(TestCase):
 
         # Try to move successor to IN_PROGRESS when predecessor is in BACKLOG
         with self.assertRaises(ValidationError):
-            TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
+            TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         # Verify status remains unchanged
         self.successor.refresh_from_db()
@@ -72,10 +72,10 @@ class TaskDependencyEnforcementTests(TestCase):
         )
         
         # Move predecessor to IN_PROGRESS
-        TaskService.change_status(task=self.predecessor, status=Task.Status.IN_PROGRESS)
+        TaskService.change_status(task=self.predecessor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         # Now try to move successor - should work
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         self.successor.refresh_from_db()
         self.assertEqual(self.successor.status, Task.Status.IN_PROGRESS)
@@ -88,10 +88,10 @@ class TaskDependencyEnforcementTests(TestCase):
         )
         
         # Move predecessor to COMPLETED
-        TaskService.change_status(task=self.predecessor, status=Task.Status.COMPLETED)
+        TaskService.change_status(task=self.predecessor, status=Task.Status.COMPLETED, user=self.user)
         
         # Now try to move successor - should work
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         self.successor.refresh_from_db()
         self.assertEqual(self.successor.status, Task.Status.IN_PROGRESS)
@@ -104,11 +104,11 @@ class TaskDependencyEnforcementTests(TestCase):
         )
         
         # First move successor to IN_PROGRESS
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         # Now try to move to COMPLETED when predecessor not completed
         with self.assertRaises(ValidationError):
-            TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED)
+            TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED, user=self.user)
         
         # Verify status remains IN_PROGRESS
         self.successor.refresh_from_db()
@@ -122,13 +122,13 @@ class TaskDependencyEnforcementTests(TestCase):
         )
         
         # First move successor to IN_PROGRESS
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         # Move predecessor to COMPLETED
-        TaskService.change_status(task=self.predecessor, status=Task.Status.COMPLETED)
+        TaskService.change_status(task=self.predecessor, status=Task.Status.COMPLETED, user=self.user)
         
         # Now try to complete successor
-        TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED)
+        TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED, user=self.user)
         
         self.successor.refresh_from_db()
         self.assertEqual(self.successor.status, Task.Status.COMPLETED)
@@ -140,10 +140,10 @@ class TaskDependencyEnforcementTests(TestCase):
             dependency_type=TaskDependency.Type.FINISH_TO_FINISH,
         )
         
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         with self.assertRaises(ValidationError):
-            TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED)
+            TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED, user=self.user)
         
         self.successor.refresh_from_db()
         self.assertEqual(self.successor.status, Task.Status.IN_PROGRESS)
@@ -155,10 +155,10 @@ class TaskDependencyEnforcementTests(TestCase):
             dependency_type=TaskDependency.Type.FINISH_TO_FINISH,
         )
         
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
-        TaskService.change_status(task=self.predecessor, status=Task.Status.COMPLETED)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
+        TaskService.change_status(task=self.predecessor, status=Task.Status.COMPLETED, user=self.user)
         
-        TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED)
+        TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED, user=self.user)
         
         self.successor.refresh_from_db()
         self.assertEqual(self.successor.status, Task.Status.COMPLETED)
@@ -185,13 +185,13 @@ class TaskDependencyEnforcementTests(TestCase):
         )
         
         # First predecessor is in progress, second not completed
-        TaskService.change_status(task=self.predecessor, status=Task.Status.IN_PROGRESS)
+        TaskService.change_status(task=self.predecessor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         # Try to move successor to IN_PROGRESS - okay for start_to_start, but when trying to complete
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
         
         with self.assertRaises(ValidationError):
-            TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED)
+            TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED, user=self.user)
             
         self.successor.refresh_from_db()
         self.assertEqual(self.successor.status, Task.Status.IN_PROGRESS)
@@ -216,20 +216,20 @@ class TaskDependencyEnforcementTests(TestCase):
         )
         
         # Satisfy both dependencies
-        TaskService.change_status(task=self.predecessor, status=Task.Status.IN_PROGRESS)
-        TaskService.change_status(task=predecessor2, status=Task.Status.COMPLETED)
+        TaskService.change_status(task=self.predecessor, status=Task.Status.IN_PROGRESS, user=self.user)
+        TaskService.change_status(task=predecessor2, status=Task.Status.COMPLETED, user=self.user)
         
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
-        TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
+        TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED, user=self.user)
         
         self.successor.refresh_from_db()
         self.assertEqual(self.successor.status, Task.Status.COMPLETED)
 
     def test_no_dependencies_allowed(self):
         # No dependencies, any status change should work
-        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS)
-        TaskService.change_status(task=self.successor, status=Task.Status.REVIEW)
-        TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED)
+        TaskService.change_status(task=self.successor, status=Task.Status.IN_PROGRESS, user=self.user)
+        TaskService.change_status(task=self.successor, status=Task.Status.REVIEW, user=self.user)
+        TaskService.change_status(task=self.successor, status=Task.Status.COMPLETED, user=self.user)
         
         self.successor.refresh_from_db()
         self.assertEqual(self.successor.status, Task.Status.COMPLETED)

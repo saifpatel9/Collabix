@@ -1,4 +1,7 @@
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
+
+from apps.core.rbac.rules import can_execute_task
 
 from ..models import TaskActivity, TaskAttachment
 from ._helpers import employee_for_user
@@ -9,6 +12,8 @@ class TaskAttachmentService:
     @staticmethod
     @transaction.atomic
     def create(*, task, uploaded_file, user=None, request=None):
+        if not can_execute_task(user, task):
+            raise PermissionDenied
         actor = employee_for_user(user)
         attachment = TaskAttachment.objects.create(
             task=task,

@@ -1,7 +1,9 @@
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
 from apps.notifications.models import Notification
+from apps.core.rbac.rules import can_edit_task
 
 from ..models import TaskActivity, TaskAssignment
 from ._helpers import audit_update, employee_for_user, notify_employee
@@ -12,6 +14,8 @@ class TaskAssignmentService:
     @staticmethod
     @transaction.atomic
     def assign(*, task, employee, user=None, request=None):
+        if not can_edit_task(user, task):
+            raise PermissionDenied
         actor = employee_for_user(user)
         was_assigned = task.assignments.exists()
         assignment = TaskAssignment.objects.create(

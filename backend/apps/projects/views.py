@@ -7,6 +7,12 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
+from apps.core.rbac import (
+    ROLE_MANAGER_REQUIRED,
+    can_manage_milestone,
+    can_manage_project,
+    user_has_role,
+)
 from apps.core.permissions import ManagerRequiredMixin, ProjectManagerRequiredMixin
 
 from .forms import (
@@ -18,7 +24,7 @@ from .forms import (
     TeamMembershipForm,
 )
 from .models import Milestone, Project, ProjectMember, Team, TeamMembership
-from .permissions import ProjectAccessMixin, ProjectManageMixin
+from .permissions import MilestoneManageMixin, ProjectAccessMixin, ProjectManageMixin
 from .selectors.project_selectors import MilestoneSelector, ProjectSelector
 from .selectors.team_selectors import TeamSelector
 from .services.milestone_service import MilestoneService
@@ -64,6 +70,9 @@ class TeamDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["memberships"] = TeamSelector.memberships_for(self.object)
         context["membership_form"] = TeamMembershipForm(team=self.object)
+        context["can_manage_team"] = user_has_role(
+            self.request.user, ROLE_MANAGER_REQUIRED
+        )
         return context
 
 
@@ -179,6 +188,12 @@ class ProjectDetailView(ProjectAccessMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["can_manage_project"] = can_manage_project(
+            self.request.user, self.object
+        )
+        context["can_manage_milestone"] = can_manage_milestone(
+            self.request.user, self.object
+        )
         context["memberships"] = ProjectSelector.members_for(self.object)
         context["milestones"] = ProjectSelector.milestones_for(self.object)
         context["member_form"] = ProjectMemberForm(project=self.object)
@@ -295,7 +310,7 @@ class MilestoneListView(LoginRequiredMixin, ListView):
         return [self.template_name]
 
 
-class MilestoneCreateView(ProjectManageMixin, View):
+class MilestoneCreateView(MilestoneManageMixin, View):
     def post(self, request, *args, **kwargs):
         form = MilestoneForm(request.POST)
         if form.is_valid():
@@ -311,7 +326,7 @@ class MilestoneCreateView(ProjectManageMixin, View):
         return redirect("projects:project_detail", pk=self.project_object.pk)
 
 
-class MilestoneUpdateView(ProjectManageMixin, UpdateView):
+class MilestoneUpdateView(MilestoneManageMixin, UpdateView):
     model = Milestone
     form_class = MilestoneForm
     template_name = "milestones/form.html"
@@ -345,7 +360,7 @@ class MilestoneUpdateView(ProjectManageMixin, UpdateView):
         return redirect(self.get_success_url())
 
 
-class MilestoneDeleteView(ProjectManageMixin, View):
+class MilestoneDeleteView(MilestoneManageMixin, View):
     def post(self, request, *args, **kwargs):
         milestone = get_object_or_404(
             Milestone, pk=kwargs["milestone_pk"], project=self.project_object

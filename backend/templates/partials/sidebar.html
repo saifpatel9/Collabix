@@ -63,10 +63,11 @@
             </li>
         </ul>
 
-        {% if can_view_people %}
+        {% if can_view_employees or can_manage_people %}
         {# ── People ── #}
         <p class="mb-2 mt-6 px-4 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">People</p>
         <ul class="space-y-1">
+            {% if can_view_employees %}
             <li>
                 <a href="{% url 'employees:employee_list' %}" class="nav-item">
                     <span class="flex items-center gap-3 min-w-0">
@@ -75,6 +76,8 @@
                     </span>
                 </a>
             </li>
+            {% endif %}
+            {% if can_manage_people %}
             <li>
                 <a href="{% url 'employees:department_list' %}" class="nav-item">
                     <span class="flex items-center gap-3 min-w-0">
@@ -115,6 +118,7 @@
                     </span>
                 </a>
             </li>
+            {% endif %}
         </ul>
         {% endif %}
 

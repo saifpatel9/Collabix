@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Q
 
 from apps.accounts.models import User
+from apps.core.rbac.permissions import user_has_role
+from apps.core.rbac.rules import can_access_employee
 
 from ..models import EmployeeProfile
 
@@ -21,7 +23,7 @@ class EmployeeService:
         if user.role == User.Role.DEPARTMENT_ADMIN:
             # Department Admin can see employees in their department
             return queryset.filter(department__name=user.department)
-        if user.role in (User.Role.MANAGER, User.Role.PROJECT_MANAGER):
+        if user.role == User.Role.MANAGER:
             return queryset.filter(Q(manager__user=user) | Q(user=user))
         return queryset.filter(user=user)
 
@@ -52,6 +54,8 @@ class EmployeeService:
     @staticmethod
     @transaction.atomic
     def deactivate(*, employee, performed_by):
+        if not user_has_role(performed_by, (User.Role.ADMIN, User.Role.HR_MANAGER)):
+            raise PermissionDenied
         if employee.employment_status == EmployeeProfile.EmploymentStatus.INACTIVE:
             raise ValidationError("This employee is already inactive.")
         if employee.user.is_superuser:
@@ -77,7 +81,9 @@ class EmployeeService:
 
     @staticmethod
     @transaction.atomic
-    def create(*, cleaned_data):
+    def create(*, cleaned_data, performed_by=None):
+        if not user_has_role(performed_by, (User.Role.ADMIN, User.Role.HR_MANAGER)):
+            raise PermissionDenied
         user_data = EmployeeService._extract_user_data(cleaned_data)
         UserModel = get_user_model()
         user = UserModel.objects.create_user(
@@ -93,7 +99,9 @@ class EmployeeService:
 
     @staticmethod
     @transaction.atomic
-    def update(*, employee, cleaned_data):
+    def update(*, employee, cleaned_data, performed_by=None):
+        if not can_access_employee(performed_by, employee):
+            raise PermissionDenied
         user_data = EmployeeService._extract_user_data(cleaned_data)
         for field, value in user_data.items():
             setattr(employee.user, field, value)
@@ -108,7 +116,9 @@ class EmployeeService:
 
     @staticmethod
     @transaction.atomic
-    def update_status(*, employee, status):
+    def update_status(*, employee, status, performed_by=None):
+        if not can_access_employee(performed_by, employee):
+            raise PermissionDenied
         employee.employment_status = status
         employee.save(update_fields=["employment_status", "updated_at"])
 

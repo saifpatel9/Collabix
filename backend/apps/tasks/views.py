@@ -226,7 +226,7 @@ class TaskAssignmentView(TaskManageMixin, View):
         return redirect("tasks:task_detail", pk=self.task_object.pk)
 
 
-class TaskCommentView(TaskAccessMixin, View):
+class TaskCommentView(TaskExecuteMixin, View):
     def post(self, request, *args, **kwargs):
         form = TaskCommentForm(request.POST, task=self.task_object)
         if form.is_valid():
@@ -248,7 +248,7 @@ class TaskCommentView(TaskAccessMixin, View):
         return redirect("tasks:task_detail", pk=self.task_object.pk)
 
 
-class TaskAttachmentView(TaskAccessMixin, View):
+class TaskAttachmentView(TaskExecuteMixin, View):
     def post(self, request, *args, **kwargs):
         form = TaskAttachmentForm(request.POST, request.FILES)
         if form.is_valid():
@@ -264,7 +264,7 @@ class TaskAttachmentView(TaskAccessMixin, View):
         return redirect("tasks:task_detail", pk=self.task_object.pk)
 
 
-class TaskChecklistView(TaskAccessMixin, View):
+class TaskChecklistView(TaskExecuteMixin, View):
     def post(self, request, *args, **kwargs):
         form = TaskChecklistForm(request.POST)
         if form.is_valid():
@@ -277,7 +277,7 @@ class TaskChecklistView(TaskAccessMixin, View):
         return redirect("tasks:task_detail", pk=self.task_object.pk)
 
 
-class TaskChecklistItemView(TaskAccessMixin, View):
+class TaskChecklistItemView(TaskExecuteMixin, View):
     def post(self, request, *args, **kwargs):
         checklist = get_object_or_404(
             TaskChecklist, pk=kwargs["checklist_pk"], task=self.task_object
@@ -293,7 +293,7 @@ class TaskChecklistItemView(TaskAccessMixin, View):
         return redirect("tasks:task_detail", pk=self.task_object.pk)
 
 
-class TaskChecklistToggleView(TaskAccessMixin, View):
+class TaskChecklistToggleView(TaskExecuteMixin, View):
     def post(self, request, *args, **kwargs):
         item = get_object_or_404(
             TaskChecklistItem.objects.select_related("checklist__task"),
@@ -382,7 +382,6 @@ class TaskBoardView(LoginRequiredMixin, ListView):
 
 def task_filter_context(request):
     from apps.projects.selectors.project_selectors import ProjectSelector, MilestoneSelector
-    from apps.employees.services.employee_service import EmployeeService
 
     return {
         "statuses": Task.Status.choices,
@@ -391,9 +390,7 @@ def task_filter_context(request):
         "milestones": MilestoneSelector.visible_to(request.user).select_related("project").order_by(
             "project__name", "due_date"
         ),
-        "employees": EmployeeService.visible_to(request.user).select_related("user").order_by(
-            "user__full_name"
-        ),
+        "employees": TaskSelector.assignee_options_for(request.user).order_by("user__full_name"),
         "filters": {
             "q": request.GET.get("q", ""),
             "status": request.GET.get("status", ""),

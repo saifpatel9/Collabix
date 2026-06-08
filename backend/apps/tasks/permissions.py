@@ -2,68 +2,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
-from apps.accounts.models import User
-from apps.projects.models import ProjectMember
-from apps.projects.permissions import can_manage_project, can_view_project
+from apps.core.rbac.rules import can_edit_task, can_execute_task, can_view_task
 
 from .models import Task
-
-
-def is_task_owner(user, task):
-    return (
-        getattr(user, "is_authenticated", False) and task.created_by.user_id == user.id
-    )
-
-
-def is_task_assignee(user, task):
-    return (
-        getattr(user, "is_authenticated", False)
-        and task.assignments.filter(employee__user=user).exists()
-    )
-
-
-def is_project_team_lead(user, task):
-    return (
-        getattr(user, "is_authenticated", False)
-        and task.project.memberships.filter(
-            employee__user=user, role=ProjectMember.Role.TEAM_LEAD
-        ).exists()
-    )
-
-
-def has_task_admin_role(user):
-    return getattr(user, "is_authenticated", False) and (
-        user.is_superuser
-        or user.role
-        in (
-            User.Role.ADMIN,
-            User.Role.DEPARTMENT_ADMIN,
-            User.Role.PROJECT_MANAGER,
-        )
-    )
-
-
-def can_view_task(user, task):
-    return (
-        has_task_admin_role(user)
-        or is_task_owner(user, task)
-        or is_task_assignee(user, task)
-        or can_view_project(user, task.project)
-    )
-
-
-def can_edit_task(user, task):
-    return (
-        has_task_admin_role(user)
-        or is_task_owner(user, task)
-        or is_project_team_lead(user, task)
-        or can_manage_project(user, task.project)
-    )
-
-
-def can_execute_task(user, task):
-    return can_edit_task(user, task) or is_task_assignee(user, task)
-
 
 class TaskAccessMixin(LoginRequiredMixin):
     task_object = None

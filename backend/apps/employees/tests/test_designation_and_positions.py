@@ -302,6 +302,7 @@ class DesignationViewTests(TestCase):
             full_name="Admin User",
             password="testpass",
             role="admin",
+            must_change_password=False,
         )
         self.designation1 = Designation.objects.create(title="CEO", level=1)
         self.designation2 = Designation.objects.create(title="Manager", level=2)

@@ -1,7 +1,9 @@
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
 from apps.notifications.services.mention_service import MentionService
+from apps.core.rbac.rules import can_execute_task
 
 from ..models import TaskActivity, TaskComment
 from ._helpers import employee_for_user, notify_task_assignees
@@ -12,6 +14,8 @@ class TaskCommentService:
     @staticmethod
     @transaction.atomic
     def create(*, task, cleaned_data, user=None, request=None):
+        if not can_execute_task(user, task):
+            raise PermissionDenied
         actor = employee_for_user(user)
         comment = TaskComment.objects.create(task=task, author=actor, **cleaned_data)
         TaskActivityService.record(

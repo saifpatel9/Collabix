@@ -4,7 +4,7 @@
 
 {% block content %}
 {% url 'projects:team_update' team.pk as edit_url %}
-{% include "components/page_header.html" with eyebrow=team.department.name title=team.name subtitle=team.description action_url=edit_url action_label="Edit Team" %}
+{% include "components/page_header.html" with eyebrow=team.department.name title=team.name subtitle=team.description action_url=edit_url action_label="Edit Team" only_if=can_manage_team %}
 
 <div class="grid gap-6 xl:grid-cols-[1fr_340px]">
     <section class="workspace-card">
@@ -39,10 +39,14 @@
                             <td class="px-4 py-3 font-semibold">{{ membership.employee.user.full_name }}</td>
                             <td class="px-4 py-3">{{ membership.get_role_display }}</td>
                             <td class="px-4 py-3 text-right">
-                                <form method="post" action="{% url 'projects:team_member_remove' membership.pk %}">
-                                    {% csrf_token %}
-                                    <button class="text-sm font-semibold text-red-600">Remove</button>
-                                </form>
+                                {% if can_manage_team %}
+                                    <form method="post" action="{% url 'projects:team_member_remove' membership.pk %}">
+                                        {% csrf_token %}
+                                        <button class="text-sm font-semibold text-red-600">Remove</button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-slate-500 dark:text-slate-400">—</span>
+                                {% endif %}
                             </td>
                         </tr>
                     {% empty %}
@@ -54,22 +58,26 @@
     </section>
 
     <aside class="space-y-6">
-        <form method="post" action="{% url 'projects:team_member_add' team.pk %}" class="workspace-card p-5">
-            {% csrf_token %}
-            <h2 class="text-lg font-bold">Add Member</h2>
-            <div class="mt-4 space-y-4">
-                {{ membership_form.employee }}
-                {{ membership_form.role }}
-            </div>
-            <button class="mt-4 btn-primary px-4">Add member</button>
-        </form>
+        {% if can_manage_team %}
+            <form method="post" action="{% url 'projects:team_member_add' team.pk %}" class="workspace-card p-5">
+                {% csrf_token %}
+                <h2 class="text-lg font-bold">Add Member</h2>
+                <div class="mt-4 space-y-4">
+                    {{ membership_form.employee }}
+                    {{ membership_form.role }}
+                </div>
+                <button class="mt-4 btn-primary px-4">Add member</button>
+            </form>
+        {% endif %}
 
-        <form method="post" action="{% url 'projects:team_archive' team.pk %}" class="rounded-3xl border border-red-200 bg-white p-5 shadow-sm dark:border-red-900 dark:bg-slate-900">
-            {% csrf_token %}
-            <h2 class="text-lg font-bold">Archive Team</h2>
-            <p class="mt-2 text-sm text-slate-500">Archived teams remain available for history but are hidden from active selection.</p>
-            <button class="mt-4 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white">Archive</button>
-        </form>
+        {% if can_manage_team %}
+            <form method="post" action="{% url 'projects:team_archive' team.pk %}" class="rounded-3xl border border-red-200 bg-white p-5 shadow-sm dark:border-red-900 dark:bg-slate-900">
+                {% csrf_token %}
+                <h2 class="text-lg font-bold">Archive Team</h2>
+                <p class="mt-2 text-sm text-slate-500">Archived teams remain available for history but are hidden from active selection.</p>
+                <button class="mt-4 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white">Archive</button>
+            </form>
+        {% endif %}
     </aside>
 </div>
 {% endblock content %}
