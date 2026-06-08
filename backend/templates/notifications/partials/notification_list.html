@@ -37,7 +37,3 @@
     {% endfor %}
 </div>
 {% include "components/pagination.html" with target="#notification-list" %}
-
-{% if notification_widget_oob %}
-    {% include "components/notification_dropdown.html" with notifications=notification_widget_oob.notifications unread_count=notification_widget_oob.unread_count force_open=False notification_widget_oob=True %}
-{% endif %}
