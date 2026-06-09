@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
-from apps.core.rbac import (
+from apps.core.rbac.permissions import (
     ADMIN_ONLY_ROLES,
     ALL_MANAGEMENT_ROLES,
     DEPARTMENT_ACCESS_ROLES,
@@ -10,8 +10,9 @@ from apps.core.rbac import (
     INTERNAL_USER_ROLES,
     PROJECT_MODULE_ACCESS_ROLES,
     user_has_role,
-    can_access_employee,
 )
+
+from apps.core.rbac.rules import can_access_employee
 
 
 class RoleRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):

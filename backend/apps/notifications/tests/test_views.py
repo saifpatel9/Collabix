@@ -9,11 +9,16 @@ User = get_user_model()
 class NotificationViewsTests(TestCase):
     def setUp(self):
         self.client = Client()
+
         self.user = User.objects.create_user(
             email="test@example.com",
             password="TestPass123!",
-            full_name="Test User"
+            full_name="Test User",
         )
+
+        self.user.must_change_password = False
+        self.user.save(update_fields=["must_change_password"])
+
         self.client.force_login(self.user)
 
     def test_notification_center_loads(self):

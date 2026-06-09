@@ -44,10 +44,7 @@ def can_manage_project(user, project) -> bool:
     if not is_authenticated(user):
         return False
 
-    if user.is_superuser or user.role in (
-        User.Role.ADMIN,
-        User.Role.PROJECT_MANAGER,
-    ):
+    if user.is_superuser or user.role == User.Role.ADMIN:
         return True
 
     role = user_project_role(user, project)
@@ -110,7 +107,30 @@ def is_project_team_lead(user, task) -> bool:
 
 
 def has_task_admin_role(user) -> bool:
-    return user_has_role(user, (User.Role.ADMIN, User.Role.PROJECT_MANAGER))
+    return user_has_role(
+        user,
+        (User.Role.ADMIN,)
+    )
+
+def is_manager_of_task(user, task) -> bool:
+    if not is_authenticated(user):
+        return False
+
+    if user.role != User.Role.MANAGER:
+        return False
+
+    # Task creator is direct report
+    if (
+        task.created_by
+        and task.created_by.manager
+        and task.created_by.manager.user_id == user.id
+    ):
+        return True
+
+    # Any assignee is direct report
+    return task.assignments.filter(
+        employee__manager__user_id=user.id
+    ).exists()
 
 
 # =========================
@@ -135,16 +155,15 @@ def can_view_task(user, task) -> bool:
         ProjectMember.Role.VIEWER,
     ):
         return True
+    # Manager can view direct report tasks
+    if is_manager_of_task(user, task):
+        return True
 
     # 3. Task-level access
     if task.created_by.user_id == user.id:
         return True
 
     if task.assignments.filter(employee__user=user).exists():
-        return True
-
-    # 4. Manager fallback
-    if user.role == User.Role.MANAGER:
         return True
 
     return False
@@ -155,10 +174,7 @@ def can_manage_task(user, task) -> bool:
         return False
 
     # 1. Admin override
-    if user.is_superuser or user.role in (
-        User.Role.ADMIN,
-        User.Role.PROJECT_MANAGER,
-    ):
+    if user.is_superuser or user.role == User.Role.ADMIN:
         return True
 
     # 2. Project manager or owner
@@ -170,6 +186,9 @@ def can_manage_task(user, task) -> bool:
     if project_role == ProjectMember.Role.TEAM_LEAD:
         return True
 
+    # Manager can manage direct report tasks
+    if is_manager_of_task(user, task):
+        return True
     # 4. Task creator can manage
     if task.created_by.user_id == user.id:
         return True

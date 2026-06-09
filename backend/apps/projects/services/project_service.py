@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
 from apps.accounts.models import User
-from apps.core.rbac.permissions import user_has_role
+from apps.core.rbac.policies import can_create_project
 from apps.core.rbac.rules import can_manage_project
 from apps.core.services.audit_service import AuditService
 
@@ -21,12 +21,11 @@ class ProjectService:
     @staticmethod
     @transaction.atomic
     def create(*, cleaned_data, user=None, request=None):
-        # 1. Create project first (no RBAC yet, because no object exists)
-        project = Project.objects.create(**cleaned_data)
-
-        # 2. RBAC check AFTER creation (or use role gate BEFORE if needed)
-        if not can_manage_project(user, project):
+        # RBAC check BEFORE creation
+        if not can_create_project(user):
             raise PermissionDenied
+
+        project = Project.objects.create(**cleaned_data)
 
         # 3. Ensure owner is project manager
         ProjectMember.objects.get_or_create(

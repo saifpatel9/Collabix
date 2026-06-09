@@ -1,14 +1,17 @@
-from apps.core.rbac import (
-    can_create_project,
-    can_create_team,
+from apps.core.rbac.permissions import (
     can_manage_employees,
-    can_view_admin_dashboard,
-    can_view_all_activity,
     can_view_employee_directory,
-    can_view_people,
     is_admin,
     is_employee,
     is_manager,
+)
+
+from apps.core.rbac.policies import (
+    can_create_project,
+    can_create_team,
+    can_view_admin_dashboard,
+    can_view_all_activity,
+    can_view_people,
 )
 
 

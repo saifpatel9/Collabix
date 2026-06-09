@@ -7,11 +7,14 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
-from apps.core.rbac import (
+from apps.core.rbac.permissions import (
     MANAGEMENT_ROLES,
+    user_has_role,
+)
+
+from apps.core.rbac.rules import (
     can_manage_milestone,
     can_manage_project,
-    user_has_role,
 )
 from apps.core.permissions import ManagerRequiredMixin, ProjectManagerRequiredMixin
 
@@ -70,8 +73,9 @@ class TeamDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["memberships"] = TeamSelector.memberships_for(self.object)
         context["membership_form"] = TeamMembershipForm(team=self.object)
-        context["can_manage_team"] = user_has_role
-        (self.request.user, MANAGEMENT_ROLES)
+        context["can_manage_team"] = user_has_role(
+            self.request.user,
+            MANAGEMENT_ROLES,)
         return context
 
 

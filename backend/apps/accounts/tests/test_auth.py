@@ -44,7 +44,7 @@ class EmployeeOnboardingTests(TestCase):
             full_name="Test User",
             password="TempPass123!"
         )
-        self.assertFalse(user.must_change_password)
+        self.assertTrue(user.must_change_password)
     
     def test_login_page_exists(self):
         response = self.client.get(reverse("accounts:login"))

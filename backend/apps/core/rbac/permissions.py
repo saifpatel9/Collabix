@@ -136,3 +136,15 @@ def can_manage_tasks(user):
         User.Role.PROJECT_MANAGER,
         User.Role.MANAGER,
     ))
+
+# ---------------------------------
+# Backward compatibility aliases
+# ---------------------------------
+
+user_has_role = has_role
+
+ADMIN_ONLY_ROLES = ADMIN_ROLES
+HR_ACCESS_ROLES = HR_MODULE_ROLES
+DEPARTMENT_ACCESS_ROLES = DEPARTMENT_MODULE_ROLES
+PROJECT_MODULE_ACCESS_ROLES = PROJECT_MODULE_ROLES
+INTERNAL_USER_ROLES = INTERNAL_ROLES
