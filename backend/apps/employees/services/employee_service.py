@@ -80,20 +80,44 @@ class EmployeeService:
 
     @staticmethod
     def _extract_user_data(cleaned_data):
-        return {
-            "full_name": cleaned_data.pop("user_full_name"),
-            "email": cleaned_data.pop("user_email"),
-            "role": cleaned_data.pop("user_role"),
-            "phone": cleaned_data.pop("user_phone", ""),
+        mapping = {
+            "user_full_name": "full_name",
+            "user_email": "email",
+            "user_role": "role",
+            "user_phone": "phone",
         }
+
+        user_data = {}
+
+        for serializer_field, user_field in mapping.items():
+            if serializer_field in cleaned_data:
+                user_data[user_field] = cleaned_data.pop(serializer_field)
+
+        return user_data
 
     @staticmethod
     @transaction.atomic
     def create(*, cleaned_data, performed_by=None):
-        if not user_has_role(performed_by, (User.Role.ADMIN, User.Role.HR_MANAGER)):
+        if not user_has_role(
+            performed_by,
+            (User.Role.ADMIN, User.Role.HR_MANAGER)
+        ):
             raise PermissionDenied
+
         user_data = EmployeeService._extract_user_data(cleaned_data)
+
+        # Prevent non-admins from creating admin users
+        requested_role = user_data.get("role")
+        if (
+            requested_role == User.Role.ADMIN
+            and performed_by.role != User.Role.ADMIN
+        ):
+            raise PermissionDenied(
+                "Only admins can assign the admin role."
+            )
+
         UserModel = get_user_model()
+
         user = UserModel.objects.create_user(
             email=user_data["email"],
             password="ChangeMe@123",
@@ -102,7 +126,11 @@ class EmployeeService:
             phone=user_data["phone"],
             is_active=True,
         )
-        return EmployeeProfile.objects.create(user=user, **cleaned_data)
+
+        return EmployeeProfile.objects.create(
+            user=user,
+            **cleaned_data
+        )
     
 
     @staticmethod
@@ -112,6 +140,16 @@ class EmployeeService:
             raise PermissionDenied
 
         user_data = EmployeeService._extract_user_data(cleaned_data)
+
+        # Prevent non-admins from assigning the admin role
+        requested_role = user_data.get("role")
+        if (
+            requested_role == User.Role.ADMIN
+            and performed_by.role != User.Role.ADMIN
+        ):
+            raise PermissionDenied(
+                "Only admins can assign the admin role."
+            )
 
         for field, value in user_data.items():
             setattr(employee.user, field, value)
@@ -124,22 +162,4 @@ class EmployeeService:
             setattr(employee, field, value)
 
         employee.save()
-        return employee
-
-    @staticmethod
-    @transaction.atomic
-    def update_status(*, employee, status, performed_by=None):
-        if not can_access_employee(performed_by, employee):
-            raise PermissionDenied
-        employee.employment_status = status
-        employee.save(update_fields=["employment_status", "updated_at"])
-
-        if status == EmployeeProfile.EmploymentStatus.INACTIVE:
-            employee.user.is_active = False
-            employee.user.save(update_fields=["is_active", "updated_at"])
-
-        elif employee.user.is_active is False:
-            employee.user.is_active = True
-            employee.user.save(update_fields=["is_active", "updated_at"])
-
         return employee
