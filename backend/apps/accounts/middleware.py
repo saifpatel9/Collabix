@@ -1,72 +1,65 @@
+import logging
+
+from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.conf import settings
+
+
+logger = logging.getLogger(__name__)
+
 
 class ForcePasswordChangeMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
+        # Cache URL paths once
+        self.password_change_path = reverse("accounts:change_password")
+        self.logout_path = reverse("accounts:logout")
+        self.password_reset_done_path = reverse("accounts:password_reset_done")
+
+        self.safe_paths = {
+            self.password_change_path.rstrip("/"),
+            self.logout_path.rstrip("/"),
+            self.password_reset_done_path.rstrip("/"),
+        }
+
     def __call__(self, request):
+        path = request.path
 
-        # Skip middleware entirely for:
-        # - Admin URLs
-        # - Static/media files
-        # - API URLs (if any)
-        if request.path.startswith(reverse("admin:index")):
-            print("SKIPPED: admin")
+        # Skip admin
+        if path.startswith(reverse("admin:index")):
             return self.get_response(request)
 
-        if request.path.startswith(settings.STATIC_URL):
-            print("SKIPPED: static")
+        # Skip static/media
+        if settings.STATIC_URL and path.startswith(settings.STATIC_URL):
             return self.get_response(request)
 
-        if request.path.startswith(settings.MEDIA_URL):
-            print("SKIPPED: media")
+        if settings.MEDIA_URL and path.startswith(settings.MEDIA_URL):
             return self.get_response(request)
 
-        if request.path.startswith("/api/"):
-            print("SKIPPED: api")
+        # Skip APIs
+        if path.startswith("/api/"):
             return self.get_response(request)
 
-        # Get user if available
         user = getattr(request, "user", None)
 
-
+        # Anonymous users proceed normally
         if not user or not user.is_authenticated:
-            print("RETURNING: anonymous user")
             return self.get_response(request)
 
-        # If user doesn't need to change password, proceed
+        # User already changed password
         if not getattr(user, "must_change_password", False):
-            print("RETURNING: password change NOT required")
             return self.get_response(request)
 
-        # Define safe paths where redirect shouldn't happen
-        try:
-            password_change_path = reverse("accounts:change_password")
-            logout_path = reverse("accounts:logout")
-            password_reset_done_path = reverse("accounts:password_reset_done")
-        except Exception as e:
-            print("REVERSE ERROR:", e)
+        current_path = path.rstrip("/")
+
+        # Allow access to password-related pages
+        if current_path in self.safe_paths:
             return self.get_response(request)
 
-        safe_paths = [
-            password_change_path,
-            logout_path,
-            password_reset_done_path,
-        ]
+        logger.info(
+            "Redirecting user %s to password change page",
+            getattr(user, "email", user.pk),
+        )
 
-        # Normalize paths by removing trailing slashes
-        def normalize(path):
-            return path.rstrip("/")
-
-        current_path_normalized = normalize(request.path)
-        safe_paths_normalized = [normalize(p) for p in safe_paths]
-
-        # If current path is safe, proceed
-        if current_path_normalized in safe_paths_normalized:
-            print("RETURNING: safe path")
-            return self.get_response(request)
-
-        # Otherwise, redirect to password change page
         return redirect("accounts:change_password")
