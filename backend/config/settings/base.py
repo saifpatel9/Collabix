@@ -32,6 +32,9 @@ env = environ.Env(
     SENTRY_DSN=(str, ""),
     CELERY_BROKER_URL=(str, ""),
     CELERY_RESULT_BACKEND=(str, ""),
+    SESSION_COOKIE_SECURE=(bool, False),
+    CSRF_COOKIE_SECURE=(bool, False),
+    SECURE_SSL_REDIRECT=(bool, False),
 )
 
 environ.Env.read_env(BASE_DIR.parent / ".env")

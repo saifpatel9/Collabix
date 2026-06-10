@@ -5,9 +5,19 @@ from .base import *  # noqa: F403,F401
 DEBUG = False
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)  # noqa: F405
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = env.bool(
+    "SECURE_SSL_REDIRECT",
+    default=True,
+)
+SESSION_COOKIE_SECURE = env.bool(
+    "SESSION_COOKIE_SECURE",
+    default=True,
+)
+
+CSRF_COOKIE_SECURE = env.bool(
+    "CSRF_COOKIE_SECURE",
+    default=True,
+)  # Set to True if using HTTPS in production
 SESSION_COOKIE_HTTPONLY = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
