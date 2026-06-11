@@ -1,5 +1,5 @@
 from pathlib import Path
-
+from celery.schedules import crontab
 import environ
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -244,3 +244,17 @@ CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BEAT_SCHEDULE = {
+    "clear-expired-sessions": {
+        "task": "apps.core.tasks.clear_expired_sessions",
+        "schedule": crontab(hour=2, minute=0),
+    },
+    "task-due-soon-reminders": {
+        "task": "apps.tasks.tasks.send_due_soon_reminders",
+        "schedule": crontab(hour=8, minute=0),
+    },
+    "task-overdue-reminders": {
+        "task": "apps.tasks.tasks.send_overdue_reminders",
+        "schedule": crontab(hour=9, minute=0),
+    },
+}
