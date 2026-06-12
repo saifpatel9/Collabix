@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY backend/requirements /app/requirements
 RUN pip install --upgrade pip && \
-    pip install -r /app/requirements/production.txt
+    pip install -r /app/requirements/development.txt
 
 COPY backend /app/backend
 COPY --from=assets /app/backend/static/dist /app/backend/static/dist

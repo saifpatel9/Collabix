@@ -119,13 +119,13 @@ class EmployeeService:
         UserModel = get_user_model()
 
         user = UserModel.objects.create_user(
-            email=user_data["email"],
-            password="ChangeMe@123",
-            full_name=user_data["full_name"],
-            role=user_data["role"],
-            phone=user_data["phone"],
-            is_active=True,
-        )
+        email=user_data["email"],
+        password="ChangeMe@123",
+        full_name=user_data["full_name"],
+        role=user_data["role"],
+        phone=user_data.get("phone", ""),
+        is_active=True,
+    )
 
         return EmployeeProfile.objects.create(
             user=user,

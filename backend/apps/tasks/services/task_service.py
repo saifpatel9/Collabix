@@ -5,8 +5,8 @@ from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.core.rbac.permissions import is_authenticated
 from apps.core.rbac.rules import can_edit_task, can_execute_task, can_view_project
+
 
 from ..models import Task, TaskActivity, TaskDependency
 from ._helpers import (
@@ -147,13 +147,26 @@ class TaskService:
                 old_value={"status": old_status},
                 new_value={"status": task.status},
             )
+
             if task.status == Task.Status.COMPLETED:
-                notify_task_assignees(
-                    task=task,
-                    title="Task completed",
-                    message=f"{task.task_code} was marked completed.",
-                    exclude_employee=actor,
-                    action_url=reverse("tasks:task_detail", kwargs={"pk": task.pk}),
+                from apps.tasks.tasks import send_task_notification
+                
+                task_id = task.id
+                task_code = task.task_code
+                task_url = reverse(
+                    "tasks:task_detail",
+                    kwargs={"pk": task.pk},
+                )
+                actor_id = actor.id if actor else None
+
+                transaction.on_commit(
+                    lambda: send_task_notification.delay(
+                        task_id,
+                        "Task completed",
+                        f"{task_code} was marked completed.",
+                        task_url,
+                        actor_id,
+                    )
                 )
         if old_priority != task.priority:
             TaskActivityService.record(

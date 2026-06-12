@@ -19,5 +19,8 @@ app.autodiscover_tasks()
 
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
-    logger.info("Celery debug task executed: {self.request!r}")
+    logger.info(
+    "Celery debug task executed: %r",
+    self.request,
+)
 
