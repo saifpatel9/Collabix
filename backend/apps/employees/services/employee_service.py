@@ -6,6 +6,7 @@ from django.db.models import Q
 from apps.accounts.models import User
 from apps.core.rbac.permissions import user_has_role
 from apps.core.rbac.rules import can_access_employee
+from apps.employees.tasks import employee_onboarding
 
 from ..models import EmployeeProfile
 
@@ -127,11 +128,16 @@ class EmployeeService:
         is_active=True,
     )
 
-        return EmployeeProfile.objects.create(
+        employee = EmployeeProfile.objects.create(
             user=user,
             **cleaned_data
         )
-    
+        employee_id = employee.id
+
+        transaction.on_commit(
+            lambda: employee_onboarding.delay(employee_id)
+        )
+        return employee
 
     @staticmethod
     @transaction.atomic
