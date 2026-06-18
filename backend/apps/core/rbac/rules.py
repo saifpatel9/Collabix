@@ -1,8 +1,20 @@
+import logging
+
 from apps.accounts.models import User
 from apps.projects.models import ProjectMember
 
 from .permissions import is_authenticated, user_has_role
 
+logger = logging.getLogger(__name__)
+
+def log_access_denied(user, action, resource=None):
+    logger.warning(
+        "RBAC access denied user_id=%s role=%s action=%s resource=%s",
+        getattr(user, "id", None),
+        getattr(user, "role", None),
+        action,
+        resource,
+    )
 
 # =========================
 # Project Roles
@@ -49,10 +61,19 @@ def can_manage_project(user, project) -> bool:
 
     role = user_project_role(user, project)
 
-    return role in (
+    allowed = role in (
         "owner",
         ProjectMember.Role.PROJECT_MANAGER,
     )
+
+    if not allowed:
+        log_access_denied(
+            user,
+            "manage_project",
+            project.pk,
+        )
+
+    return allowed
 
 
 def can_view_project(user, project) -> bool:
@@ -64,13 +85,22 @@ def can_view_project(user, project) -> bool:
 
     role = user_project_role(user, project)
 
-    return role in (
+    allowed = role in (
         "owner",
         ProjectMember.Role.PROJECT_MANAGER,
         ProjectMember.Role.TEAM_LEAD,
         ProjectMember.Role.CONTRIBUTOR,
         ProjectMember.Role.VIEWER,
     )
+
+    if not allowed:
+        log_access_denied(
+            user,
+            "view_project",
+            project.pk,
+        )
+
+    return allowed
 
 
 def can_manage_milestone(user, project) -> bool:
@@ -166,6 +196,12 @@ def can_view_task(user, task) -> bool:
     if task.assignments.filter(employee__user=user).exists():
         return True
 
+    log_access_denied(
+        user,
+        "view_task",
+        task.pk,
+    )
+
     return False
 
 
@@ -192,6 +228,12 @@ def can_manage_task(user, task) -> bool:
     # 4. Task creator can manage
     if task.created_by.user_id == user.id:
         return True
+
+    log_access_denied(
+        user,
+        "manage_task",
+        task.pk,
+    )
 
     return False
 
@@ -232,24 +274,66 @@ def can_access_employee(user, employee) -> bool:
     # 3. Department Admin → same department only
     if user.role == User.Role.DEPARTMENT_ADMIN:
         user_profile = getattr(user, "employee_profile", None)
+
         if not user_profile:
+            log_access_denied(
+                user,
+                "access_employee",
+                employee.pk,
+            )
             return False
 
-        return (
+        allowed = (
             getattr(user_profile, "department_id", None)
             == getattr(employee, "department_id", None)
         )
 
+        if not allowed:
+            log_access_denied(
+                user,
+                "access_employee",
+                employee.pk,
+            )
+
+        return allowed
+
     # 4. Manager → direct reports + self
     if user.role == User.Role.MANAGER:
-        return (
+        allowed = (
             (employee.manager and employee.manager.user_id == user.id)
             or employee.user_id == user.id
         )
 
+        if not allowed:
+            log_access_denied(
+                user,
+                "access_employee",
+                employee.pk,
+            )
+
+        return allowed
+
     # 5. Project Manager → self only
     if user.role == User.Role.PROJECT_MANAGER:
-        return employee.user_id == user.id
+        allowed = employee.user_id == user.id
+
+        if not allowed:
+            log_access_denied(
+                user,
+                "access_employee",
+                employee.pk,
+            )
+
+        return allowed
 
     # 6. Employee → self only
-    return employee.user_id == user.id
+    allowed = employee.user_id == user.id
+
+    if not allowed:
+        log_access_denied(
+            user,
+            "access_employee",
+            employee.pk,
+        )
+
+    return allowed

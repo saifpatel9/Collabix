@@ -53,7 +53,7 @@ INTERNAL_ROLES = ALL_MANAGEMENT_ROLES
 
 
 # =========================================================
-# CORE AUTH HELPERS (FIXED)
+# CORE AUTH HELPERS
 # =========================================================
 
 def is_authenticated(user) -> bool:
@@ -131,11 +131,15 @@ def can_manage_projects(user):
 
 
 def can_manage_tasks(user):
-    return has_role(user, (
-        User.Role.ADMIN,
-        User.Role.PROJECT_MANAGER,
-        User.Role.MANAGER,
-    ))
+    return has_role(
+        user,
+        (
+            User.Role.ADMIN,
+            User.Role.PROJECT_MANAGER,
+            User.Role.MANAGER,
+        ),
+    )
+
 
 # ---------------------------------
 # Backward compatibility aliases

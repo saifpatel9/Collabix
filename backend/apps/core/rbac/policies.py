@@ -1,6 +1,6 @@
 from apps.core.rbac.permissions import (
     can_manage_projects,
-    can_manage_tasks,
+    can_manage_tasks as permission_can_manage_tasks,
     can_view_employee_directory,
     is_admin,
 )
@@ -25,5 +25,6 @@ def can_view_admin_dashboard(user):
 def can_view_all_activity(user):
     return is_admin(user)
 
+
 def can_manage_tasks(user):
-    return can_manage_tasks(user)
+    return permission_can_manage_tasks(user)
