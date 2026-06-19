@@ -54,7 +54,8 @@ RUN mkdir -p \
     /app/backend/logs \
     /app/backend/staticfiles \
     /app/backend/media \
-    /app/backend/backups/database && \
+    /app/backend/backups/database \
+    /app/backend/backups/media && \
     addgroup --system --gid 1001 collabix && \
     adduser --system --uid 1001 --gid 1001 collabix && \
     chown -R collabix:collabix \

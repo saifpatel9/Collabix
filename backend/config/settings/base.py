@@ -22,6 +22,7 @@ env = environ.Env(
     MYSQL_PASSWORD=(str, "collabix"),
     MYSQL_HOST=(str, "127.0.0.1"),
     MYSQL_PORT=(int, 3306),
+    MYSQL_ROOT_PASSWORD=(str, ""),
     EMAIL_BACKEND=(str, "django.core.mail.backends.smtp.EmailBackend"),
     EMAIL_HOST=(str, "localhost"),
     EMAIL_PORT=(int, 587),
@@ -124,6 +125,8 @@ DATABASES = {
     }
 }
 
+MYSQL_ROOT_PASSWORD = env("MYSQL_ROOT_PASSWORD")
+
 AUTH_USER_MODEL = "accounts.User"
 AUTHENTICATION_BACKENDS = ["apps.accounts.backends.EmailAuthenticationBackend"]
 
@@ -152,8 +155,13 @@ MEDIA_ROOT = BASE_DIR / "media"
 BACKUP_ROOT = BASE_DIR / "backups"
 
 DATABASE_BACKUP_DIR = BACKUP_ROOT / "database"
+MEDIA_BACKUP_DIR = BACKUP_ROOT / "media"
+
 
 DATABASE_BACKUP_RETENTION_COUNT = 7
+MEDIA_BACKUP_RETENTION_COUNT = 7
+
+RESTORE_TEST_DATABASE = "collabix_restore_test"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -255,9 +263,21 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.core.tasks.backup_database",
         "schedule": crontab(hour=1, minute=0),
     },
+    "daily-media-backup": {
+        "task": "apps.core.tasks.backup_media",
+        "schedule": crontab(hour=2, minute=0),
+    },
+    "weekly-database-restore-verification": {
+        "task": "apps.core.tasks.verify_database_backup",
+        "schedule": crontab(
+            day_of_week=0,
+            hour=4,
+            minute=0,
+    ),
+    },
     "clear-expired-sessions": {
         "task": "apps.core.tasks.clear_expired_sessions",
-        "schedule": crontab(hour=2, minute=0),
+        "schedule": crontab(hour=3, minute=0),
     },
     "task-due-soon-reminders": {
         "task": "apps.tasks.tasks.send_due_soon_reminders",
