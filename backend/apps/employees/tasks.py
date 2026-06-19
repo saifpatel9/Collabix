@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
     retry_kwargs={"max_retries": 3},
 )
 def employee_onboarding(employee_id):
+    logger.info(
+        "Starting employee onboarding employee_id=%s",
+        employee_id,
+    )
+
     employee = (
         EmployeeProfile.objects.select_related(
             "user",
@@ -28,7 +33,7 @@ def employee_onboarding(employee_id):
 
     if not employee:
         logger.warning(
-            "Employee %s no longer exists",
+            "Employee onboarding aborted employee_id=%s reason=employee_not_found",
             employee_id,
         )
         return
@@ -57,6 +62,6 @@ def employee_onboarding(employee_id):
         )
 
     logger.info(
-        "Employee onboarding completed for employee_id=%s",
+        "Employee onboarding completed employee_id=%s",
         employee_id,
     )

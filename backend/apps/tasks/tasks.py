@@ -12,15 +12,29 @@ logger = logging.getLogger(__name__)
 
 @shared_task
 def send_due_soon_reminders():
+    logger.info("Starting due-soon reminder task")
+
     count = TaskService.notify_due_soon(days=1)
-    logger.info("Sent %s due-soon reminders", count)
+
+    logger.info(
+        "Due-soon reminder task completed reminders_sent=%s",
+        count,
+    )
+
     return count
 
 
 @shared_task
 def send_overdue_reminders():
+    logger.info("Starting overdue reminder task")
+
     count = TaskService.notify_overdue()
-    logger.info("Sent %s overdue reminders", count)
+
+    logger.info(
+        "Overdue reminder task completed reminders_sent=%s",
+        count,
+    )
+
     return count
 
 
@@ -36,11 +50,16 @@ def send_task_notification(
     action_url=None,
     exclude_employee_id=None,
 ):
+    logger.info(
+        "Starting task notification task task_id=%s",
+        task_id,
+    )
+
     task = Task.objects.filter(pk=task_id).first()
 
     if not task:
         logger.warning(
-            "Task %s no longer exists",
+            "Task notification aborted task_id=%s reason=task_not_found",
             task_id,
         )
         return
@@ -61,6 +80,6 @@ def send_task_notification(
     )
 
     logger.info(
-        "Task notification sent for task_id=%s",
+        "Task notification completed task_id=%s",
         task_id,
     )

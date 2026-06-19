@@ -17,6 +17,7 @@ def health_check(request):
         cache.get("health_check")
         status["cache"] = "ok"
     except Exception as e:
+        logger.exception("Cache health check failed")
         status["cache"] = f"error: {e}"
         status["status"] = "degraded"
 
@@ -26,9 +27,9 @@ def health_check(request):
         conn.close()
         status["redis"] = "ok"
     except Exception as e:
+        logger.exception("Redis health check failed")
         status["redis"] = f"error: {e}"
         status["status"] = "degraded"
-
     try:
         celery_app = current_app
         celery_app.control.ping(timeout=3.0)
@@ -38,11 +39,12 @@ def health_check(request):
         status["status"] = "degraded"
 
     try:
-        from django.db import connections
-        connections["default"].cursor()
-        status["database"] = "ok"
+        celery_app = current_app
+        celery_app.control.ping(timeout=3.0)
+        status["celery"] = "ok"
     except Exception as e:
-        status["database"] = f"error: {e}"
+        logger.exception("Celery health check failed")
+        status["celery"] = f"error: {e}"
         status["status"] = "degraded"
 
     status_code = 200 if status["status"] == "ok" else 503
