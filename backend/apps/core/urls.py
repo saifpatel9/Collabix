@@ -10,5 +10,4 @@ urlpatterns = [
         "activity/recent/", RecentActivityPartialView.as_view(), name="recent_activity"
     ),
     path("audit/timeline/", AuditTimelineView.as_view(), name="audit_timeline"),
-    path("sentry-test/", sentry_test),
 ]
