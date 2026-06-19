@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import AuditTimelineView, GlobalSearchView, RecentActivityPartialView
+from .views import AuditTimelineView, GlobalSearchView, RecentActivityPartialView, sentry_test
 
 app_name = "core"
 
@@ -10,4 +10,5 @@ urlpatterns = [
         "activity/recent/", RecentActivityPartialView.as_view(), name="recent_activity"
     ),
     path("audit/timeline/", AuditTimelineView.as_view(), name="audit_timeline"),
+    path("sentry-test/", sentry_test),
 ]

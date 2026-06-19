@@ -77,11 +77,26 @@ LOGGING = {
     },
 }
 
-SENTRY_DSN = env("SENTRY_DSN", default=None)  # noqa: F405
+SENTRY_DSN = env("SENTRY_DSN", default=None)
+
 if SENTRY_DSN:
     import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
+
+        integrations=[
+            DjangoIntegration(),
+            CeleryIntegration(),
+        ],
+
         traces_sample_rate=0.1,
+
+        environment="production",
+
+        release="1.0.0",
+
         send_default_pii=False,
     )

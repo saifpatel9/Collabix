@@ -4,6 +4,9 @@ from django.views.generic import TemplateView
 from apps.core.models import Activity, AuditLog
 from apps.core.services.search_service import GlobalSearchService
 
+from django.http import HttpResponse
+
+
 
 class GlobalSearchView(LoginRequiredMixin, TemplateView):
     template_name = "components/search_dropdown.html"
@@ -36,3 +39,6 @@ class AuditTimelineView(LoginRequiredMixin, TemplateView):
             "-timestamp"
         )[:25]
         return context
+    
+def sentry_test(request):
+    raise Exception("Sentry test error")
