@@ -149,6 +149,12 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+BACKUP_ROOT = BASE_DIR / "backups"
+
+DATABASE_BACKUP_DIR = BACKUP_ROOT / "database"
+
+DATABASE_BACKUP_RETENTION_COUNT = 7
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
@@ -245,6 +251,10 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BEAT_SCHEDULE = {
+    "daily-database-backup": {
+        "task": "apps.core.tasks.backup_database",
+        "schedule": crontab(hour=1, minute=0),
+    },
     "clear-expired-sessions": {
         "task": "apps.core.tasks.clear_expired_sessions",
         "schedule": crontab(hour=2, minute=0),

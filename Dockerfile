@@ -29,6 +29,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     default-libmysqlclient-dev \
+    default-mysql-client \
     pkg-config \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -52,14 +53,16 @@ RUN chmod +x /app/scripts/entrypoint.sh \
 RUN mkdir -p \
     /app/backend/logs \
     /app/backend/staticfiles \
-    /app/backend/media && \
+    /app/backend/media \
+    /app/backend/backups/database && \
     addgroup --system --gid 1001 collabix && \
     adduser --system --uid 1001 --gid 1001 collabix && \
     chown -R collabix:collabix \
         /app/backend/logs \
         /app/backend/staticfiles \
-        /app/backend/media
-
+        /app/backend/media \
+        /app/backend/backups
+    
 USER collabix
 
 WORKDIR /app/backend

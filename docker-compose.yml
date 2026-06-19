@@ -47,6 +47,7 @@ services:
     volumes:
       - static_volume:/app/backend/staticfiles
       - media_volume:/app/backend/media
+      - backups_volume:/app/backend/backups
     depends_on:
       mysql:
         condition: service_healthy
@@ -73,6 +74,7 @@ services:
     volumes:
       - static_volume:/app/backend/staticfiles
       - media_volume:/app/backend/media
+      - backups_volume:/app/backend/backups
     depends_on:
       mysql:
         condition: service_healthy
@@ -95,6 +97,7 @@ services:
     volumes:
       - static_volume:/app/backend/staticfiles
       - media_volume:/app/backend/media
+      - backups_volume:/app/backend/backups
     depends_on:
       mysql:
         condition: service_healthy
@@ -120,3 +123,4 @@ volumes:
   redis_data:
   static_volume:
   media_volume:
+  backups_volume:
