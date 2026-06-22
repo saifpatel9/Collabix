@@ -60,6 +60,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "channels",
+    "csp",
 ]
 
 LOCAL_APPS = [
@@ -87,6 +88,7 @@ MIDDLEWARE = [
     "apps.accounts.middleware.ForcePasswordChangeMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "csp.middleware.CSPMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -237,6 +239,51 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
+    }
+}
+
+
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": ["'self'"],
+
+        "script-src": [
+            "'self'",
+            "'unsafe-inline'",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
+            "https://cdn.tailwindcss.com",
+        ],
+
+        "style-src": [
+            "'self'",
+            "'unsafe-inline'",
+            "https://fonts.googleapis.com",
+        ],
+
+        "font-src": [
+            "'self'",
+            "https://fonts.gstatic.com",
+            "data:",
+        ],
+
+        "img-src": [
+            "'self'",
+            "data:",
+            "blob:",
+        ],
+
+        "connect-src": [
+            "'self'",
+            "ws:",
+            "wss:",
+        ],
+
+        "object-src": ["'none'"],
+
+        "base-uri": ["'self'"],
+
+        "frame-ancestors": ["'none'"],
     }
 }
 

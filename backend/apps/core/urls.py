@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import AuditTimelineView, GlobalSearchView, RecentActivityPartialView, sentry_test
+from .views import AuditTimelineView, GlobalSearchView, RecentActivityPartialView
 
 app_name = "core"
 
